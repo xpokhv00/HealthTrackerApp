@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   FlatList,
   TouchableOpacity,
 } from 'react-native';
@@ -12,7 +11,7 @@ import {RootStackParamList} from '../navigation/types';
 import {useMedicationStore} from '../store/medicationStore';
 import MedicationCard from '../components/MedicationCard';
 import {Medication} from '../types/medication';
-import {useNavigation} from '@react-navigation/native';
+import Screen from '../components/Screen';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Medications'>;
 
@@ -30,8 +29,6 @@ const Section = ({
   if (data.length === 0) {
     return null;
   }
-
-  const navigation = useNavigation<any>();
 
   return (
     <View style={styles.section}>
@@ -58,7 +55,7 @@ const MedicationsScreen: React.FC<Props> = ({navigation}) => {
   const isEmpty = medications.length === 0;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen>
       <View style={styles.header}>
         <Text style={styles.title}>Medications</Text>
 
@@ -103,15 +100,11 @@ const MedicationsScreen: React.FC<Props> = ({navigation}) => {
           )}
         />
       )}
-    </SafeAreaView>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F6F8FB',
-  },
   header: {
     paddingHorizontal: 20,
     paddingTop: 12,
@@ -139,6 +132,7 @@ const styles = StyleSheet.create({
   listContent: {
     padding: 20,
     paddingTop: 12,
+    paddingBottom: 24,
   },
   section: {
     marginBottom: 18,

@@ -9,6 +9,7 @@ interface AppointmentStore {
   updateAppointment: (updatedAppointment: Appointment) => void;
   removeAppointment: (id: string) => void;
   getAppointmentById: (id: string) => Appointment | undefined;
+  clearAllAppointments: () => void;
 }
 
 export const useAppointmentStore = create<AppointmentStore>()(
@@ -43,6 +44,8 @@ export const useAppointmentStore = create<AppointmentStore>()(
 
       getAppointmentById: id =>
         get().appointments.find(item => item.id === id),
+
+      clearAllAppointments: () => set({appointments: []}),
     }),
     {
       name: 'appointment-storage',

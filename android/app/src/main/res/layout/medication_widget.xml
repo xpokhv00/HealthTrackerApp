@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/widget_root"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:padding="16dp"
+              android:background="@android:color/white">
+
+    <TextView
+            android:id="@+id/widget_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Health Companion"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#111827" />
+
+    <TextView
+            android:id="@+id/widget_medication_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="No medication"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#111827" />
+
+    <TextView
+            android:id="@+id/widget_medication_dosage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Add a routine medication"
+            android:textSize="14sp"
+            android:textColor="#667085" />
+
+    <TextView
+            android:id="@+id/widget_medication_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="No next time"
+            android:textSize="14sp"
+            android:textColor="#4C7EFF" />
+</LinearLayout>

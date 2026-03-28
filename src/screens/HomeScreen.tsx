@@ -23,6 +23,7 @@ import {
 } from '../utils/symptom';
 import {notificationService} from '../services/notificationService';
 import {colors} from '../theme/colors.ts';
+import {loadSeedData} from '../services/loadSeedData';
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -138,6 +139,14 @@ const HomeScreen: React.FC = () => {
         </View>
 
         <TouchableOpacity
+          style={styles.devButton}
+          onPress={async () => {
+            loadSeedData();
+          }}>
+          <Text style={styles.devButtonText}>Load demo data</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
           style={styles.testButton}
           onPress={() => notificationService.showInstantTestNotification()}>
           <Text style={styles.testButtonText}>Send test notification</Text>
@@ -236,6 +245,17 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: colors.primary,
+    fontWeight: '700',
+  },
+  devButton: {
+    marginTop: 12,
+    backgroundColor: '#111827',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  devButtonText: {
+    color: '#FFFFFF',
     fontWeight: '700',
   },
 });

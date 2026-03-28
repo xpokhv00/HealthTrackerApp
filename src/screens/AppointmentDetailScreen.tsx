@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
@@ -16,6 +15,7 @@ import {
 } from '../utils/appointment';
 import {notificationService} from '../services/notificationService';
 import { colors } from '../theme/colors.ts';
+import Screen from '../components/Screen';
 
 const AppointmentDetailScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -29,18 +29,18 @@ const AppointmentDetailScreen: React.FC = () => {
 
   if (!appointment) {
     return (
-      <SafeAreaView style={styles.container}>
+      <Screen>
         <View style={styles.center}>
           <Text style={styles.errorText}>Appointment not found.</Text>
         </View>
-      </SafeAreaView>
+      </Screen>
     );
   }
 
   const isUpcoming = isUpcomingAppointment(appointment);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.heroCard}>
           <Text style={styles.visitType}>{appointment.visitType}</Text>
@@ -103,7 +103,7 @@ const AppointmentDetailScreen: React.FC = () => {
           <Text style={styles.deleteButtonText}>Delete appointment</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </Screen>
   );
 };
 

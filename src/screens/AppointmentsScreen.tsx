@@ -13,7 +13,7 @@ import {
   getPastAppointments,
   getUpcomingAppointments,
 } from '../utils/appointment';
-import { Screen } from 'react-native-screens';
+import Screen from '../components/Screen';
 
 const AppointmentsScreen: React.FC = () => {
   const navigation = useNavigation<any>();

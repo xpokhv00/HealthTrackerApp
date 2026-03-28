@@ -14,6 +14,8 @@ import DateTimeField from '../components/DateTimeField';
 import Screen from '../components/Screen';
 import {colors} from '../theme/colors';
 import {notificationService} from '../services/notificationService';
+import {syncMedicationWidget} from '../services/widgetSync';
+
 import {
   getRoutineReminderDates,
   getRoutineReminderNotificationId,
@@ -124,6 +126,8 @@ const AddMedicationScreen: React.FC = () => {
         }),
       );
     }
+
+    await syncMedicationWidget(useMedicationStore.getState().medications);
 
     navigation.goBack();
   };

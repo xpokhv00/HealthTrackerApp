@@ -20,6 +20,8 @@ import {
 import {notificationService} from '../services/notificationService';
 import {getMedicationSnoozeNotificationId} from '../utils/medicationNotifications';
 import { colors } from '../theme/colors.ts';
+import Screen from '../components/Screen.tsx';
+import {syncMedicationWidget} from '../services/widgetSync';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MedicationDetail'>;
 
@@ -51,7 +53,7 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
     medication.type === 'as_needed' && (!availableNow || dailyLimitReached);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.heroCard}>
           <Text style={styles.name}>{medication.name}</Text>
@@ -60,7 +62,9 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
             {medication.form ? ` • ${medication.form}` : ''}
           </Text>
           <Text style={styles.type}>
-            {medication.type === 'routine' ? 'Routine medication' : 'As-needed medication'}
+            {medication.type === 'routine'
+              ? 'Routine medication'
+              : 'As-needed medication'}
           </Text>
         </View>
 
@@ -92,7 +96,8 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
           ) : (
             <>
               <Text style={styles.value}>
-                Min hours between doses: {medication.minHoursBetweenDoses ?? '-'}
+                Min hours between doses:{' '}
+                {medication.minHoursBetweenDoses ?? '-'}
               </Text>
               <Text style={styles.value}>
                 Max daily doses: {medication.maxDailyDoses ?? '-'}
@@ -125,8 +130,14 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
       <View style={styles.footer}>
         <TouchableOpacity
           style={[styles.takeButton, takeDisabled && styles.takeButtonDisabled]}
-          onPress={() => markMedicationTaken(medication.id)}
-          disabled={takeDisabled}>
+          onPress={async () => {
+            markMedicationTaken(medication.id);
+            await syncMedicationWidget(
+              useMedicationStore.getState().medications,
+            );
+          }}
+          disabled={takeDisabled}
+        >
           <Text style={styles.takeButtonText}>Mark as taken</Text>
         </TouchableOpacity>
 
@@ -136,27 +147,33 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
             navigation.navigate('AddMedication', {
               medicationId: medication.id,
             })
-          }>
+          }
+        >
           <Text style={styles.editButtonText}>Edit medication</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.deleteButton}
           onPress={async () => {
-
-            await notificationService.cancelMedicationRemindersByMedicationId(medication.id);
+            await notificationService.cancelMedicationRemindersByMedicationId(
+              medication.id,
+            );
 
             await notificationService.cancelMedicationReminder(
               getMedicationSnoozeNotificationId(medication.id),
             );
 
             removeMedication(medication.id);
+            await syncMedicationWidget(
+              useMedicationStore.getState().medications,
+            );
             navigation.goBack();
-          }}>
+          }}
+        >
           <Text style={styles.deleteButtonText}>Delete medication</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </Screen>
   );
 };
 
