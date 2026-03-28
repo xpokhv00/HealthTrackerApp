@@ -1,0 +1,180 @@
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {useAppointmentStore} from '../store/appointmentStore';
+import AppointmentCard from '../components/AppointmentCard';
+import {
+  getPastAppointments,
+  getUpcomingAppointments,
+} from '../utils/appointment';
+import { Screen } from 'react-native-screens';
+
+const AppointmentsScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
+  const appointments = useAppointmentStore(state => state.appointments);
+  const [selectedTab, setSelectedTab] = useState<'upcoming' | 'past'>('upcoming');
+
+  const upcomingAppointments = getUpcomingAppointments(appointments);
+  const pastAppointments = getPastAppointments(appointments);
+
+  const data =
+    selectedTab === 'upcoming' ? upcomingAppointments : pastAppointments;
+
+  return (
+    <Screen>
+      <View style={styles.header}>
+        <Text style={styles.title}>Appointments</Text>
+
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate('AddAppointment')}>
+          <Text style={styles.addButtonText}>+ Add</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.tabRow}>
+        <TouchableOpacity
+          style={[styles.tabButton, selectedTab === 'upcoming' && styles.tabButtonActive]}
+          onPress={() => setSelectedTab('upcoming')}>
+          <Text
+            style={[
+              styles.tabButtonText,
+              selectedTab === 'upcoming' && styles.tabButtonTextActive,
+            ]}>
+            Upcoming
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tabButton, selectedTab === 'past' && styles.tabButtonActive]}
+          onPress={() => setSelectedTab('past')}>
+          <Text
+            style={[
+              styles.tabButtonText,
+              selectedTab === 'past' && styles.tabButtonTextActive,
+            ]}>
+            Past
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {data.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyTitle}>
+            {selectedTab === 'upcoming'
+              ? 'No upcoming appointments'
+              : 'No past appointments'}
+          </Text>
+          <Text style={styles.emptyText}>
+            {selectedTab === 'upcoming'
+              ? 'Add your next doctor visit.'
+              : 'Past visits will appear here.'}
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={data}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContent}
+          renderItem={({item}) => (
+            <AppointmentCard
+              appointment={item}
+              onPress={() =>
+                navigation.navigate('AppointmentDetail', {
+                  appointmentId: item.id,
+                })
+              }
+            />
+          )}
+        />
+      )}
+    </Screen>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F6F8FB',
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  addButton: {
+    backgroundColor: '#4C7EFF',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  addButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  tabRow: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  tabButton: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#D0D5DD',
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  tabButtonActive: {
+    backgroundColor: '#4C7EFF',
+    borderColor: '#4C7EFF',
+  },
+  tabButtonText: {
+    color: '#344054',
+    fontWeight: '700',
+  },
+  tabButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  listContent: {
+    padding: 20,
+    paddingTop: 12,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1A1F36',
+  },
+  emptyText: {
+    marginTop: 8,
+    textAlign: 'center',
+    fontSize: 15,
+    color: '#667085',
+  },
+});
+
+export default AppointmentsScreen;
