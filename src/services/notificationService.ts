@@ -1,19 +1,57 @@
 import notifee, {
   AndroidImportance,
+  AndroidLaunchActivityFlag,
   RepeatFrequency,
   TimestampTrigger,
   TriggerType,
 } from '@notifee/react-native';
+import {NOTIFICATION_ACTIONS} from '../constants/notificationActions';
 
 const CHANNELS = {
   medication: 'medication-reminders',
   appointment: 'appointment-reminders',
 };
 
-import {AndroidLaunchActivityFlag} from '@notifee/react-native';
-import {NOTIFICATION_ACTIONS} from '../constants/notificationActions';
-
 type NotificationData = Record<string, string>;
+
+const buildMedicationNotificationData = (
+  medicationId: string,
+  extraData?: NotificationData,
+): NotificationData => ({
+  entityType: 'medication',
+  medicationId,
+  screen: 'MedicationDetail',
+  ...extraData,
+});
+
+const buildMedicationAndroidConfig = () => ({
+  channelId: CHANNELS.medication,
+  pressAction: {
+    id: 'default',
+  },
+  actions: [
+    {
+      title: 'Mark as taken',
+      pressAction: {
+        id: NOTIFICATION_ACTIONS.MARK_AS_TAKEN,
+      },
+    },
+    {
+      title: 'Snooze 10 min',
+      pressAction: {
+        id: NOTIFICATION_ACTIONS.SNOOZE_10_MIN,
+      },
+    },
+    {
+      title: 'Open',
+      pressAction: {
+        id: NOTIFICATION_ACTIONS.OPEN_MEDICATION,
+        launchActivity: 'default',
+        launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
+      },
+    },
+  ],
+});
 
 export const notificationService = {
   async requestPermission() {
@@ -55,23 +93,21 @@ export const notificationService = {
     });
   },
 
-  async scheduleRepeatingMedicationReminder(params: {
+  async scheduleMedicationReminder(params: {
     notificationId: string;
     title: string;
     body: string;
     timestamp: number;
     medicationId: string;
+    repeatFrequency?: RepeatFrequency;
+    extraData?: NotificationData;
   }) {
     const trigger: TimestampTrigger = {
       type: TriggerType.TIMESTAMP,
       timestamp: params.timestamp,
-      repeatFrequency: RepeatFrequency.DAILY,
-    };
-
-    const data: NotificationData = {
-      entityType: 'medication',
-      medicationId: params.medicationId,
-      screen: 'MedicationDetail',
+      ...(params.repeatFrequency
+        ? {repeatFrequency: params.repeatFrequency}
+        : {}),
     };
 
     await notifee.createTriggerNotification(
@@ -79,38 +115,39 @@ export const notificationService = {
         id: params.notificationId,
         title: params.title,
         body: params.body,
-        data,
-        android: {
-          channelId: CHANNELS.medication,
-          pressAction: {
-            id: 'default',
-          },
-          actions: [
-            {
-              title: 'Mark as taken',
-              pressAction: {
-                id: NOTIFICATION_ACTIONS.MARK_AS_TAKEN,
-              },
-            },
-            {
-              title: 'Snooze 10 min',
-              pressAction: {
-                id: NOTIFICATION_ACTIONS.SNOOZE_10_MIN,
-              },
-            },
-            {
-              title: 'Open',
-              pressAction: {
-                id: NOTIFICATION_ACTIONS.OPEN_MEDICATION,
-                launchActivity: 'default',
-                launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
-              },
-            },
-          ],
-        },
+        data: buildMedicationNotificationData(
+          params.medicationId,
+          params.extraData,
+        ),
+        android: buildMedicationAndroidConfig(),
       },
       trigger,
     );
+  },
+
+  async scheduleRepeatingMedicationReminder(params: {
+    notificationId: string;
+    title: string;
+    body: string;
+    timestamp: number;
+    medicationId: string;
+    repeatFrequency?: RepeatFrequency;
+  }) {
+    await this.scheduleMedicationReminder({
+      ...params,
+      repeatFrequency: params.repeatFrequency ?? RepeatFrequency.DAILY,
+    });
+  },
+
+  async scheduleOneTimeMedicationReminder(params: {
+    notificationId: string;
+    title: string;
+    body: string;
+    timestamp: number;
+    medicationId: string;
+    extraData?: NotificationData;
+  }) {
+    await this.scheduleMedicationReminder(params);
   },
 
   async scheduleAppointmentReminder(params: {
@@ -176,54 +213,15 @@ export const notificationService = {
     timestamp: number;
     medicationId: string;
   }) {
-    const trigger: TimestampTrigger = {
-      type: TriggerType.TIMESTAMP,
+    await this.scheduleMedicationReminder({
+      notificationId: params.notificationId,
+      title: params.title,
+      body: params.body,
       timestamp: params.timestamp,
-    };
-
-    const data: NotificationData = {
-      entityType: 'medication',
       medicationId: params.medicationId,
-      screen: 'MedicationDetail',
-      snoozed: 'true',
-    };
-
-    await notifee.createTriggerNotification(
-      {
-        id: params.notificationId,
-        title: params.title,
-        body: params.body,
-        data,
-        android: {
-          channelId: CHANNELS.medication,
-          pressAction: {
-            id: 'default',
-          },
-          actions: [
-            {
-              title: 'Mark as taken',
-              pressAction: {
-                id: NOTIFICATION_ACTIONS.MARK_AS_TAKEN,
-              },
-            },
-            {
-              title: 'Snooze 10 min',
-              pressAction: {
-                id: NOTIFICATION_ACTIONS.SNOOZE_10_MIN,
-              },
-            },
-            {
-              title: 'Open',
-              pressAction: {
-                id: NOTIFICATION_ACTIONS.OPEN_MEDICATION,
-                launchActivity: 'default',
-                launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
-              },
-            },
-          ],
-        },
+      extraData: {
+        snoozed: 'true',
       },
-      trigger,
-    );
-  }
+    });
+  },
 };

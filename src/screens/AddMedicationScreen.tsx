@@ -1,25 +1,38 @@
 import React, {useMemo, useState} from 'react';
 import {
-  Text,
+  Alert,
+  ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  Alert,
+  View,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {useMedicationStore} from '../store/medicationStore';
-import DateTimeField from '../components/DateTimeField';
-import Screen from '../components/Screen';
-import {colors} from '../theme/colors';
-import {notificationService} from '../services/notificationService';
-import {syncMedicationWidget} from '../services/widgetSync';
-import {Medication, MedicationType, RoutineFrequencyType} from '../types/medication';
 
+import Screen from '../components/Screen';
+import DateTimeField from '../components/DateTimeField';
+import {colors} from '../theme/colors';
+import {useMedicationStore} from '../store/medicationStore';
+import {notificationService} from '../services/notificationService';
+import {syncAllWidgets} from '../services/widgetSync';
+import {
+  Medication,
+  MedicationType,
+  RoutineFrequencyType,
+} from '../types/medication';
 import {
   getRoutineReminderDates,
   getRoutineReminderNotificationId,
 } from '../utils/medicationNotifications';
+
+const TIME_24H_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+const parseScheduledTimes = (value: string) =>
+  value
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean);
 
 const AddMedicationScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -57,7 +70,9 @@ const AddMedicationScreen: React.FC = () => {
   );
   const [notes, setNotes] = useState(existingMedication?.notes ?? '');
   const [startDate, setStartDate] = useState<Date | null>(
-    existingMedication?.startDate ? new Date(existingMedication.startDate) : new Date(),
+    existingMedication?.startDate
+      ? new Date(existingMedication.startDate)
+      : new Date(),
   );
   const [endDate, setEndDate] = useState<Date | null>(
     existingMedication?.endDate ? new Date(existingMedication.endDate) : null,
@@ -69,10 +84,103 @@ const AddMedicationScreen: React.FC = () => {
     String(existingMedication?.intervalDays ?? 2),
   );
 
+  const parsedTimes = useMemo(
+    () => parseScheduledTimes(scheduledTimes),
+    [scheduledTimes],
+  );
+
   const handleSave = async () => {
     if (!name.trim() || !dosage.trim()) {
       Alert.alert('Missing information', 'Please fill in name and dosage.');
       return;
+    }
+
+    if (startDate && endDate && endDate.getTime() < startDate.getTime()) {
+      Alert.alert(
+        'Invalid dates',
+        'End date cannot be earlier than the start date.',
+      );
+      return;
+    }
+
+    let normalizedScheduledTimes: string[] | undefined;
+    let normalizedTimesPerDay: number | undefined;
+    let normalizedIntervalDays: number | undefined;
+    let normalizedMinHoursBetweenDoses: number | undefined;
+    let normalizedMaxDailyDoses: number | undefined;
+
+    if (type === 'routine') {
+      normalizedScheduledTimes = parsedTimes;
+
+      if (normalizedScheduledTimes.length === 0) {
+        Alert.alert(
+          'Missing schedule',
+          'Please enter at least one scheduled time in HH:MM format.',
+        );
+        return;
+      }
+
+      const invalidTime = normalizedScheduledTimes.find(
+        item => !TIME_24H_REGEX.test(item),
+      );
+
+      if (invalidTime) {
+        Alert.alert(
+          'Invalid time format',
+          `Use 24-hour time like 08:00 or 20:30. Problem: ${invalidTime}`,
+        );
+        return;
+      }
+
+      if (frequencyType === 'daily') {
+        normalizedTimesPerDay = Number(timesPerDay) || 1;
+
+        if (normalizedTimesPerDay < 1) {
+          Alert.alert(
+            'Invalid routine',
+            'Times per day must be at least 1.',
+          );
+          return;
+        }
+
+        if (normalizedScheduledTimes.length !== normalizedTimesPerDay) {
+          Alert.alert(
+            'Schedule mismatch',
+            'For a daily routine, the number of scheduled times should match times per day.',
+          );
+          return;
+        }
+      } else {
+        normalizedTimesPerDay = 1;
+        normalizedIntervalDays = Number(intervalDays) || 2;
+
+        if (normalizedIntervalDays < 2) {
+          Alert.alert(
+            'Invalid interval',
+            'Every X days should be 2 or more days.',
+          );
+          return;
+        }
+      }
+    } else {
+      normalizedMinHoursBetweenDoses = Number(minHoursBetweenDoses) || 4;
+      normalizedMaxDailyDoses = Number(maxDailyDoses) || 4;
+
+      if (normalizedMinHoursBetweenDoses < 1) {
+        Alert.alert(
+          'Invalid spacing',
+          'Minimum hours between doses must be at least 1.',
+        );
+        return;
+      }
+
+      if (normalizedMaxDailyDoses < 1) {
+        Alert.alert(
+          'Invalid daily limit',
+          'Maximum daily doses must be at least 1.',
+        );
+        return;
+      }
     }
 
     const medication: Medication = {
@@ -81,33 +189,17 @@ const AddMedicationScreen: React.FC = () => {
       dosage: dosage.trim(),
       form: form.trim() || undefined,
       type,
-
       frequencyType: type === 'routine' ? frequencyType : undefined,
-
-      timesPerDay:
-        type === 'routine'
-          ? frequencyType === 'daily'
-            ? Number(timesPerDay) || 1
-            : 1
-          : undefined,
-
-      scheduledTimes:
-        type === 'routine'
-          ? scheduledTimes
-            .split(',')
-            .map(item => item.trim())
-            .filter(Boolean)
-          : undefined,
-
+      timesPerDay: type === 'routine' ? normalizedTimesPerDay : undefined,
+      scheduledTimes: type === 'routine' ? normalizedScheduledTimes : undefined,
       intervalDays:
         type === 'routine' && frequencyType === 'interval_days'
-          ? Number(intervalDays) || 2
+          ? normalizedIntervalDays
           : undefined,
-
       minHoursBetweenDoses:
-        type === 'as_needed' ? Number(minHoursBetweenDoses) || 4 : undefined,
+        type === 'as_needed' ? normalizedMinHoursBetweenDoses : undefined,
       maxDailyDoses:
-        type === 'as_needed' ? Number(maxDailyDoses) || 4 : undefined,
+        type === 'as_needed' ? normalizedMaxDailyDoses : undefined,
       notes: notes.trim() || undefined,
       startDate: (startDate || new Date()).toISOString(),
       endDate: endDate ? endDate.toISOString() : undefined,
@@ -117,17 +209,17 @@ const AddMedicationScreen: React.FC = () => {
     };
 
     if (isEditMode) {
-      await notificationService.cancelMedicationRemindersByMedicationId(medication.id);
+      await notificationService.cancelMedicationRemindersByMedicationId(
+        medication.id,
+      );
       updateMedication(medication);
     } else {
       addMedication(medication);
     }
 
     if (medication.type === 'routine' && medication.scheduledTimes?.length) {
-      const validTimes = medication.scheduledTimes;
-
       await Promise.all(
-        validTimes.map(async time => {
+        medication.scheduledTimes.map(async time => {
           const reminderDate = getRoutineReminderDates({
             ...medication,
             scheduledTimes: [time],
@@ -140,7 +232,9 @@ const AddMedicationScreen: React.FC = () => {
           await notificationService.scheduleRepeatingMedicationReminder({
             notificationId: getRoutineReminderNotificationId(medication.id, time),
             title: `Medication reminder: ${medication.name}`,
-            body: `Time to take ${medication.dosage}${medication.form ? ` (${medication.form})` : ''}.`,
+            body: `Time to take ${medication.dosage}${
+              medication.form ? ` (${medication.form})` : ''
+            }.`,
             timestamp: reminderDate.getTime(),
             medicationId: medication.id,
           });
@@ -148,189 +242,220 @@ const AddMedicationScreen: React.FC = () => {
       );
     }
 
-    await syncMedicationWidget(useMedicationStore.getState().medications);
-
+    await syncAllWidgets();
     navigation.goBack();
   };
 
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-
-        <Text style={styles.label}>Name</Text>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          placeholder="e.g. Magnesium"
-          placeholderTextColor={colors.textSecondary}
-          style={styles.input}
-        />
-
-        <Text style={styles.label}>Dosage</Text>
-        <TextInput
-          value={dosage}
-          onChangeText={setDosage}
-          placeholder="e.g. 250 mg"
-          placeholderTextColor={colors.textSecondary}
-          style={styles.input}
-        />
-
-        <Text style={styles.label}>Form</Text>
-        <TextInput
-          value={form}
-          onChangeText={setForm}
-          placeholder="e.g. Tablet, spray, drops"
-          placeholderTextColor={colors.textSecondary}
-          style={styles.input}
-        />
-
-        <Text style={styles.label}>Type</Text>
-        <TouchableOpacity
-          style={[
-            styles.typeButton,
-            type === 'routine' && styles.typeButtonActive,
-          ]}
-          onPress={() => setType('routine')}>
-          <Text
-            style={[
-              styles.typeButtonText,
-              type === 'routine' && styles.typeButtonTextActive,
-            ]}>
-            Routine
+        <View style={styles.header}>
+          <Text style={styles.eyebrow}>
+            {isEditMode ? 'EDIT' : 'NEW'} MEDICATION
           </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.typeButton,
-            type === 'as_needed' && styles.typeButtonActive,
-          ]}
-          onPress={() => setType('as_needed')}>
-          <Text
-            style={[
-              styles.typeButtonText,
-              type === 'as_needed' && styles.typeButtonTextActive,
-            ]}>
-            As needed
+          <Text style={styles.title}>
+            {isEditMode ? 'Update medication' : 'Add medication'}
           </Text>
-        </TouchableOpacity>
+          <Text style={styles.subtitle}>
+            Save the schedule, reminders, and basic details in one place.
+          </Text>
+        </View>
 
-        {type === 'routine' ? (
-          <>
-            <Text style={styles.label}>Routine frequency</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Basic details</Text>
 
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="e.g. Magnesium"
+            placeholderTextColor={colors.textSecondary}
+            style={styles.input}
+          />
+
+          <Text style={styles.label}>Dosage</Text>
+          <TextInput
+            value={dosage}
+            onChangeText={setDosage}
+            placeholder="e.g. 250 mg"
+            placeholderTextColor={colors.textSecondary}
+            style={styles.input}
+          />
+
+          <Text style={styles.label}>Form</Text>
+          <TextInput
+            value={form}
+            onChangeText={setForm}
+            placeholder="e.g. Tablet, spray, drops"
+            placeholderTextColor={colors.textSecondary}
+            style={styles.input}
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Medication type</Text>
+
+          <View style={styles.toggleRow}>
             <TouchableOpacity
               style={[
-                styles.typeButton,
-                frequencyType === 'daily' && styles.typeButtonActive,
+                styles.segmentButton,
+                type === 'routine' && styles.segmentButtonActive,
               ]}
-              onPress={() => setFrequencyType('daily')}>
+              onPress={() => setType('routine')}>
               <Text
                 style={[
-                  styles.typeButtonText,
-                  frequencyType === 'daily' && styles.typeButtonTextActive,
+                  styles.segmentButtonText,
+                  type === 'routine' && styles.segmentButtonTextActive,
                 ]}>
-                Daily
+                Routine
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
-                styles.typeButton,
-                frequencyType === 'interval_days' && styles.typeButtonActive,
+                styles.segmentButton,
+                type === 'as_needed' && styles.segmentButtonActive,
               ]}
-              onPress={() => setFrequencyType('interval_days')}>
+              onPress={() => setType('as_needed')}>
               <Text
                 style={[
-                  styles.typeButtonText,
-                  frequencyType === 'interval_days' && styles.typeButtonTextActive,
+                  styles.segmentButtonText,
+                  type === 'as_needed' && styles.segmentButtonTextActive,
                 ]}>
-                Every X days
+                As needed
               </Text>
             </TouchableOpacity>
+          </View>
 
-            {frequencyType === 'daily' ? (
-              <>
-                <Text style={styles.label}>Times per day</Text>
-                <TextInput
-                  value={timesPerDay}
-                  onChangeText={setTimesPerDay}
-                  keyboardType="numeric"
-                  placeholder="1"
-                  placeholderTextColor={colors.textSecondary}
-                  style={styles.input}
-                />
-              </>
-            ) : (
-              <>
-                <Text style={styles.label}>Interval in days</Text>
-                <TextInput
-                  value={intervalDays}
-                  onChangeText={setIntervalDays}
-                  keyboardType="numeric"
-                  placeholder="2"
-                  placeholderTextColor={colors.textSecondary}
-                  style={styles.input}
-                />
-              </>
-            )}
+          {type === 'routine' ? (
+            <>
+              <Text style={styles.label}>Routine frequency</Text>
 
-            <Text style={styles.label}>Scheduled times</Text>
-            <TextInput
-              value={scheduledTimes}
-              onChangeText={setScheduledTimes}
-              placeholder="08:00, 20:00"
-              placeholderTextColor={colors.textSecondary}
-              style={styles.input}
-            />
-          </>
-        ) : (
-          <>
-            <Text style={styles.label}>Minimum hours between doses</Text>
-            <TextInput
-              value={minHoursBetweenDoses}
-              onChangeText={setMinHoursBetweenDoses}
-              keyboardType="numeric"
-              placeholder="4"
-              placeholderTextColor={colors.textSecondary}
-              style={styles.input}
-            />
+              <View style={styles.toggleRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.segmentButton,
+                    frequencyType === 'daily' && styles.segmentButtonActive,
+                  ]}
+                  onPress={() => setFrequencyType('daily')}>
+                  <Text
+                    style={[
+                      styles.segmentButtonText,
+                      frequencyType === 'daily' &&
+                      styles.segmentButtonTextActive,
+                    ]}>
+                    Daily
+                  </Text>
+                </TouchableOpacity>
 
-            <Text style={styles.label}>Maximum daily doses</Text>
-            <TextInput
-              value={maxDailyDoses}
-              onChangeText={setMaxDailyDoses}
-              keyboardType="numeric"
-              placeholder="4"
-              placeholderTextColor={colors.textSecondary}
-              style={styles.input}
-            />
-          </>
-        )}
+                <TouchableOpacity
+                  style={[
+                    styles.segmentButton,
+                    frequencyType === 'interval_days' &&
+                    styles.segmentButtonActive,
+                  ]}
+                  onPress={() => setFrequencyType('interval_days')}>
+                  <Text
+                    style={[
+                      styles.segmentButtonText,
+                      frequencyType === 'interval_days' &&
+                      styles.segmentButtonTextActive,
+                    ]}>
+                    Every X days
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-        <DateTimeField
-          label="Start date"
-          mode="date"
-          value={startDate}
-          onChange={setStartDate}
-        />
+              {frequencyType === 'daily' ? (
+                <>
+                  <Text style={styles.label}>Times per day</Text>
+                  <TextInput
+                    value={timesPerDay}
+                    onChangeText={setTimesPerDay}
+                    keyboardType="numeric"
+                    placeholder="1"
+                    placeholderTextColor={colors.textSecondary}
+                    style={styles.input}
+                  />
+                </>
+              ) : (
+                <>
+                  <Text style={styles.label}>Interval in days</Text>
+                  <TextInput
+                    value={intervalDays}
+                    onChangeText={setIntervalDays}
+                    keyboardType="numeric"
+                    placeholder="2"
+                    placeholderTextColor={colors.textSecondary}
+                    style={styles.input}
+                  />
+                </>
+              )}
 
-        <DateTimeField
-          label="End date"
-          mode="date"
-          value={endDate}
-          onChange={setEndDate}
-        />
+              <Text style={styles.label}>Scheduled times</Text>
+              <TextInput
+                value={scheduledTimes}
+                onChangeText={setScheduledTimes}
+                placeholder="08:00, 20:00"
+                placeholderTextColor={colors.textSecondary}
+                style={styles.input}
+              />
+              <Text style={styles.helperText}>
+                Separate multiple times with commas and use 24-hour format.
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.label}>Minimum hours between doses</Text>
+              <TextInput
+                value={minHoursBetweenDoses}
+                onChangeText={setMinHoursBetweenDoses}
+                keyboardType="numeric"
+                placeholder="4"
+                placeholderTextColor={colors.textSecondary}
+                style={styles.input}
+              />
 
-        <Text style={styles.label}>Notes</Text>
-        <TextInput
-          value={notes}
-          onChangeText={setNotes}
-          placeholder="Optional notes"
-          placeholderTextColor={colors.textSecondary}
-          style={[styles.input, styles.multilineInput]}
-          multiline
-        />
+              <Text style={styles.label}>Maximum daily doses</Text>
+              <TextInput
+                value={maxDailyDoses}
+                onChangeText={setMaxDailyDoses}
+                keyboardType="numeric"
+                placeholder="4"
+                placeholderTextColor={colors.textSecondary}
+                style={styles.input}
+              />
+            </>
+          )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Dates and notes</Text>
+
+          <DateTimeField
+            label="Start date"
+            mode="date"
+            value={startDate}
+            onChange={setStartDate}
+          />
+
+          <DateTimeField
+            label="End date"
+            mode="date"
+            value={endDate}
+            onChange={setEndDate}
+          />
+
+          <Text style={styles.label}>Notes</Text>
+          <TextInput
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Optional notes"
+            placeholderTextColor={colors.textSecondary}
+            style={[styles.input, styles.multilineInput]}
+            multiline
+          />
+        </View>
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>
@@ -347,11 +472,40 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
+  header: {
+    marginBottom: 18,
+  },
+  eyebrow: {
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    color: colors.primary,
+    marginBottom: 6,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: 20,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    marginTop: 6,
+    lineHeight: 22,
+  },
+  section: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#E7ECF3',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 12,
   },
   label: {
     fontSize: 14,
@@ -374,28 +528,39 @@ const styles = StyleSheet.create({
     minHeight: 100,
     textAlignVertical: 'top',
   },
-  typeButton: {
+  helperText: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 8,
+    lineHeight: 18,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  segmentButton: {
+    flex: 1,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
-    marginBottom: 10,
+    marginTop: 4,
   },
-  typeButtonActive: {
+  segmentButtonActive: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
-  typeButtonText: {
+  segmentButtonText: {
     color: colors.text,
     fontWeight: '700',
   },
-  typeButtonTextActive: {
+  segmentButtonTextActive: {
     color: '#FFFFFF',
   },
   saveButton: {
-    marginTop: 24,
+    marginTop: 8,
     backgroundColor: colors.primary,
     borderRadius: 16,
     paddingVertical: 16,

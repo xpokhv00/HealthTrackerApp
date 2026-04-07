@@ -5,11 +5,16 @@ import {
   getRoutineReminderNotificationId,
 } from '../utils/medicationNotifications';
 
+const buildMedicationReminderBody = (medication: Medication) =>
+  `Time to take ${medication.dosage}${
+    medication.form ? ` (${medication.form})` : ''
+  }.`;
+
 export const syncRoutineMedicationReminders = async (
   medications: Medication[],
 ) => {
   const routineMedications = medications.filter(
-    item => item.isActive && item.type === 'routine' && item.scheduledTimes?.length,
+    item => item.type === 'routine',
   );
 
   for (const medication of routineMedications) {
@@ -17,7 +22,11 @@ export const syncRoutineMedicationReminders = async (
       medication.id,
     );
 
-    for (const time of medication.scheduledTimes ?? []) {
+    if (!medication.isActive || !medication.scheduledTimes?.length) {
+      continue;
+    }
+
+    for (const time of medication.scheduledTimes) {
       const reminderDate = getRoutineReminderDates({
         ...medication,
         scheduledTimes: [time],
@@ -27,13 +36,23 @@ export const syncRoutineMedicationReminders = async (
         continue;
       }
 
-      await notificationService.scheduleRepeatingMedicationReminder({
+      const commonParams = {
         notificationId: getRoutineReminderNotificationId(medication.id, time),
         title: `Medication reminder: ${medication.name}`,
-        body: `Time to take ${medication.dosage}${medication.form ? ` (${medication.form})` : ''}.`,
+        body: buildMedicationReminderBody(medication),
         timestamp: reminderDate.getTime(),
         medicationId: medication.id,
-      });
+      };
+
+      if (medication.frequencyType === 'interval_days') {
+        await notificationService.scheduleOneTimeMedicationReminder(
+          commonParams,
+        );
+      } else {
+        await notificationService.scheduleRepeatingMedicationReminder(
+          commonParams,
+        );
+      }
     }
   }
 };
