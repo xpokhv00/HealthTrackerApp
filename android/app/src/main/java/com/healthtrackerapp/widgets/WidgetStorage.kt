@@ -1,0 +1,92 @@
+package com.healthtrackerapp.widgets
+
+import android.content.Context
+import org.json.JSONArray
+import org.json.JSONObject
+
+object WidgetStorage {
+    fun getRoutineItems(context: Context): List<RoutineWidgetItem> {
+        val prefs = context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+        val raw = prefs.getString(WidgetConstants.KEY_ROUTINE_JSON, "[]") ?: "[]"
+        val arr = JSONArray(raw)
+        val result = mutableListOf<RoutineWidgetItem>()
+
+        for (i in 0 until arr.length()) {
+            val obj = arr.getJSONObject(i)
+            result.add(
+                RoutineWidgetItem(
+                    id = obj.optString("id"),
+                    name = obj.optString("name"),
+                    dosage = obj.optString("dosage"),
+                    time = obj.optString("time"),
+                    status = obj.optString("status")
+                )
+            )
+        }
+
+        return result
+    }
+
+    fun saveRoutineItems(context: Context, rawJson: String) {
+        context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+            .edit()
+            .putString(WidgetConstants.KEY_ROUTINE_JSON, rawJson)
+            .apply()
+    }
+
+    fun getAsNeededItems(context: Context): List<AsNeededWidgetItem> {
+        val prefs = context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+        val raw = prefs.getString(WidgetConstants.KEY_AS_NEEDED_JSON, "[]") ?: "[]"
+        val arr = JSONArray(raw)
+        val result = mutableListOf<AsNeededWidgetItem>()
+
+        for (i in 0 until arr.length()) {
+            val obj = arr.getJSONObject(i)
+            result.add(
+                AsNeededWidgetItem(
+                    id = obj.optString("id"),
+                    name = obj.optString("name"),
+                    dosage = obj.optString("dosage"),
+                    available = obj.optBoolean("available"),
+                    availableInText = obj.optString("availableInText")
+                )
+            )
+        }
+
+        return result
+    }
+
+    fun saveAsNeededItems(context: Context, rawJson: String) {
+        context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+            .edit()
+            .putString(WidgetConstants.KEY_AS_NEEDED_JSON, rawJson)
+            .apply()
+    }
+
+    fun getAppointment(context: Context): AppointmentWidgetData? {
+        val prefs = context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+        val raw = prefs.getString(WidgetConstants.KEY_APPOINTMENT_JSON, null) ?: return null
+        val obj = JSONObject(raw)
+
+        return AppointmentWidgetData(
+            title = obj.optString("title"),
+            doctor = obj.optString("doctor"),
+            specialty = obj.optString("specialty"),
+            dayOfWeek = obj.optString("dayOfWeek"),
+            dateTimeText = obj.optString("dateTimeText"),
+            recommendations = buildList {
+                val arr = obj.optJSONArray("recommendations") ?: JSONArray()
+                for (i in 0 until arr.length()) {
+                    add(arr.optString(i))
+                }
+            }
+        )
+    }
+
+    fun saveAppointment(context: Context, rawJson: String?) {
+        context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+            .edit()
+            .putString(WidgetConstants.KEY_APPOINTMENT_JSON, rawJson)
+            .apply()
+    }
+}

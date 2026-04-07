@@ -19,9 +19,11 @@ import {
 } from '../utils/medication';
 import {notificationService} from '../services/notificationService';
 import {getMedicationSnoozeNotificationId} from '../utils/medicationNotifications';
-import { colors } from '../theme/colors.ts';
+import {colors} from '../theme/colors.ts';
 import Screen from '../components/Screen.tsx';
 import {syncMedicationWidget} from '../services/widgetSync';
+import {getRoutineScheduleLabel} from '../utils/routineSchedule';
+import {markNextRoutineDoseTaken} from '../services/markNextRoutineDoseTaken';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MedicationDetail'>;
 
@@ -33,9 +35,6 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
   );
   const markMedicationTaken = useMedicationStore(state => state.markMedicationTaken);
   const removeMedication = useMedicationStore(state => state.removeMedication);
-
-
-
 
   if (!medication) {
     return (
@@ -51,6 +50,16 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
   const dailyLimitReached = hasReachedDailyLimit(medication);
   const takeDisabled =
     medication.type === 'as_needed' && (!availableNow || dailyLimitReached);
+
+  const handleTake = async () => {
+    if (medication.type === 'routine') {
+      markNextRoutineDoseTaken(medication.id);
+    } else {
+      markMedicationTaken(medication.id);
+    }
+
+    await syncMedicationWidget(useMedicationStore.getState().medications);
+  };
 
   return (
     <Screen>
@@ -92,6 +101,14 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
               <Text style={styles.value}>
                 Scheduled times: {medication.scheduledTimes?.join(', ') || '-'}
               </Text>
+              <Text style={styles.value}>
+                Frequency: {getRoutineScheduleLabel(medication)}
+              </Text>
+              {medication.frequencyType === 'interval_days' ? (
+                <Text style={styles.value}>
+                  Interval days: {medication.intervalDays ?? '-'}
+                </Text>
+              ) : null}
             </>
           ) : (
             <>
@@ -130,14 +147,8 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
       <View style={styles.footer}>
         <TouchableOpacity
           style={[styles.takeButton, takeDisabled && styles.takeButtonDisabled]}
-          onPress={async () => {
-            markMedicationTaken(medication.id);
-            await syncMedicationWidget(
-              useMedicationStore.getState().medications,
-            );
-          }}
-          disabled={takeDisabled}
-        >
+          onPress={handleTake}
+          disabled={takeDisabled}>
           <Text style={styles.takeButtonText}>Mark as taken</Text>
         </TouchableOpacity>
 
@@ -147,8 +158,7 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
             navigation.navigate('AddMedication', {
               medicationId: medication.id,
             })
-          }
-        >
+          }>
           <Text style={styles.editButtonText}>Edit medication</Text>
         </TouchableOpacity>
 
@@ -164,12 +174,9 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
             );
 
             removeMedication(medication.id);
-            await syncMedicationWidget(
-              useMedicationStore.getState().medications,
-            );
+            await syncMedicationWidget(useMedicationStore.getState().medications);
             navigation.goBack();
-          }}
-        >
+          }}>
           <Text style={styles.deleteButtonText}>Delete medication</Text>
         </TouchableOpacity>
       </View>

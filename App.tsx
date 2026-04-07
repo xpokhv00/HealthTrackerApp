@@ -1,46 +1,61 @@
 import React, {useEffect} from 'react';
+import {AppState} from 'react-native';
 import RootNavigator from './src/navigation/RootNavigator';
+import {syncAllWidgets} from './src/services/widgetSync';
+import {useAppointmentStore} from './src/store/appointmentStore';
+import {useMedicationStore} from './src/store/medicationStore';
+import {processPendingWidgetActions} from './src/services/processPendingWidgetActions';
 import {notificationService} from './src/services/notificationService';
 import {syncRoutineMedicationReminders} from './src/services/medicationReminderSync';
-import {useMedicationStore} from './src/store/medicationStore';
 import {notificationNavigationService} from './src/services/notificationNavigation';
-import {syncMedicationWidget} from './src/services/widgetSync';
-import {loadSeedData} from './src/services/loadSeedData';
-import {useAppointmentStore} from './src/store/appointmentStore';
-import {useSymptomStore} from './src/store/symptomStore';
+import {syncTodayRoutineDoseSlots} from './src/services/syncRoutineDoseSlots';
+
 
 const App = () => {
   useEffect(() => {
     const setup = async () => {
-      const medications = useMedicationStore.getState().medications;
-      const appointments = useAppointmentStore.getState().appointments;
-      const symptoms = useSymptomStore.getState().symptoms;
-      await syncRoutineMedicationReminders(medications);
-      await syncMedicationWidget(medications);
-
-      if (
-        __DEV__ &&
-        medications.length === 0 &&
-        appointments.length === 0 &&
-        symptoms.length === 0
-      ) {
-        loadSeedData();
-      }
-
       await notificationService.init();
 
-      const updatedMeds = useMedicationStore.getState().medications;
-      await syncRoutineMedicationReminders(updatedMeds);
-      await syncMedicationWidget(updatedMeds);
+      await processPendingWidgetActions();
+      syncTodayRoutineDoseSlots();
+
+      const medications = useMedicationStore.getState().medications;
+      const appointments = useAppointmentStore.getState().appointments;
+
+      await syncRoutineMedicationReminders(medications);
+      await syncAllWidgets({
+        medications,
+        appointments,
+      });
 
       notificationNavigationService.registerForegroundHandler();
       await notificationNavigationService.handleInitialNotification();
+
+
+
     };
 
     setup();
 
+    const sub = AppState.addEventListener('change', async state => {
+      if (state === 'active') {
+        await processPendingWidgetActions();
+        syncTodayRoutineDoseSlots();
+
+        const medications = useMedicationStore.getState().medications;
+        const appointments = useAppointmentStore.getState().appointments;
+
+        await syncRoutineMedicationReminders(medications);
+        await syncAllWidgets({
+          medications,
+          appointments,
+        });
+      }
+    });
+
     return () => {
       notificationNavigationService.unregisterForegroundHandler();
+      sub.remove();
     };
   }, []);
 

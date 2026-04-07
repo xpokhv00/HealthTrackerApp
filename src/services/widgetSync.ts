@@ -1,14 +1,20 @@
+import {syncAppointmentWidget, syncAsNeededWidget, syncRoutineWidget} from '../native/healthWidgets';
+import {Appointment} from '../types/appointment';
 import {Medication} from '../types/medication';
-import {clearMedicationWidget, updateMedicationWidget} from '../native/healthWidget';
-import {getMedicationForWidget} from '../utils/widgetMedication';
+import {
+  buildAppointmentWidgetData,
+  buildAsNeededWidgetItems,
+  buildRoutineWidgetItems,
+} from '../utils/widgetDataBuilders';
 
-export const syncMedicationWidget = async (medications: Medication[]) => {
-  const widgetMedication = getMedicationForWidget(medications);
-
-  if (!widgetMedication) {
-    await clearMedicationWidget();
-    return;
-  }
-
-  await updateMedicationWidget(widgetMedication);
+export const syncAllWidgets = async ({
+                                       medications,
+                                       appointments,
+                                     }: {
+  medications: Medication[];
+  appointments: Appointment[];
+}) => {
+  await syncRoutineWidget(buildRoutineWidgetItems(medications));
+  await syncAsNeededWidget(buildAsNeededWidgetItems(medications));
+  await syncAppointmentWidget(buildAppointmentWidgetData(appointments));
 };

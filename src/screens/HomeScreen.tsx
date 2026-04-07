@@ -24,6 +24,9 @@ import {
 import {notificationService} from '../services/notificationService';
 import {colors} from '../theme/colors.ts';
 import {loadSeedData} from '../services/loadSeedData';
+import RoutineProgressCircle from '../components/RoutineProgressCircle';
+import {useRoutineDoseStore} from '../store/routineDoseStore';
+import {getTodayRoutineDoseSummary} from '../utils/routineDoseSummary';
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -35,6 +38,9 @@ const HomeScreen: React.FC = () => {
   const nextAppointment = getUpcomingAppointments(appointments)[0];
   const recentSymptoms = getRecentSymptoms(symptoms, 3);
 
+  const routineSlots = useRoutineDoseStore(state => state.slots);
+  const routineSummary = getTodayRoutineDoseSummary(routineSlots);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
@@ -44,7 +50,60 @@ const HomeScreen: React.FC = () => {
         <Text style={styles.subtitle}>Your most important items for today</Text>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Today’s medications</Text>
+          <Text style={styles.cardTitle}>Today’s routine</Text>
+
+          <View style={styles.progressSection}>
+            <RoutineProgressCircle
+              percent={routineSummary.percent}
+              taken={routineSummary.taken}
+              total={routineSummary.total}
+              size={116}
+              strokeWidth={10}
+            />
+
+            <View style={styles.progressInfo}>
+              <Text style={styles.progressInfoTitle}>
+                {routineSummary.total} doses scheduled today
+              </Text>
+
+              <Text style={styles.progressInfoText}>
+                {routineSummary.taken} completed • {routineSummary.remaining} remaining
+              </Text>
+
+              <Text style={styles.progressInfoText}>
+                {routineSummary.nextActionable
+                  ? `Next: ${routineSummary.nextActionable.medicationName} at ${routineSummary.nextActionable.scheduledTime}`
+                  : routineSummary.total === 0
+                    ? 'No routine doses scheduled today'
+                    : 'All doses completed for today'}
+              </Text>
+
+              {routineSummary.overdueCount > 0 ? (
+                <Text style={styles.progressInfoSubtle}>
+                  {routineSummary.overdueCount} earlier dose{routineSummary.overdueCount > 1 ? 's need' : ' needs'} attention
+                </Text>
+              ) : null}
+
+              <View style={styles.statChipsRow}>
+                <View style={styles.statChip}>
+                  <Text style={styles.statChipLabel}>Completed</Text>
+                  <Text style={styles.statChipValue}>{routineSummary.taken}</Text>
+                </View>
+
+                <View style={styles.statChip}>
+                  <Text style={styles.statChipLabel}>Remaining</Text>
+                  <Text style={styles.statChipValue}>{routineSummary.remaining}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.card}
+          onPress={() => navigation.navigate('Medications')}>
+          <Text style={styles.cardTitle}>Medications</Text>
 
           {recentMeds.length === 0 ? (
             <Text style={styles.cardText}>No medications added yet.</Text>
@@ -53,22 +112,17 @@ const HomeScreen: React.FC = () => {
               <View key={item.id} style={styles.row}>
                 <View style={styles.flexOne}>
                   <Text style={styles.itemTitle}>{item.name}</Text>
-                  <Text style={styles.itemMeta}>
-                    {getAvailabilityLabel(item)}
-                  </Text>
+                  <Text style={styles.itemMeta}>{getAvailabilityLabel(item)}</Text>
                 </View>
               </View>
             ))
           )}
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('Medications')}>
-            <Text style={styles.linkButtonText}>Open medications</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.card}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.card}
+          onPress={() => navigation.navigate('Appointments')}>
           <Text style={styles.cardTitle}>Next appointment</Text>
 
           {nextAppointment ? (
@@ -84,29 +138,12 @@ const HomeScreen: React.FC = () => {
           ) : (
             <Text style={styles.cardText}>No upcoming appointments.</Text>
           )}
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('Appointments')}>
-            <Text style={styles.linkButtonText}>Open appointments</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>History & reports</Text>
-          <Text style={styles.cardText}>
-            Review your recent health data and generate a doctor-friendly
-            summary.
-          </Text>
-
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('History')}>
-            <Text style={styles.linkButtonText}>Open history</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.card}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.card}
+          onPress={() => navigation.navigate('Symptoms')}>
           <Text style={styles.cardTitle}>Recent symptoms</Text>
 
           {recentSymptoms.length === 0 ? (
@@ -130,18 +167,12 @@ const HomeScreen: React.FC = () => {
             onPress={() => navigation.navigate('AddSymptom')}>
             <Text style={styles.secondaryButtonText}>Log symptom</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('Symptoms')}>
-            <Text style={styles.linkButtonText}>Open symptoms</Text>
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.devButton}
           onPress={async () => {
-            loadSeedData();
+            await loadSeedData();
           }}>
           <Text style={styles.devButtonText}>Load demo data</Text>
         </TouchableOpacity>
@@ -189,7 +220,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
     color: '#111827',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   cardText: {
     fontSize: 15,
@@ -210,17 +241,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 14,
     color: '#667085',
-  },
-  linkButton: {
-    marginTop: 12,
-    backgroundColor: '#4C7EFF',
-    borderRadius: 14,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  linkButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
   },
   testButton: {
     marginTop: 4,
@@ -257,6 +277,52 @@ const styles = StyleSheet.create({
   devButtonText: {
     color: '#FFFFFF',
     fontWeight: '700',
+  },
+  progressSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressInfo: {
+    flex: 1,
+    marginLeft: 18,
+  },
+  progressInfoTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 6,
+  },
+  progressInfoText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    lineHeight: 20,
+  },
+  statChipsRow: {
+    flexDirection: 'row',
+    marginTop: 14,
+  },
+  statChip: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginRight: 10,
+  },
+  statChipLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: 2,
+  },
+  statChipValue: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  progressInfoSubtle: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 4,
   },
 });
 

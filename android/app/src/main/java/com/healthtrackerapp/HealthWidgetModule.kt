@@ -2,49 +2,148 @@ package com.healthtrackerapp
 
 import android.content.Context
 import com.facebook.react.bridge.*
+import com.healthtrackerapp.widgets.WidgetActionQueue
+import com.healthtrackerapp.widgets.WidgetConstants
+import com.healthtrackerapp.widgets.WidgetStorage
+import com.healthtrackerapp.widgets.providers.AppointmentWidgetProvider
+import com.healthtrackerapp.widgets.providers.AsNeededWidgetProvider
+import com.healthtrackerapp.widgets.providers.RoutineWidgetProvider
+import org.json.JSONArray
+import org.json.JSONObject
 
-class HealthWidgetModule(private val reactContext: ReactApplicationContext) :
+class HealthWidgetsModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
 
-    override fun getName(): String = "HealthWidgetModule"
+    override fun getName(): String = "HealthWidgetsModule"
 
     @ReactMethod
-    fun updateMedicationWidget(data: ReadableMap, promise: Promise) {
+    fun updateRoutineWidget(items: ReadableArray, promise: Promise) {
         try {
-            val prefs = reactContext.getSharedPreferences("health_widget_prefs", Context.MODE_PRIVATE)
+            val arr = JSONArray()
+            for (i in 0 until items.size()) {
+                val map = items.getMap(i) ?: continue
+                arr.put(
+                    JSONObject().apply {
+                        put("id", map.getString("id"))
+                        put("name", map.getString("name"))
+                        put("dosage", map.getString("dosage"))
+                        put("time", map.getString("time"))
+                        put("status", map.getString("status"))
+                    }
+                )
+            }
 
-            val name = if (data.hasKey("name")) data.getString("name") else "No medication"
-            val dosage = if (data.hasKey("dosage")) data.getString("dosage") else "Add a routine medication"
-            val nextTime = if (data.hasKey("nextTime")) data.getString("nextTime") else "No next time"
-
-            prefs.edit()
-                .putString("medication_name", name)
-                .putString("medication_dosage", dosage)
-                .putString("medication_next_time", nextTime)
-                .apply()
-
-            MedicationWidgetProvider.updateAllWidgets(reactContext)
+            WidgetStorage.saveRoutineItems(reactContext, arr.toString())
+            RoutineWidgetProvider.updateAll(reactContext)
             promise.resolve(true)
         } catch (e: Exception) {
-            promise.reject("WIDGET_UPDATE_ERROR", e)
+            promise.reject("ROUTINE_WIDGET_ERROR", e)
         }
     }
 
     @ReactMethod
-    fun clearMedicationWidget(promise: Promise) {
+    fun updateAsNeededWidget(items: ReadableArray, promise: Promise) {
         try {
-            val prefs = reactContext.getSharedPreferences("health_widget_prefs", Context.MODE_PRIVATE)
+            val arr = JSONArray()
+            for (i in 0 until items.size()) {
+                val map = items.getMap(i) ?: continue
+                arr.put(
+                    JSONObject().apply {
+                        put("id", map.getString("id"))
+                        put("name", map.getString("name"))
+                        put("dosage", map.getString("dosage"))
+                        put("available", map.getBoolean("available"))
+                        put("availableInText", map.getString("availableInText"))
+                    }
+                )
+            }
 
-            prefs.edit()
-                .putString("medication_name", "No medication")
-                .putString("medication_dosage", "Add a routine medication")
-                .putString("medication_next_time", "No next time")
-                .apply()
-
-            MedicationWidgetProvider.updateAllWidgets(reactContext)
+            WidgetStorage.saveAsNeededItems(reactContext, arr.toString())
+            AsNeededWidgetProvider.updateAll(reactContext)
             promise.resolve(true)
         } catch (e: Exception) {
-            promise.reject("WIDGET_CLEAR_ERROR", e)
+            promise.reject("AS_NEEDED_WIDGET_ERROR", e)
+        }
+    }
+
+    @ReactMethod
+    fun updateAppointmentWidget(data: ReadableMap?, promise: Promise) {
+        try {
+            if (data == null) {
+                WidgetStorage.saveAppointment(reactContext, null)
+            } else {
+                val recommendations = JSONArray()
+                val arr = data.getArray("recommendations")
+                if (arr != null) {
+                    for (i in 0 until arr.size()) {
+                        recommendations.put(arr.getString(i))
+                    }
+                }
+
+                val obj = JSONObject().apply {
+                    put("title", data.getString("title"))
+                    put("doctor", data.getString("doctor"))
+                    put("specialty", data.getString("specialty"))
+                    put("dayOfWeek", data.getString("dayOfWeek"))
+                    put("dateTimeText", data.getString("dateTimeText"))
+                    put("recommendations", recommendations)
+                }
+
+                WidgetStorage.saveAppointment(reactContext, obj.toString())
+            }
+
+            AppointmentWidgetProvider.updateAll(reactContext)
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("APPOINTMENT_WIDGET_ERROR", e)
+        }
+    }
+
+    @ReactMethod
+    fun getPendingWidgetActions(promise: Promise) {
+        try {
+            val arr = WidgetActionQueue.getQueue(reactContext)
+            val result = Arguments.createArray()
+
+            for (i in 0 until arr.length()) {
+                val obj = arr.getJSONObject(i)
+                val map = Arguments.createMap()
+                map.putString("type", obj.optString("type"))
+                map.putString("medicationId", obj.optString("medicationId"))
+                map.putString("createdAt", obj.optString("createdAt"))
+                result.pushMap(map)
+            }
+
+            promise.resolve(result)
+        } catch (e: Exception) {
+            promise.reject("GET_WIDGET_ACTIONS_ERROR", e)
+        }
+    }
+
+    @ReactMethod
+    fun clearPendingWidgetActions(promise: Promise) {
+        try {
+            WidgetActionQueue.clearQueue(reactContext)
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("CLEAR_WIDGET_ACTIONS_ERROR", e)
+        }
+    }
+
+    @ReactMethod
+    fun clearAllWidgets(promise: Promise) {
+        try {
+            reactContext.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .apply()
+
+            RoutineWidgetProvider.updateAll(reactContext)
+            AsNeededWidgetProvider.updateAll(reactContext)
+            AppointmentWidgetProvider.updateAll(reactContext)
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("CLEAR_WIDGETS_ERROR", e)
         }
     }
 }

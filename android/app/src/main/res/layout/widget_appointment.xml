@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/widget_root_appointment"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:padding="14dp"
+              android:background="@android:color/white">
+
+    <TextView
+            android:id="@+id/app_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next appointment"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#111827" />
+
+    <TextView
+            android:id="@+id/app_visit_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="General practitioner"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#111827" />
+
+    <TextView
+            android:id="@+id/app_doctor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dr. Novak • GP"
+            android:textSize="14sp"
+            android:textColor="#667085" />
+
+    <TextView
+            android:id="@+id/app_datetime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Tuesday • 09:30"
+            android:textSize="14sp"
+            android:textColor="#4C7EFF" />
+
+    <TextView
+            android:id="@+id/app_recommendations"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Prepare notes"
+            android:textSize="13sp"
+            android:textColor="#111827" />
+</LinearLayout>

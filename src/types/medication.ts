@@ -1,4 +1,5 @@
 export type MedicationType = 'routine' | 'as_needed';
+export type RoutineFrequencyType = 'daily' | 'interval_days';
 
 export interface Medication {
   id: string;
@@ -7,8 +8,12 @@ export interface Medication {
   form?: string;
   type: MedicationType;
 
+  frequencyType?: RoutineFrequencyType;
+
   timesPerDay?: number;
   scheduledTimes?: string[];
+
+  intervalDays?: number;
 
   minHoursBetweenDoses?: number;
   maxDailyDoses?: number;

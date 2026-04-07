@@ -1,11 +1,13 @@
-import {seedAppointments} from '../data/seedAppointments.ts';
-import {seedMedications} from '../data/seedMedications.ts';
-import {seedSymptoms} from '../data/seedSymptoms.ts';
-import {useAppointmentStore} from '../store/appointmentStore.ts';
-import {useMedicationStore} from '../store/medicationStore.ts';
-import {useSymptomStore} from '../store/symptomStore.ts';
+import {seedAppointments} from '../data/seedAppointments';
+import {seedMedications} from '../data/seedMedications';
+import {seedSymptoms} from '../data/seedSymptoms';
+import {syncRoutineMedicationReminders} from './medicationReminderSync';
+import {useAppointmentStore} from '../store/appointmentStore';
+import {useMedicationStore} from '../store/medicationStore';
+import {useSymptomStore} from '../store/symptomStore';
+import { syncTodayRoutineDoseSlots } from './syncRoutineDoseSlots.ts';
 
-export const loadSeedData = () => {
+export const loadSeedData = async () => {
   const medicationStore = useMedicationStore.getState();
   const appointmentStore = useAppointmentStore.getState();
   const symptomStore = useSymptomStore.getState();
@@ -17,4 +19,9 @@ export const loadSeedData = () => {
   seedMedications.forEach(item => medicationStore.addMedication(item));
   seedAppointments.forEach(item => appointmentStore.addAppointment(item));
   seedSymptoms.forEach(item => symptomStore.addSymptom(item));
+
+  syncTodayRoutineDoseSlots();
+
+  const meds = useMedicationStore.getState().medications;
+  await syncRoutineMedicationReminders(meds);
 };

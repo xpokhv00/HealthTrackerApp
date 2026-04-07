@@ -12,6 +12,7 @@ import {
   hasReachedDailyLimit,
   isMedicationAvailableNow,
 } from '../utils/medication';
+import {getRoutineScheduleLabel} from '../utils/routineSchedule';
 
 interface Props {
   medication: Medication;
@@ -40,7 +41,9 @@ const MedicationCard: React.FC<Props> = ({
             {medication.form ? ` • ${medication.form}` : ''}
           </Text>
           <Text style={styles.type}>
-            {medication.type === 'routine' ? 'Routine' : 'As needed'}
+            {medication.type === 'routine'
+              ? `Routine • ${getRoutineScheduleLabel(medication)}`
+              : 'As needed'}
           </Text>
         </View>
 

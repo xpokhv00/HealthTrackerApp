@@ -12,6 +12,7 @@ import {useMedicationStore} from '../store/medicationStore';
 import MedicationCard from '../components/MedicationCard';
 import {Medication} from '../types/medication';
 import Screen from '../components/Screen';
+import {markNextRoutineDoseTaken} from '../services/markNextRoutineDoseTaken';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Medications'>;
 
@@ -24,7 +25,7 @@ const Section = ({
   title: string;
   data: Medication[];
   onPressItem: (id: string) => void;
-  onTakePress: (id: string) => void;
+  onTakePress: (item: Medication) => void;
 }) => {
   if (data.length === 0) {
     return null;
@@ -38,7 +39,7 @@ const Section = ({
           key={item.id}
           medication={item}
           onPress={() => onPressItem(item.id)}
-          onTakePress={() => onTakePress(item.id)}
+          onTakePress={() => onTakePress(item)}
         />
       ))}
     </View>
@@ -53,6 +54,15 @@ const MedicationsScreen: React.FC<Props> = ({navigation}) => {
   const asNeededMedications = medications.filter(item => item.type === 'as_needed');
 
   const isEmpty = medications.length === 0;
+
+  const handleTakePress = (item: Medication) => {
+    if (item.type === 'routine') {
+      markNextRoutineDoseTaken(item.id);
+      return;
+    }
+
+    markMedicationTaken(item.id);
+  };
 
   return (
     <Screen>
@@ -85,7 +95,7 @@ const MedicationsScreen: React.FC<Props> = ({navigation}) => {
                 onPressItem={id =>
                   navigation.navigate('MedicationDetail', {medicationId: id})
                 }
-                onTakePress={id => markMedicationTaken(id)}
+                onTakePress={handleTakePress}
               />
 
               <Section
@@ -94,7 +104,7 @@ const MedicationsScreen: React.FC<Props> = ({navigation}) => {
                 onPressItem={id =>
                   navigation.navigate('MedicationDetail', {medicationId: id})
                 }
-                onTakePress={id => markMedicationTaken(id)}
+                onTakePress={handleTakePress}
               />
             </View>
           )}

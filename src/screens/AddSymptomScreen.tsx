@@ -72,9 +72,6 @@ const AddSymptomScreen: React.FC = () => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>
-          {isEditMode ? 'Edit Symptom' : 'Log Symptom'}
-        </Text>
 
         <Text style={styles.label}>Quick suggestions</Text>
         <Text style={styles.helperText}>

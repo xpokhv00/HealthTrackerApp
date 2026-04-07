@@ -8,13 +8,13 @@ import {
   Alert,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {Medication, MedicationType} from '../types/medication';
 import {useMedicationStore} from '../store/medicationStore';
 import DateTimeField from '../components/DateTimeField';
 import Screen from '../components/Screen';
 import {colors} from '../theme/colors';
 import {notificationService} from '../services/notificationService';
 import {syncMedicationWidget} from '../services/widgetSync';
+import {Medication, MedicationType, RoutineFrequencyType} from '../types/medication';
 
 import {
   getRoutineReminderDates,
@@ -62,6 +62,12 @@ const AddMedicationScreen: React.FC = () => {
   const [endDate, setEndDate] = useState<Date | null>(
     existingMedication?.endDate ? new Date(existingMedication.endDate) : null,
   );
+  const [frequencyType, setFrequencyType] = useState<RoutineFrequencyType>(
+    existingMedication?.frequencyType ?? 'daily',
+  );
+  const [intervalDays, setIntervalDays] = useState(
+    String(existingMedication?.intervalDays ?? 2),
+  );
 
   const handleSave = async () => {
     if (!name.trim() || !dosage.trim()) {
@@ -75,7 +81,16 @@ const AddMedicationScreen: React.FC = () => {
       dosage: dosage.trim(),
       form: form.trim() || undefined,
       type,
-      timesPerDay: type === 'routine' ? Number(timesPerDay) || 1 : undefined,
+
+      frequencyType: type === 'routine' ? frequencyType : undefined,
+
+      timesPerDay:
+        type === 'routine'
+          ? frequencyType === 'daily'
+            ? Number(timesPerDay) || 1
+            : 1
+          : undefined,
+
       scheduledTimes:
         type === 'routine'
           ? scheduledTimes
@@ -83,6 +98,12 @@ const AddMedicationScreen: React.FC = () => {
             .map(item => item.trim())
             .filter(Boolean)
           : undefined,
+
+      intervalDays:
+        type === 'routine' && frequencyType === 'interval_days'
+          ? Number(intervalDays) || 2
+          : undefined,
+
       minHoursBetweenDoses:
         type === 'as_needed' ? Number(minHoursBetweenDoses) || 4 : undefined,
       maxDailyDoses:
@@ -135,9 +156,6 @@ const AddMedicationScreen: React.FC = () => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>
-          {isEditMode ? 'Edit Medication' : 'Add Medication'}
-        </Text>
 
         <Text style={styles.label}>Name</Text>
         <TextInput
@@ -199,15 +217,63 @@ const AddMedicationScreen: React.FC = () => {
 
         {type === 'routine' ? (
           <>
-            <Text style={styles.label}>Times per day</Text>
-            <TextInput
-              value={timesPerDay}
-              onChangeText={setTimesPerDay}
-              keyboardType="numeric"
-              placeholder="1"
-              placeholderTextColor={colors.textSecondary}
-              style={styles.input}
-            />
+            <Text style={styles.label}>Routine frequency</Text>
+
+            <TouchableOpacity
+              style={[
+                styles.typeButton,
+                frequencyType === 'daily' && styles.typeButtonActive,
+              ]}
+              onPress={() => setFrequencyType('daily')}>
+              <Text
+                style={[
+                  styles.typeButtonText,
+                  frequencyType === 'daily' && styles.typeButtonTextActive,
+                ]}>
+                Daily
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.typeButton,
+                frequencyType === 'interval_days' && styles.typeButtonActive,
+              ]}
+              onPress={() => setFrequencyType('interval_days')}>
+              <Text
+                style={[
+                  styles.typeButtonText,
+                  frequencyType === 'interval_days' && styles.typeButtonTextActive,
+                ]}>
+                Every X days
+              </Text>
+            </TouchableOpacity>
+
+            {frequencyType === 'daily' ? (
+              <>
+                <Text style={styles.label}>Times per day</Text>
+                <TextInput
+                  value={timesPerDay}
+                  onChangeText={setTimesPerDay}
+                  keyboardType="numeric"
+                  placeholder="1"
+                  placeholderTextColor={colors.textSecondary}
+                  style={styles.input}
+                />
+              </>
+            ) : (
+              <>
+                <Text style={styles.label}>Interval in days</Text>
+                <TextInput
+                  value={intervalDays}
+                  onChangeText={setIntervalDays}
+                  keyboardType="numeric"
+                  placeholder="2"
+                  placeholderTextColor={colors.textSecondary}
+                  style={styles.input}
+                />
+              </>
+            )}
 
             <Text style={styles.label}>Scheduled times</Text>
             <TextInput
