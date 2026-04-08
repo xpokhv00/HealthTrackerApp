@@ -3,16 +3,19 @@ import {
   View,
   Text,
   StyleSheet,
+  SafeAreaView,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-
 import {RootStackParamList} from '../navigation/types';
 import {useMedicationStore} from '../store/medicationStore';
+import {useAppointmentStore} from '../store/appointmentStore';
+import {useRoutineDoseStore} from '../store/routineDoseStore';
 import {
   formatDateTime,
   getAvailabilityLabel,
+  getNextAllowedTime,
   getTodayDoseCount,
   hasReachedDailyLimit,
   isMedicationAvailableNow,
@@ -24,8 +27,21 @@ import Screen from '../components/Screen.tsx';
 import {syncAllWidgets} from '../services/widgetSync';
 import {getRoutineScheduleLabel} from '../utils/routineSchedule';
 import {markNextRoutineDoseTaken} from '../services/markNextRoutineDoseTaken';
+import {toDateKey} from '../utils/dateHelpers';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MedicationDetail'>;
+
+const formatTimeOnly = (value?: string) => {
+  if (!value) {
+    return '—';
+  }
+
+  const date = new Date(value);
+  return date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
 
 const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
   const {medicationId} = route.params;
@@ -35,93 +51,125 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
   );
   const markMedicationTaken = useMedicationStore(state => state.markMedicationTaken);
   const removeMedication = useMedicationStore(state => state.removeMedication);
+  const appointments = useAppointmentStore(state => state.appointments);
+  const routineSlots = useRoutineDoseStore(state => state.slots);
 
   if (!medication) {
     return (
-      <Screen>
+      <SafeAreaView style={styles.container}>
         <View style={styles.center}>
           <Text style={styles.errorTitle}>Medication not found</Text>
           <Text style={styles.errorText}>
-            This item may have been deleted or is no longer available.
+            It may have been deleted or is no longer available.
           </Text>
         </View>
-      </Screen>
+      </SafeAreaView>
     );
   }
 
   const availableNow = isMedicationAvailableNow(medication);
   const dailyLimitReached = hasReachedDailyLimit(medication);
   const takenToday = getTodayDoseCount(medication);
+  const nextAllowedTime = getNextAllowedTime(medication);
 
-  const takeDisabled =
+  const todayKey = toDateKey(new Date());
+  const todayRoutineSlots = routineSlots
+    .filter(
+      slot => slot.medicationId === medication.id && slot.date === todayKey,
+    )
+    .sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
+
+  const overdueRoutineSlot =
+    todayRoutineSlots.find(slot => slot.status === 'missed') ?? null;
+  const pendingRoutineSlot =
+    todayRoutineSlots.find(slot => slot.status === 'pending') ?? null;
+  const nextRoutineAction = overdueRoutineSlot ?? pendingRoutineSlot ?? null;
+
+  const routineTakenToday = todayRoutineSlots.filter(
+    slot => slot.status === 'taken_on_time' || slot.status === 'taken_late',
+  ).length;
+
+  const routineTakeDisabled =
+    medication.type === 'routine' && !nextRoutineAction;
+  const asNeededTakeDisabled =
     medication.type === 'as_needed' && (!availableNow || dailyLimitReached);
 
-  const typeLabel =
-    medication.type === 'routine' ? 'Routine medication' : 'As-needed medication';
+  const takeDisabled = routineTakeDisabled || asNeededTakeDisabled;
 
   const statusLabel =
     medication.type === 'routine'
-      ? 'Schedule active'
+      ? overdueRoutineSlot
+        ? 'Overdue dose'
+        : pendingRoutineSlot
+          ? 'Next routine dose'
+          : todayRoutineSlots.length === 0
+            ? 'No dose scheduled today'
+            : 'All routine doses completed'
       : dailyLimitReached
         ? 'Daily limit reached'
         : availableNow
           ? 'Available now'
-          : 'Not available yet';
+          : 'Available later';
 
-  const statusStyle =
+  const statusPillStyle =
     medication.type === 'routine'
-      ? styles.statusPillNeutral
+      ? overdueRoutineSlot
+        ? styles.statusPillWarning
+        : nextRoutineAction
+          ? styles.statusPillNeutral
+          : styles.statusPillSuccess
       : dailyLimitReached
         ? styles.statusPillWarning
         : availableNow
           ? styles.statusPillSuccess
           : styles.statusPillNeutral;
 
-  const lastTakenLabel = medication.lastTakenAt
-    ? formatDateTime(medication.lastTakenAt)
-    : 'Not taken yet';
-
-  const availabilityText =
+  const statusDetail =
     medication.type === 'routine'
-      ? `${getRoutineScheduleLabel(medication)}${
-        medication.scheduledTimes?.length
-          ? ` • ${medication.scheduledTimes.join(', ')}`
-          : ''
-      }`
-      : getAvailabilityLabel(medication);
+      ? overdueRoutineSlot
+        ? `${overdueRoutineSlot.medicationName} was scheduled for ${overdueRoutineSlot.scheduledTime}.`
+        : pendingRoutineSlot
+          ? `${pendingRoutineSlot.medicationName} is scheduled for ${pendingRoutineSlot.scheduledTime}.`
+          : todayRoutineSlots.length === 0
+            ? 'This medication does not have a routine slot for today.'
+            : 'All scheduled routine doses for today are already logged.'
+      : dailyLimitReached
+        ? `You already logged ${takenToday} dose${takenToday === 1 ? '' : 's'} today.`
+        : availableNow
+          ? 'You can log this medication now.'
+          : `Available again at ${formatTimeOnly(nextAllowedTime?.toISOString())}.`;
 
   const takeButtonLabel =
     medication.type === 'routine'
-      ? 'Mark next dose taken'
+      ? nextRoutineAction
+        ? overdueRoutineSlot
+          ? `Mark ${overdueRoutineSlot.scheduledTime} dose taken`
+          : `Mark ${pendingRoutineSlot?.scheduledTime} dose taken`
+        : 'No routine dose to log'
       : dailyLimitReached
         ? 'Daily limit reached'
         : availableNow
           ? 'Mark as taken'
-          : 'Not available yet';
+          : `Available at ${formatTimeOnly(nextAllowedTime?.toISOString())}`;
 
-  const history = [...medication.takenHistory].reverse();
+  const handleRefreshWidgets = async () => {
+    await syncAllWidgets({
+      medications: useMedicationStore.getState().medications,
+      appointments,
+    });
+  };
 
   const handleTake = async () => {
     if (medication.type === 'routine') {
-      await Promise.resolve(markNextRoutineDoseTaken(medication.id));
+      if (!nextRoutineAction) {
+        return;
+      }
+      markNextRoutineDoseTaken(medication.id);
     } else {
       markMedicationTaken(medication.id);
     }
 
-    await syncAllWidgets();
-  };
-
-  const handleDelete = async () => {
-    await notificationService.cancelMedicationRemindersByMedicationId(
-      medication.id,
-    );
-    await notificationService.cancelMedicationReminder(
-      getMedicationSnoozeNotificationId(medication.id),
-    );
-
-    removeMedication(medication.id);
-    await syncAllWidgets();
-    navigation.goBack();
+    await handleRefreshWidgets();
   };
 
   return (
@@ -135,28 +183,34 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
                 {medication.dosage}
                 {medication.form ? ` • ${medication.form}` : ''}
               </Text>
-              <Text style={styles.type}>{typeLabel}</Text>
+              <Text style={styles.type}>
+                {medication.type === 'routine'
+                  ? 'Routine medication'
+                  : 'As-needed medication'}
+              </Text>
             </View>
 
-            <View style={[styles.statusPill, statusStyle]}>
+            <View style={[styles.statusPill, statusPillStyle]}>
               <Text style={styles.statusPillText}>{statusLabel}</Text>
             </View>
           </View>
 
-          <Text style={styles.heroInfo}>{availabilityText}</Text>
+          <Text style={styles.heroDetail}>{statusDetail}</Text>
 
-          <View style={styles.statsRow}>
-            <View style={styles.statChip}>
-              <Text style={styles.statChipLabel}>Taken today</Text>
-              <Text style={styles.statChipValue}>{takenToday}</Text>
+          <View style={styles.heroStatsRow}>
+            <View style={styles.heroChip}>
+              <Text style={styles.heroChipLabel}>Taken today</Text>
+              <Text style={styles.heroChipValue}>
+                {medication.type === 'routine' ? routineTakenToday : takenToday}
+              </Text>
             </View>
 
-            <View style={styles.statChip}>
-              <Text style={styles.statChipLabel}>Last taken</Text>
-              <Text
-                style={styles.statChipValueSmall}
-                numberOfLines={1}>
-                {medication.lastTakenAt ? formatDateTime(medication.lastTakenAt) : '—'}
+            <View style={styles.heroChip}>
+              <Text style={styles.heroChipLabel}>Last taken</Text>
+              <Text style={styles.heroChipValueSmall}>
+                {medication.lastTakenAt
+                  ? formatTimeOnly(medication.lastTakenAt)
+                  : '—'}
               </Text>
             </View>
           </View>
@@ -172,17 +226,43 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
 
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Last taken</Text>
-            <Text style={styles.infoValue}>{lastTakenLabel}</Text>
+            <Text style={styles.infoValue}>
+              {formatDateTime(medication.lastTakenAt)}
+            </Text>
           </View>
 
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Taken today</Text>
-            <Text style={styles.infoValue}>{takenToday}</Text>
+            <Text style={styles.infoValue}>
+              {medication.type === 'routine' ? routineTakenToday : takenToday}
+            </Text>
           </View>
 
+          {medication.type === 'routine' ? (
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>
+                {overdueRoutineSlot ? 'Overdue dose' : 'Next scheduled dose'}
+              </Text>
+              <Text style={styles.infoValue}>
+                {nextRoutineAction ? nextRoutineAction.scheduledTime : 'None'}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Available again</Text>
+              <Text style={styles.infoValue}>
+                {dailyLimitReached
+                  ? 'Tomorrow'
+                  : availableNow
+                    ? 'Now'
+                    : formatDateTime(nextAllowedTime?.toISOString())}
+              </Text>
+            </View>
+          )}
+
           {dailyLimitReached ? (
-            <Text style={styles.warningText}>
-              You have already reached the daily limit for this medication.
+            <Text style={styles.warning}>
+              You have reached the daily limit for this medication.
             </Text>
           ) : null}
         </View>
@@ -225,14 +305,14 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
           ) : (
             <>
               <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Min hours between doses</Text>
+                <Text style={styles.infoLabel}>Minimum hours between doses</Text>
                 <Text style={styles.infoValue}>
                   {medication.minHoursBetweenDoses ?? '-'}
                 </Text>
               </View>
 
               <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Max daily doses</Text>
+                <Text style={styles.infoLabel}>Maximum daily doses</Text>
                 <Text style={styles.infoValue}>
                   {medication.maxDailyDoses ?? '-'}
                 </Text>
@@ -244,22 +324,22 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
         {medication.notes ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Notes</Text>
-            <Text style={styles.notesText}>{medication.notes}</Text>
+            <Text style={styles.value}>{medication.notes}</Text>
           </View>
         ) : null}
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Dose history</Text>
-
-          {history.length === 0 ? (
-            <Text style={styles.emptyText}>No doses recorded yet.</Text>
+          <Text style={styles.sectionTitle}>History</Text>
+          {medication.takenHistory.length === 0 ? (
+            <Text style={styles.value}>No doses recorded yet.</Text>
           ) : (
-            history.map(entry => (
-              <View key={entry} style={styles.historyRow}>
-                <Text style={styles.historyBullet}>•</Text>
-                <Text style={styles.historyText}>{formatDateTime(entry)}</Text>
-              </View>
-            ))
+            [...medication.takenHistory]
+              .reverse()
+              .map(entry => (
+                <Text key={entry} style={styles.historyItem}>
+                  • {formatDateTime(entry)}
+                </Text>
+              ))
           )}
         </View>
       </ScrollView>
@@ -282,7 +362,21 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
           <Text style={styles.editButtonText}>Edit medication</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={async () => {
+            await notificationService.cancelMedicationRemindersByMedicationId(
+              medication.id,
+            );
+
+            await notificationService.cancelMedicationReminder(
+              getMedicationSnoozeNotificationId(medication.id),
+            );
+
+            removeMedication(medication.id);
+            await handleRefreshWidgets();
+            navigation.goBack();
+          }}>
           <Text style={styles.deleteButtonText}>Delete medication</Text>
         </TouchableOpacity>
       </View>
@@ -291,9 +385,13 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F6F8FB',
+  },
   content: {
     padding: 20,
-    paddingBottom: 160,
+    paddingBottom: 140,
   },
   center: {
     flex: 1,
@@ -311,11 +409,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#667085',
     textAlign: 'center',
-    lineHeight: 22,
   },
   heroCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
+    borderRadius: 20,
     padding: 20,
     borderWidth: 1,
     borderColor: '#E7ECF3',
@@ -323,7 +420,6 @@ const styles = StyleSheet.create({
   },
   heroTopRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
   heroTextBlock: {
@@ -365,17 +461,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#344054',
   },
-  heroInfo: {
+  heroDetail: {
+    marginTop: 14,
     fontSize: 15,
     color: '#475467',
     lineHeight: 22,
-    marginTop: 14,
   },
-  statsRow: {
+  heroStatsRow: {
     flexDirection: 'row',
     marginTop: 16,
   },
-  statChip: {
+  heroChip: {
     flex: 1,
     backgroundColor: '#F8FAFC',
     borderRadius: 14,
@@ -383,17 +479,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginRight: 10,
   },
-  statChipLabel: {
+  heroChipLabel: {
     fontSize: 12,
     color: '#667085',
     marginBottom: 4,
   },
-  statChipValue: {
+  heroChipValue: {
     fontSize: 18,
     fontWeight: '800',
     color: '#111827',
   },
-  statChipValueSmall: {
+  heroChipValueSmall: {
     fontSize: 14,
     fontWeight: '700',
     color: '#111827',
@@ -426,36 +522,20 @@ const styles = StyleSheet.create({
     color: '#344054',
     lineHeight: 22,
   },
-  warningText: {
-    marginTop: 4,
-    fontSize: 14,
-    fontWeight: '700',
+  value: {
+    fontSize: 15,
+    color: '#344054',
+    lineHeight: 22,
+  },
+  historyItem: {
+    fontSize: 15,
+    color: '#344054',
+    marginBottom: 8,
+  },
+  warning: {
     color: '#B42318',
-  },
-  notesText: {
-    fontSize: 15,
-    color: '#344054',
-    lineHeight: 22,
-  },
-  emptyText: {
-    fontSize: 15,
-    color: '#667085',
-  },
-  historyRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 10,
-  },
-  historyBullet: {
-    width: 14,
-    fontSize: 16,
-    color: '#344054',
-  },
-  historyText: {
-    flex: 1,
-    fontSize: 15,
-    color: '#344054',
-    lineHeight: 22,
+    fontWeight: '700',
+    marginTop: 6,
   },
   footer: {
     position: 'absolute',

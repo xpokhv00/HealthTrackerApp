@@ -2,24 +2,32 @@ import {generatePDF} from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 import {Appointment} from '../types/appointment';
 import {Medication} from '../types/medication';
+import {RoutineDoseSlot} from '../types/routineDose';
 import {SymptomEntry} from '../types/symptom';
 import {buildDoctorReportHtml} from '../utils/doctorReportHtml';
+import {ReportWindow} from '../utils/report';
 
 interface Params {
   medications: Medication[];
   appointments: Appointment[];
   symptoms: SymptomEntry[];
+  routineSlots: RoutineDoseSlot[];
+  reportWindow: ReportWindow;
 }
 
 export const exportDoctorReportPdf = async ({
                                               medications,
                                               appointments,
                                               symptoms,
+                                              routineSlots,
+                                              reportWindow,
                                             }: Params) => {
   const html = buildDoctorReportHtml({
     medications,
     appointments,
     symptoms,
+    routineSlots,
+    reportWindow,
   });
 
   const result = await generatePDF({
@@ -53,14 +61,6 @@ export const shareDoctorReportPdf = async (fileUrl: string) => {
   });
 };
 
-export const createDoctorReportPdf = async ({
-                                              medications,
-                                              appointments,
-                                              symptoms,
-                                            }: Params) => {
-  return exportDoctorReportPdf({
-    medications,
-    appointments,
-    symptoms,
-  });
+export const createDoctorReportPdf = async (params: Params) => {
+  return exportDoctorReportPdf(params);
 };

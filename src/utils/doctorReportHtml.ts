@@ -1,13 +1,19 @@
 import {Appointment} from '../types/appointment';
 import {Medication} from '../types/medication';
+import {RoutineDoseSlot} from '../types/routineDose';
 import {SymptomEntry} from '../types/symptom';
 import {
   getActiveMedicationsForReport,
   getAverageSeverity,
+  getMostFrequentSymptomForReport,
   getPastAppointmentsForReport,
   getRecentSymptomsForReport,
+  getReportWindowLabel,
+  getRoutineAdherenceSummary,
+  getStrongestSymptomForReport,
   getUpcomingAppointmentsForReport,
   groupSymptomsByName,
+  ReportWindow,
 } from './report';
 
 const escapeHtml = (value?: string) => {
@@ -36,24 +42,36 @@ interface Params {
   medications: Medication[];
   appointments: Appointment[];
   symptoms: SymptomEntry[];
+  routineSlots: RoutineDoseSlot[];
+  reportWindow: ReportWindow;
 }
 
 export const buildDoctorReportHtml = ({
                                         medications,
                                         appointments,
                                         symptoms,
+                                        routineSlots,
+                                        reportWindow,
                                       }: Params) => {
   const generatedAt = new Date();
 
   const activeMedications = getActiveMedicationsForReport(medications);
-  const recentSymptoms = getRecentSymptomsForReport(symptoms, 10);
+  const recentSymptoms = getRecentSymptomsForReport(symptoms, 12, reportWindow);
   const groupedSymptoms = groupSymptomsByName(recentSymptoms);
   const upcomingAppointments = getUpcomingAppointmentsForReport(appointments).slice(0, 3);
-  const pastAppointments = getPastAppointmentsForReport(appointments).slice(0, 5);
+  const pastAppointments = getPastAppointmentsForReport(appointments, reportWindow).slice(0, 5);
+  const mostFrequentSymptom = getMostFrequentSymptomForReport(recentSymptoms);
+  const strongestSymptom = getStrongestSymptomForReport(recentSymptoms);
+  const overallAverageSeverity = getAverageSeverity(recentSymptoms);
+  const adherenceSummary = getRoutineAdherenceSummary(
+    medications,
+    routineSlots,
+    reportWindow,
+  );
 
   const symptomBlocks =
     recentSymptoms.length === 0
-      ? `<p class="muted">No recent symptoms available.</p>`
+      ? `<p class="muted">No symptoms in this period.</p>`
       : Object.entries(groupedSymptoms)
         .map(([name, entries]) => {
           const latest = entries[0];
@@ -125,7 +143,7 @@ export const buildDoctorReportHtml = ({
 
   const pastAppointmentBlocks =
     pastAppointments.length === 0
-      ? `<p class="muted">No past appointments recorded.</p>`
+      ? `<p class="muted">No past appointments in this period.</p>`
       : pastAppointments
         .map(
           item => `
@@ -165,6 +183,12 @@ export const buildDoctorReportHtml = ({
           .subtitle {
             font-size: 14px;
             color: #667085;
+            margin-bottom: 8px;
+          }
+
+          .period {
+            font-size: 13px;
+            color: #475467;
             margin-bottom: 24px;
           }
 
@@ -179,6 +203,17 @@ export const buildDoctorReportHtml = ({
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 12px;
+          }
+
+          .summary-grid {
+            margin-top: 8px;
+            margin-bottom: 8px;
+          }
+
+          .summary-item {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #344054;
           }
 
           .item {
@@ -216,6 +251,40 @@ export const buildDoctorReportHtml = ({
     hour: '2-digit',
     minute: '2-digit',
   })}
+        </div>
+        <div class="period">Report period: ${escapeHtml(getReportWindowLabel(reportWindow))}</div>
+
+        <div class="section">
+          <div class="section-title">Overview</div>
+          <div class="summary-grid">
+            <div class="summary-item">
+              Symptoms logged: ${recentSymptoms.length}
+            </div>
+            <div class="summary-item">
+              Average symptom severity: ${recentSymptoms.length > 0 ? `${overallAverageSeverity}/10` : '—'}
+            </div>
+            <div class="summary-item">
+              Routine adherence: ${
+    adherenceSummary.total > 0
+      ? `${adherenceSummary.adherencePercent}% (${adherenceSummary.taken} taken, ${adherenceSummary.missed} missed, ${adherenceSummary.pending} pending)`
+      : 'No routine slots in this period'
+  }
+            </div>
+            <div class="summary-item">
+              Most frequent symptom: ${
+    mostFrequentSymptom
+      ? `${escapeHtml(mostFrequentSymptom.name)} (${mostFrequentSymptom.count}x)`
+      : 'No symptom pattern available'
+  }
+            </div>
+            <div class="summary-item">
+              Strongest recent symptom: ${
+    strongestSymptom
+      ? `${escapeHtml(strongestSymptom.symptom)} (${strongestSymptom.severity}/10)`
+      : 'No symptom entries'
+  }
+            </div>
+          </div>
         </div>
 
         <div class="section">

@@ -42,6 +42,8 @@ const HomeScreen: React.FC = () => {
   const medicationPreview = medications.slice(0, 2);
   const recentSymptoms = getRecentSymptoms(symptoms, 2);
 
+  const primaryAction = routineSummary.primaryAction;
+
   const routineStatusLabel =
     routineSummary.overdueCount > 0
       ? `${routineSummary.overdueCount} overdue`
@@ -51,12 +53,6 @@ const HomeScreen: React.FC = () => {
           ? 'All done'
           : `${routineSummary.remaining} left`;
 
-  const routineMessage = routineSummary.nextActionable
-    ? `Next: ${routineSummary.nextActionable.medicationName} at ${routineSummary.nextActionable.scheduledTime}`
-    : routineSummary.total === 0
-      ? 'No routine medication is scheduled for today.'
-      : 'All routine doses are completed for today.';
-
   const statusPillStyle =
     routineSummary.overdueCount > 0
       ? styles.statusPillWarning
@@ -64,13 +60,61 @@ const HomeScreen: React.FC = () => {
         ? styles.statusPillSuccess
         : styles.statusPillNeutral;
 
+  const heroMessage =
+    routineSummary.overdueCount > 0
+      ? `${routineSummary.overdueCount} earlier dose${
+        routineSummary.overdueCount > 1 ? 's need' : ' needs'
+      } attention today.`
+      : primaryAction
+        ? `Next: ${primaryAction.medicationName} at ${primaryAction.scheduledTime}`
+        : routineSummary.total === 0
+          ? 'No routine medication is scheduled for today.'
+          : 'All routine doses are completed for today.';
+
+  const nextActionTitle =
+    routineSummary.overdueCount > 0
+      ? 'Overdue now'
+      : primaryAction
+        ? 'Next dose'
+        : routineSummary.total === 0
+          ? 'Nothing due right now'
+          : 'All routine doses completed';
+
+  const nextActionPrimaryText = primaryAction
+    ? primaryAction.medicationName
+    : routineSummary.total === 0
+      ? 'No routine medication is scheduled for today.'
+      : 'You are done with routine medication for today.';
+
+  const nextActionSecondaryText = primaryAction
+    ? `Scheduled for ${primaryAction.scheduledTime}`
+    : nextAppointment
+      ? `Next appointment: ${nextAppointment.visitType}`
+      : 'You can review medications or log a symptom.';
+
+  const primaryButtonLabel = primaryAction
+    ? routineSummary.overdueCount > 0
+      ? 'Open overdue medication'
+      : 'Open next medication'
+    : 'View medications';
+
+  const handlePrimaryActionPress = () => {
+    if (primaryAction?.medicationId) {
+      navigation.navigate('MedicationDetail', {
+        medicationId: primaryAction.medicationId,
+      });
+      return;
+    }
+
+    navigation.navigate('Medications');
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>TODAY</Text>
           <Text style={styles.title}>Health overview</Text>
           <Text style={styles.subtitle}>
             See what needs attention and act quickly.
@@ -91,7 +135,7 @@ const HomeScreen: React.FC = () => {
                 remaining
               </Text>
 
-              <Text style={styles.heroMessage}>{routineMessage}</Text>
+              <Text style={styles.heroMessage}>{heroMessage}</Text>
             </View>
 
             <RoutineProgressCircle
@@ -120,15 +164,22 @@ const HomeScreen: React.FC = () => {
             </View>
           </View>
 
+          <View style={styles.nextActionCard}>
+            <Text style={styles.nextActionEyebrow}>NEXT ACTION</Text>
+            <Text style={styles.nextActionTitle}>{nextActionTitle}</Text>
+            <Text style={styles.nextActionPrimaryText}>
+              {nextActionPrimaryText}
+            </Text>
+            <Text style={styles.nextActionSecondaryText}>
+              {nextActionSecondaryText}
+            </Text>
+          </View>
+
           <TouchableOpacity
             activeOpacity={0.9}
             style={styles.primaryButton}
-            onPress={() => navigation.navigate('Medications')}>
-            <Text style={styles.primaryButtonText}>
-              {routineSummary.remaining > 0
-                ? 'Open medications'
-                : 'View medications'}
-            </Text>
+            onPress={handlePrimaryActionPress}>
+            <Text style={styles.primaryButtonText}>{primaryButtonLabel}</Text>
           </TouchableOpacity>
         </View>
 
@@ -349,6 +400,38 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
     color: '#111827',
+  },
+  nextActionCard: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E7ECF3',
+  },
+  nextActionEyebrow: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1,
+    color: colors.primary,
+    marginBottom: 6,
+  },
+  nextActionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  nextActionPrimaryText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  nextActionSecondaryText: {
+    fontSize: 14,
+    color: '#667085',
+    lineHeight: 20,
   },
   primaryButton: {
     backgroundColor: colors.primary,

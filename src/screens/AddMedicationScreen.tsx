@@ -89,6 +89,60 @@ const AddMedicationScreen: React.FC = () => {
     [scheduledTimes],
   );
 
+  const applyQuickPreset = (
+    preset: 'once_daily' | 'twice_daily' | 'every_8_hours' | 'as_needed',
+  ) => {
+    switch (preset) {
+      case 'once_daily':
+        setType('routine');
+        setFrequencyType('daily');
+        setTimesPerDay('1');
+        setScheduledTimes('08:00');
+        break;
+      case 'twice_daily':
+        setType('routine');
+        setFrequencyType('daily');
+        setTimesPerDay('2');
+        setScheduledTimes('08:00, 20:00');
+        break;
+      case 'every_8_hours':
+        setType('routine');
+        setFrequencyType('daily');
+        setTimesPerDay('3');
+        setScheduledTimes('06:00, 14:00, 22:00');
+        break;
+      case 'as_needed':
+        setType('as_needed');
+        setMinHoursBetweenDoses('4');
+        setMaxDailyDoses('4');
+        break;
+    }
+  };
+
+  const applySuggestedTimes = () => {
+    const count = Number(timesPerDay) || 1;
+
+    if (count <= 1) {
+      setScheduledTimes('08:00');
+      return;
+    }
+
+    if (count === 2) {
+      setScheduledTimes('08:00, 20:00');
+      return;
+    }
+
+    if (count === 3) {
+      setScheduledTimes('06:00, 14:00, 22:00');
+      return;
+    }
+
+    if (count === 4) {
+      setScheduledTimes('06:00, 12:00, 18:00, 22:00');
+      return;
+    }
+  };
+
   const handleSave = async () => {
     if (!name.trim() || !dosage.trim()) {
       Alert.alert('Missing information', 'Please fill in name and dosage.');
@@ -261,6 +315,43 @@ const AddMedicationScreen: React.FC = () => {
           </Text>
         </View>
 
+        {!isEditMode ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Quick setup</Text>
+            <Text style={styles.helperText}>
+              Start with a common schedule and adjust only what you need.
+            </Text>
+
+            <View style={styles.presetRow}>
+              <TouchableOpacity
+                style={styles.presetChip}
+                onPress={() => applyQuickPreset('once_daily')}>
+                <Text style={styles.presetChipText}>Once daily</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.presetChip}
+                onPress={() => applyQuickPreset('twice_daily')}>
+                <Text style={styles.presetChipText}>Twice daily</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.presetRow}>
+              <TouchableOpacity
+                style={styles.presetChip}
+                onPress={() => applyQuickPreset('every_8_hours')}>
+                <Text style={styles.presetChipText}>Every 8 hours</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.presetChip}
+                onPress={() => applyQuickPreset('as_needed')}>
+                <Text style={styles.presetChipText}>As needed</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic details</Text>
 
@@ -377,6 +468,14 @@ const AddMedicationScreen: React.FC = () => {
                     placeholderTextColor={colors.textSecondary}
                     style={styles.input}
                   />
+
+                  <TouchableOpacity
+                    style={styles.helperButton}
+                    onPress={applySuggestedTimes}>
+                    <Text style={styles.helperButtonText}>
+                      Use suggested times
+                    </Text>
+                  </TouchableOpacity>
                 </>
               ) : (
                 <>
@@ -534,9 +633,45 @@ const styles = StyleSheet.create({
     marginTop: 8,
     lineHeight: 18,
   },
+  helperButton: {
+    marginTop: 10,
+    alignSelf: 'flex-start',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: '#E7ECF3',
+  },
+  helperButtonText: {
+    color: colors.primary,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  presetRow: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  presetChip: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#E7ECF3',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  presetChipText: {
+    color: '#111827',
+    fontWeight: '700',
+    fontSize: 14,
+    textAlign: 'center',
+  },
   toggleRow: {
     flexDirection: 'row',
-    gap: 10,
+    marginTop: 4,
   },
   segmentButton: {
     flex: 1,
@@ -546,7 +681,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 4,
+    marginRight: 10,
   },
   segmentButtonActive: {
     backgroundColor: colors.primary,

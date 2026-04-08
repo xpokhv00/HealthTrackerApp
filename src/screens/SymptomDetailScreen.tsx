@@ -41,6 +41,12 @@ const SymptomDetailScreen: React.FC = () => {
             Severity {symptom.severity}/10 • {getSeverityLabel(symptom.severity)}
           </Text>
           <Text style={styles.date}>{formatSymptomDateTime(symptom.createdAt)}</Text>
+
+          {symptom.category ? (
+            <View style={styles.categoryPill}>
+              <Text style={styles.categoryPillText}>{symptom.category}</Text>
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.section}>
@@ -53,6 +59,24 @@ const SymptomDetailScreen: React.FC = () => {
           <Text style={styles.value}>
             Logged at: {formatSymptomDateTime(symptom.createdAt)}
           </Text>
+          <Text style={styles.value}>
+            Category: {symptom.category ?? 'Not set'}
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Triggers</Text>
+          {symptom.triggers?.length ? (
+            <View style={styles.triggerRow}>
+              {symptom.triggers.map(item => (
+                <View key={item} style={styles.triggerChip}>
+                  <Text style={styles.triggerChipText}>{item}</Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.value}>No triggers selected.</Text>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -124,6 +148,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
   },
+  categoryPill: {
+    alignSelf: 'flex-start',
+    marginTop: 12,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  categoryPillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text,
+  },
   section: {
     backgroundColor: colors.surface,
     borderRadius: 18,
@@ -142,6 +181,24 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.text,
     marginBottom: 8,
+    lineHeight: 22,
+  },
+  triggerRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  triggerChip: {
+    backgroundColor: '#F2F4F7',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  triggerChipText: {
+    fontSize: 12,
+    color: '#475467',
+    fontWeight: '700',
   },
   footer: {
     marginTop: 8,

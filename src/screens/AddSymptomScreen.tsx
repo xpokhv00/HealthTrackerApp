@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  View,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import Screen from '../components/Screen';
 import {colors} from '../theme/colors';
 import {useSymptomStore} from '../store/symptomStore';
-import {SymptomEntry} from '../types/symptom';
+import {SymptomCategory, SymptomEntry} from '../types/symptom';
 
 const symptomSuggestions = [
   'Headache',
@@ -25,6 +26,27 @@ const symptomSuggestions = [
 ];
 
 const severityOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+const categoryOptions: SymptomCategory[] = [
+  'Pain',
+  'Respiratory',
+  'Digestive',
+  'Mood',
+  'Energy',
+  'Skin',
+  'Other',
+];
+
+const triggerOptions = [
+  'Stress',
+  'Sleep',
+  'Food',
+  'Exercise',
+  'Weather',
+  'Work',
+  'Screen time',
+  'Medication',
+];
 
 const AddSymptomScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -45,6 +67,20 @@ const AddSymptomScreen: React.FC = () => {
   const [symptom, setSymptom] = useState(existingSymptom?.symptom ?? '');
   const [severity, setSeverity] = useState(existingSymptom?.severity ?? 5);
   const [note, setNote] = useState(existingSymptom?.note ?? '');
+  const [category, setCategory] = useState<SymptomCategory | undefined>(
+    existingSymptom?.category,
+  );
+  const [triggers, setTriggers] = useState<string[]>(
+    existingSymptom?.triggers ?? [],
+  );
+
+  const toggleTrigger = (value: string) => {
+    setTriggers(current =>
+      current.includes(value)
+        ? current.filter(item => item !== value)
+        : [...current, value],
+    );
+  };
 
   const handleSave = () => {
     if (!symptom.trim()) {
@@ -57,6 +93,8 @@ const AddSymptomScreen: React.FC = () => {
       symptom: symptom.trim(),
       severity,
       note: note.trim() || undefined,
+      category,
+      triggers: triggers.length > 0 ? triggers : undefined,
       createdAt: existingSymptom?.createdAt ?? new Date().toISOString(),
     };
 
@@ -72,82 +110,143 @@ const AddSymptomScreen: React.FC = () => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.eyebrow}>
+            {isEditMode ? 'EDIT' : 'NEW'} SYMPTOM
+          </Text>
+          <Text style={styles.title}>
+            {isEditMode ? 'Update symptom' : 'Log symptom'}
+          </Text>
+          <Text style={styles.subtitle}>
+            Add a little context so patterns are easier to understand later.
+          </Text>
+        </View>
 
-        <Text style={styles.label}>Quick suggestions</Text>
-        <Text style={styles.helperText}>
-          Pick one or type a custom symptom below.
-        </Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick suggestions</Text>
+          <Text style={styles.helperText}>
+            Pick one or type a custom symptom below.
+          </Text>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.chipsRow}>
-          {symptomSuggestions.map(item => {
-            const active = symptom === item;
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalRow}>
+            {symptomSuggestions.map(item => {
+              const active = symptom === item;
 
-            return (
-              <TouchableOpacity
-                key={item}
-                style={[styles.chip, active && styles.chipActive]}
-                onPress={() => setSymptom(item)}>
-                <Text style={[styles.chipText, active && styles.chipTextActive]}>
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.chip, active && styles.chipActive]}
+                  onPress={() => setSymptom(item)}>
+                  <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
 
-        <Text style={styles.label}>Symptom name</Text>
-        <TextInput
-          value={symptom}
-          onChangeText={setSymptom}
-          placeholder="e.g. Headache"
-          placeholderTextColor={colors.textSecondary}
-          style={styles.input}
-        />
+          <Text style={styles.label}>Symptom name</Text>
+          <TextInput
+            value={symptom}
+            onChangeText={setSymptom}
+            placeholder="e.g. Headache"
+            placeholderTextColor={colors.textSecondary}
+            style={styles.input}
+          />
+        </View>
 
-        <Text style={styles.label}>Severity</Text>
-        <Text style={styles.helperText}>Choose a value from 1 to 10.</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Severity and category</Text>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.severityRow}>
-          {severityOptions.map(value => {
-            const active = severity === value;
+          <Text style={styles.label}>Severity</Text>
+          <Text style={styles.helperText}>Choose a value from 1 to 10.</Text>
 
-            return (
-              <TouchableOpacity
-                key={value}
-                style={[
-                  styles.severityButton,
-                  active && styles.severityButtonActive,
-                ]}
-                onPress={() => setSeverity(value)}>
-                <Text
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalRow}>
+            {severityOptions.map(value => {
+              const active = severity === value;
+
+              return (
+                <TouchableOpacity
+                  key={value}
                   style={[
-                    styles.severityButtonText,
-                    active && styles.severityButtonTextActive,
-                  ]}>
-                  {value}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+                    styles.severityButton,
+                    active && styles.severityButtonActive,
+                  ]}
+                  onPress={() => setSeverity(value)}>
+                  <Text
+                    style={[
+                      styles.severityButtonText,
+                      active && styles.severityButtonTextActive,
+                    ]}>
+                    {value}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
 
-        <Text style={styles.severityText}>Selected severity: {severity}/10</Text>
+          <Text style={styles.severityText}>Selected severity: {severity}/10</Text>
 
-        <Text style={styles.label}>Notes</Text>
-        <TextInput
-          value={note}
-          onChangeText={setNote}
-          placeholder="Optional note about duration, triggers, how you feel..."
-          placeholderTextColor={colors.textSecondary}
-          multiline
-          style={[styles.input, styles.multilineInput]}
-        />
+          <Text style={styles.label}>Category</Text>
+          <View style={styles.wrapRow}>
+            {categoryOptions.map(item => {
+              const active = category === item;
+
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.chip, active && styles.chipActive, styles.wrapChip]}
+                  onPress={() => setCategory(item)}>
+                  <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Possible triggers</Text>
+          <Text style={styles.helperText}>
+            Select anything that may be related.
+          </Text>
+
+          <View style={styles.wrapRow}>
+            {triggerOptions.map(item => {
+              const active = triggers.includes(item);
+
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.chip, active && styles.chipActive, styles.wrapChip]}
+                  onPress={() => toggleTrigger(item)}>
+                  <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Notes</Text>
+          <TextInput
+            value={note}
+            onChangeText={setNote}
+            placeholder="Optional note about duration, triggers, how you feel..."
+            placeholderTextColor={colors.textSecondary}
+            multiline
+            style={[styles.input, styles.multilineInput]}
+          />
+        </View>
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>
@@ -164,11 +263,40 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
+  header: {
+    marginBottom: 18,
+  },
+  eyebrow: {
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    color: colors.primary,
+    marginBottom: 6,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: 20,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    marginTop: 6,
+    lineHeight: 22,
+  },
+  section: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#E7ECF3',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 12,
   },
   label: {
     fontSize: 14,
@@ -181,6 +309,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     marginBottom: 8,
+    lineHeight: 18,
   },
   input: {
     backgroundColor: colors.surface,
@@ -196,9 +325,14 @@ const styles = StyleSheet.create({
     minHeight: 110,
     textAlignVertical: 'top',
   },
-  chipsRow: {
+  horizontalRow: {
     gap: 10,
     paddingVertical: 4,
+  },
+  wrapRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 4,
   },
   chip: {
     backgroundColor: colors.surface,
@@ -207,6 +341,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 10,
+  },
+  wrapChip: {
+    marginRight: 10,
+    marginBottom: 10,
   },
   chipActive: {
     backgroundColor: colors.primary,
@@ -218,10 +356,6 @@ const styles = StyleSheet.create({
   },
   chipTextActive: {
     color: '#FFFFFF',
-  },
-  severityRow: {
-    gap: 10,
-    paddingVertical: 4,
   },
   severityButton: {
     width: 44,
@@ -250,7 +384,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   saveButton: {
-    marginTop: 24,
+    marginTop: 8,
     backgroundColor: colors.primary,
     borderRadius: 16,
     paddingVertical: 16,

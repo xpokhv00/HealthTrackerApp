@@ -16,20 +16,20 @@ export const getTodayRoutineDoseSummary = (
 
   const total = todaySlots.length;
   const taken = todaySlots.filter(slot => isTaken(slot.status)).length;
-
-  // For Home UX, treat both pending and missed as "remaining attention"
   const remaining = Math.max(0, total - taken);
 
-  const overdue = todaySlots.filter(slot => slot.status === 'missed');
-  const upcoming = todaySlots.filter(slot => slot.status === 'pending');
+  const overdue = todaySlots
+    .filter(slot => slot.status === 'missed')
+    .sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
+
+  const upcoming = todaySlots
+    .filter(slot => slot.status === 'pending')
+    .sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
 
   const percent = total === 0 ? 0 : Math.round((taken / total) * 100);
 
-  // Prefer next upcoming dose. If none exists, but overdue doses exist, surface the earliest overdue one.
-  const nextActionable =
-    upcoming[0] ??
-    overdue.sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime))[0] ??
-    null;
+  const overdueAction = overdue[0] ?? null;
+  const upcomingAction = upcoming[0] ?? null;
 
   return {
     total,
@@ -38,6 +38,8 @@ export const getTodayRoutineDoseSummary = (
     overdueCount: overdue.length,
     upcomingCount: upcoming.length,
     percent,
-    nextActionable,
+    overdueAction,
+    upcomingAction,
+    primaryAction: overdueAction ?? upcomingAction ?? null,
   };
 };
