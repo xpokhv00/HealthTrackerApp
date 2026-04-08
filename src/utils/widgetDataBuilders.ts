@@ -89,8 +89,12 @@ export const buildRoutineWidgetItems = (
     (med.scheduledTimes ?? []).forEach(time => {
       const matchingSlot = slotMap.get(`${med.id}_${time}`);
 
+      const slotId = matchingSlot
+        ? matchingSlot.id
+        : `${med.id}_${todayKey}_${time}`;
+
       items.push({
-        id: med.id,
+        id: slotId,
         name: med.name,
         dosage: `${med.dosage}${med.form ? ` • ${med.form}` : ''}`,
         time,

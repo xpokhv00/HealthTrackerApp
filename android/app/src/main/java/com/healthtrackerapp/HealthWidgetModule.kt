@@ -108,9 +108,19 @@ class HealthWidgetsModule(private val reactContext: ReactApplicationContext) :
             for (i in 0 until arr.length()) {
                 val obj = arr.getJSONObject(i)
                 val map = Arguments.createMap()
-                map.putString("type", obj.optString("type"))
-                map.putString("medicationId", obj.optString("medicationId"))
+                val type = obj.optString("type")
+
+                map.putString("type", type)
                 map.putString("createdAt", obj.optString("createdAt"))
+
+                if (type == "routine_slot_taken") {
+                    map.putString("slotId", obj.optString("slotId"))
+                }
+
+                if (type == "as_needed_taken") {
+                    map.putString("medicationId", obj.optString("medicationId"))
+                }
+
                 result.pushMap(map)
             }
 

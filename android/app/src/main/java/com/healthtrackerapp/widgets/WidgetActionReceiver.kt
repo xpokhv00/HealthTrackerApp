@@ -3,7 +3,6 @@ package com.healthtrackerapp.widgets
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.healthtrackerapp.widgets.providers.AppointmentWidgetProvider
 import com.healthtrackerapp.widgets.providers.AsNeededWidgetProvider
 import com.healthtrackerapp.widgets.providers.RoutineWidgetProvider
 import org.json.JSONArray
@@ -46,7 +45,7 @@ class WidgetActionReceiver : BroadcastReceiver() {
                     if (it.id == itemId) {
                         it.copy(
                             available = false,
-                            availableInText = "Available in 4h"
+                            availableInText = "Updating…"
                         )
                     } else {
                         it
@@ -75,8 +74,8 @@ class WidgetActionReceiver : BroadcastReceiver() {
 
     private fun statusOrder(status: String): Int {
         return when (status) {
-            "pending" -> 0
-            "missed" -> 1
+            "missed" -> 0
+            "pending" -> 1
             "taken" -> 2
             else -> 3
         }

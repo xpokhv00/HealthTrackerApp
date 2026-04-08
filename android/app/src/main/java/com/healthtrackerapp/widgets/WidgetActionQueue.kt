@@ -7,12 +7,12 @@ import java.time.Instant
 
 object WidgetActionQueue {
 
-    fun enqueueRoutineTaken(context: Context, medicationId: String) {
+    fun enqueueRoutineTaken(context: Context, slotId: String) {
         enqueue(
             context,
             JSONObject().apply {
-                put("type", "routine_taken")
-                put("medicationId", medicationId)
+                put("type", "routine_slot_taken")
+                put("slotId", slotId)
                 put("createdAt", Instant.now().toString())
             }
         )
