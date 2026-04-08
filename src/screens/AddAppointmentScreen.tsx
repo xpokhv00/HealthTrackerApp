@@ -124,9 +124,6 @@ const AddAppointmentScreen: React.FC = () => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>
-          {isEditMode ? 'Edit Appointment' : 'Add Appointment'}
-        </Text>
 
         <Text style={styles.label}>Doctor name</Text>
         <TextInput

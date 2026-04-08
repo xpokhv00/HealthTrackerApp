@@ -9,7 +9,7 @@ interface Props {
 
 const Screen: React.FC<Props> = ({children}) => {
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <View style={styles.content}>{children}</View>
     </SafeAreaView>
   );

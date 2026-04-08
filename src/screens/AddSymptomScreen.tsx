@@ -110,17 +110,6 @@ const AddSymptomScreen: React.FC = () => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.eyebrow}>
-            {isEditMode ? 'EDIT' : 'NEW'} SYMPTOM
-          </Text>
-          <Text style={styles.title}>
-            {isEditMode ? 'Update symptom' : 'Log symptom'}
-          </Text>
-          <Text style={styles.subtitle}>
-            Add a little context so patterns are easier to understand later.
-          </Text>
-        </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick suggestions</Text>

@@ -303,17 +303,6 @@ const AddMedicationScreen: React.FC = () => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.eyebrow}>
-            {isEditMode ? 'EDIT' : 'NEW'} MEDICATION
-          </Text>
-          <Text style={styles.title}>
-            {isEditMode ? 'Update medication' : 'Add medication'}
-          </Text>
-          <Text style={styles.subtitle}>
-            Save the schedule, reminders, and basic details in one place.
-          </Text>
-        </View>
 
         {!isEditMode ? (
           <View style={styles.section}>

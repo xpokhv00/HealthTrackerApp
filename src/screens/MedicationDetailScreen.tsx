@@ -3,14 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+
 import {RootStackParamList} from '../navigation/types';
 import {useMedicationStore} from '../store/medicationStore';
-import {useAppointmentStore} from '../store/appointmentStore';
 import {useRoutineDoseStore} from '../store/routineDoseStore';
 import {
   formatDateTime,
@@ -45,25 +45,25 @@ const formatTimeOnly = (value?: string) => {
 
 const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
   const {medicationId} = route.params;
+  const insets = useSafeAreaInsets();
 
   const medication = useMedicationStore(state =>
     state.medications.find(item => item.id === medicationId),
   );
   const markMedicationTaken = useMedicationStore(state => state.markMedicationTaken);
   const removeMedication = useMedicationStore(state => state.removeMedication);
-  const appointments = useAppointmentStore(state => state.appointments);
   const routineSlots = useRoutineDoseStore(state => state.slots);
 
   if (!medication) {
     return (
-      <SafeAreaView style={styles.container}>
+      <Screen>
         <View style={styles.center}>
           <Text style={styles.errorTitle}>Medication not found</Text>
           <Text style={styles.errorText}>
             It may have been deleted or is no longer available.
           </Text>
         </View>
-      </SafeAreaView>
+      </Screen>
     );
   }
 
@@ -74,9 +74,7 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
 
   const todayKey = toDateKey(new Date());
   const todayRoutineSlots = routineSlots
-    .filter(
-      slot => slot.medicationId === medication.id && slot.date === todayKey,
-    )
+    .filter(slot => slot.medicationId === medication.id && slot.date === todayKey)
     .sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
 
   const overdueRoutineSlot =
@@ -137,7 +135,9 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
         ? `You already logged ${takenToday} dose${takenToday === 1 ? '' : 's'} today.`
         : availableNow
           ? 'You can log this medication now.'
-          : `Available again at ${formatTimeOnly(nextAllowedTime?.toISOString())}.`;
+          : `Available again at ${formatTimeOnly(
+            nextAllowedTime?.toISOString(),
+          )}.`;
 
   const takeButtonLabel =
     medication.type === 'routine'
@@ -153,10 +153,7 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
           : `Available at ${formatTimeOnly(nextAllowedTime?.toISOString())}`;
 
   const handleRefreshWidgets = async () => {
-    await syncAllWidgets({
-      medications: useMedicationStore.getState().medications,
-      appointments,
-    });
+    await syncAllWidgets();
   };
 
   const handleTake = async () => {
@@ -172,226 +169,239 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
     await handleRefreshWidgets();
   };
 
+  const handleDelete = async () => {
+    await notificationService.cancelMedicationRemindersByMedicationId(
+      medication.id,
+    );
+
+    await notificationService.cancelMedicationReminder(
+      getMedicationSnoozeNotificationId(medication.id),
+    );
+
+    removeMedication(medication.id);
+    await handleRefreshWidgets();
+    navigation.goBack();
+  };
+
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.heroCard}>
-          <View style={styles.heroTopRow}>
-            <View style={styles.heroTextBlock}>
-              <Text style={styles.name}>{medication.name}</Text>
-              <Text style={styles.meta}>
-                {medication.dosage}
-                {medication.form ? ` • ${medication.form}` : ''}
-              </Text>
-              <Text style={styles.type}>
-                {medication.type === 'routine'
-                  ? 'Routine medication'
-                  : 'As-needed medication'}
-              </Text>
+      <View style={styles.screen}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.heroCard}>
+            <View style={styles.heroTopRow}>
+              <View style={styles.heroTextBlock}>
+                <Text style={styles.name}>{medication.name}</Text>
+                <Text style={styles.meta}>
+                  {medication.dosage}
+                  {medication.form ? ` • ${medication.form}` : ''}
+                </Text>
+                <Text style={styles.type}>
+                  {medication.type === 'routine'
+                    ? 'Routine medication'
+                    : 'As-needed medication'}
+                </Text>
+              </View>
+
+              <View style={[styles.statusPill, statusPillStyle]}>
+                <Text style={styles.statusPillText}>{statusLabel}</Text>
+              </View>
             </View>
 
-            <View style={[styles.statusPill, statusPillStyle]}>
-              <Text style={styles.statusPillText}>{statusLabel}</Text>
+            <Text style={styles.heroDetail}>{statusDetail}</Text>
+
+            <View style={styles.heroStatsRow}>
+              <View style={styles.heroChip}>
+                <Text style={styles.heroChipLabel}>Taken today</Text>
+                <Text style={styles.heroChipValue}>
+                  {medication.type === 'routine' ? routineTakenToday : takenToday}
+                </Text>
+              </View>
+
+              <View style={styles.heroChip}>
+                <Text style={styles.heroChipLabel}>Last taken</Text>
+                <Text style={styles.heroChipValueSmall}>
+                  {medication.lastTakenAt
+                    ? formatTimeOnly(medication.lastTakenAt)
+                    : '—'}
+                </Text>
+              </View>
             </View>
           </View>
 
-          <Text style={styles.heroDetail}>{statusDetail}</Text>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Current status</Text>
 
-          <View style={styles.heroStatsRow}>
-            <View style={styles.heroChip}>
-              <Text style={styles.heroChipLabel}>Taken today</Text>
-              <Text style={styles.heroChipValue}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Availability</Text>
+              <Text style={styles.infoValue}>
+                {getAvailabilityLabel(medication)}
+              </Text>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Last taken</Text>
+              <Text style={styles.infoValue}>
+                {formatDateTime(medication.lastTakenAt)}
+              </Text>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Taken today</Text>
+              <Text style={styles.infoValue}>
                 {medication.type === 'routine' ? routineTakenToday : takenToday}
               </Text>
             </View>
 
-            <View style={styles.heroChip}>
-              <Text style={styles.heroChipLabel}>Last taken</Text>
-              <Text style={styles.heroChipValueSmall}>
-                {medication.lastTakenAt
-                  ? formatTimeOnly(medication.lastTakenAt)
-                  : '—'}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Current status</Text>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Availability</Text>
-            <Text style={styles.infoValue}>{getAvailabilityLabel(medication)}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Last taken</Text>
-            <Text style={styles.infoValue}>
-              {formatDateTime(medication.lastTakenAt)}
-            </Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Taken today</Text>
-            <Text style={styles.infoValue}>
-              {medication.type === 'routine' ? routineTakenToday : takenToday}
-            </Text>
-          </View>
-
-          {medication.type === 'routine' ? (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>
-                {overdueRoutineSlot ? 'Overdue dose' : 'Next scheduled dose'}
-              </Text>
-              <Text style={styles.infoValue}>
-                {nextRoutineAction ? nextRoutineAction.scheduledTime : 'None'}
-              </Text>
-            </View>
-          ) : (
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Available again</Text>
-              <Text style={styles.infoValue}>
-                {dailyLimitReached
-                  ? 'Tomorrow'
-                  : availableNow
-                    ? 'Now'
-                    : formatDateTime(nextAllowedTime?.toISOString())}
-              </Text>
-            </View>
-          )}
-
-          {dailyLimitReached ? (
-            <Text style={styles.warning}>
-              You have reached the daily limit for this medication.
-            </Text>
-          ) : null}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Schedule</Text>
-
-          {medication.type === 'routine' ? (
-            <>
+            {medication.type === 'routine' ? (
               <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Frequency</Text>
+                <Text style={styles.infoLabel}>
+                  {overdueRoutineSlot ? 'Overdue dose' : 'Next scheduled dose'}
+                </Text>
                 <Text style={styles.infoValue}>
-                  {getRoutineScheduleLabel(medication)}
+                  {nextRoutineAction ? nextRoutineAction.scheduledTime : 'None'}
                 </Text>
               </View>
-
+            ) : (
               <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Times per day</Text>
+                <Text style={styles.infoLabel}>Available again</Text>
                 <Text style={styles.infoValue}>
-                  {medication.timesPerDay ?? '-'}
+                  {dailyLimitReached
+                    ? 'Tomorrow'
+                    : availableNow
+                      ? 'Now'
+                      : nextAllowedTime
+                        ? formatDateTime(nextAllowedTime.toISOString())
+                        : '—'}
                 </Text>
               </View>
+            )}
 
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Scheduled times</Text>
-                <Text style={styles.infoValue}>
-                  {medication.scheduledTimes?.join(', ') || '-'}
-                </Text>
-              </View>
+            {dailyLimitReached ? (
+              <Text style={styles.warning}>
+                You have reached the daily limit for this medication.
+              </Text>
+            ) : null}
+          </View>
 
-              {medication.frequencyType === 'interval_days' ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Schedule</Text>
+
+            {medication.type === 'routine' ? (
+              <>
                 <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Interval days</Text>
+                  <Text style={styles.infoLabel}>Frequency</Text>
                   <Text style={styles.infoValue}>
-                    {medication.intervalDays ?? '-'}
+                    {getRoutineScheduleLabel(medication)}
                   </Text>
                 </View>
-              ) : null}
-            </>
-          ) : (
-            <>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Minimum hours between doses</Text>
-                <Text style={styles.infoValue}>
-                  {medication.minHoursBetweenDoses ?? '-'}
-                </Text>
-              </View>
 
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Maximum daily doses</Text>
-                <Text style={styles.infoValue}>
-                  {medication.maxDailyDoses ?? '-'}
-                </Text>
-              </View>
-            </>
-          )}
-        </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Times per day</Text>
+                  <Text style={styles.infoValue}>
+                    {medication.timesPerDay ?? '-'}
+                  </Text>
+                </View>
 
-        {medication.notes ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Notes</Text>
-            <Text style={styles.value}>{medication.notes}</Text>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Scheduled times</Text>
+                  <Text style={styles.infoValue}>
+                    {medication.scheduledTimes?.join(', ') || '-'}
+                  </Text>
+                </View>
+
+                {medication.frequencyType === 'interval_days' ? (
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Interval days</Text>
+                    <Text style={styles.infoValue}>
+                      {medication.intervalDays ?? '-'}
+                    </Text>
+                  </View>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Minimum hours between doses</Text>
+                  <Text style={styles.infoValue}>
+                    {medication.minHoursBetweenDoses ?? '-'}
+                  </Text>
+                </View>
+
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Maximum daily doses</Text>
+                  <Text style={styles.infoValue}>
+                    {medication.maxDailyDoses ?? '-'}
+                  </Text>
+                </View>
+              </>
+            )}
           </View>
-        ) : null}
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>History</Text>
-          {medication.takenHistory.length === 0 ? (
-            <Text style={styles.value}>No doses recorded yet.</Text>
-          ) : (
-            [...medication.takenHistory]
-              .reverse()
-              .map(entry => (
+          {medication.notes ? (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Notes</Text>
+              <Text style={styles.value}>{medication.notes}</Text>
+            </View>
+          ) : null}
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>History</Text>
+            {medication.takenHistory.length === 0 ? (
+              <Text style={styles.value}>No doses recorded yet.</Text>
+            ) : (
+              [...medication.takenHistory].reverse().map(entry => (
                 <Text key={entry} style={styles.historyItem}>
                   • {formatDateTime(entry)}
                 </Text>
               ))
-          )}
+            )}
+          </View>
+        </ScrollView>
+
+        <View
+          style={[
+            styles.footer,
+            {paddingBottom: Math.max(insets.bottom, 12)},
+          ]}>
+          <TouchableOpacity
+            style={[styles.takeButton, takeDisabled && styles.takeButtonDisabled]}
+            onPress={handleTake}
+            disabled={takeDisabled}>
+            <Text style={styles.takeButtonText}>{takeButtonLabel}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() =>
+              navigation.navigate('AddMedication', {
+                medicationId: medication.id,
+              })
+            }>
+            <Text style={styles.editButtonText}>Edit medication</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <Text style={styles.deleteButtonText}>Delete medication</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.takeButton, takeDisabled && styles.takeButtonDisabled]}
-          onPress={handleTake}
-          disabled={takeDisabled}>
-          <Text style={styles.takeButtonText}>{takeButtonLabel}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() =>
-            navigation.navigate('AddMedication', {
-              medicationId: medication.id,
-            })
-          }>
-          <Text style={styles.editButtonText}>Edit medication</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={async () => {
-            await notificationService.cancelMedicationRemindersByMedicationId(
-              medication.id,
-            );
-
-            await notificationService.cancelMedicationReminder(
-              getMedicationSnoozeNotificationId(medication.id),
-            );
-
-            removeMedication(medication.id);
-            await handleRefreshWidgets();
-            navigation.goBack();
-          }}>
-          <Text style={styles.deleteButtonText}>Delete medication</Text>
-        </TouchableOpacity>
       </View>
     </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    backgroundColor: '#F6F8FB',
+  },
+  scroll: {
+    flex: 1,
   },
   content: {
     padding: 20,
-    paddingBottom: 140,
+    paddingBottom: 24,
   },
   center: {
     flex: 1,
@@ -538,10 +548,11 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   footer: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    bottom: 20,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    backgroundColor: '#F6F8FB',
+    borderTopWidth: 1,
+    borderTopColor: '#E7ECF3',
   },
   takeButton: {
     backgroundColor: colors.primary,

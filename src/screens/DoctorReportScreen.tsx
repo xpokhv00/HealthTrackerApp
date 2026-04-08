@@ -111,7 +111,6 @@ const DoctorReportScreen: React.FC = () => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Doctor Report</Text>
         <Text style={styles.subtitle}>
           A compact overview of current symptoms, treatments, visits, and routine adherence
         </Text>
@@ -300,13 +299,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: colors.text,
-  },
   subtitle: {
-    marginTop: 6,
     marginBottom: 16,
     fontSize: 15,
     color: colors.textSecondary,
