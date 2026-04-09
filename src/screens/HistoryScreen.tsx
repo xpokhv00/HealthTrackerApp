@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -27,10 +27,45 @@ const HistoryScreen: React.FC = () => {
   const appointments = useAppointmentStore(state => state.appointments);
   const symptoms = useSymptomStore(state => state.symptoms);
 
-  const activeMedications = getActiveMedicationsForReport(medications);
-  const recentSymptoms = getRecentSymptomsForReport(symptoms, 5);
-  const upcomingAppointments = getUpcomingAppointmentsForReport(appointments);
-  const pastAppointments = getPastAppointmentsForReport(appointments);
+  const [personFilter, setPersonFilter] = useState<string>('all');
+
+  const peopleOptions = useMemo(() => {
+    const names = [
+      ...medications.map(m => m.patientName),
+      ...symptoms.map(s => s.patientName),
+      ...appointments.map(a => a.patientName),
+    ].filter(Boolean) as string[];
+    return ['all', ...Array.from(new Set(names))];
+  }, [medications, symptoms, appointments]);
+
+  const filteredMedications = useMemo(
+    () =>
+      personFilter === 'all'
+        ? medications
+        : medications.filter(m => m.patientName === personFilter),
+    [medications, personFilter],
+  );
+
+  const filteredSymptoms = useMemo(
+    () =>
+      personFilter === 'all'
+        ? symptoms
+        : symptoms.filter(s => s.patientName === personFilter),
+    [symptoms, personFilter],
+  );
+
+  const filteredAppointments = useMemo(
+    () =>
+      personFilter === 'all'
+        ? appointments
+        : appointments.filter(a => a.patientName === personFilter),
+    [appointments, personFilter],
+  );
+
+  const activeMedications = getActiveMedicationsForReport(filteredMedications);
+  const recentSymptoms = getRecentSymptomsForReport(filteredSymptoms, 5);
+  const upcomingAppointments = getUpcomingAppointmentsForReport(filteredAppointments);
+  const pastAppointments = getPastAppointmentsForReport(filteredAppointments);
 
   return (
     <Screen>
@@ -39,6 +74,28 @@ const HistoryScreen: React.FC = () => {
         <Text style={styles.subtitle}>
           Review your health data and prepare a doctor-friendly summary
         </Text>
+
+        {peopleOptions.length > 1 && (
+          <View style={styles.personFilterRow}>
+            {peopleOptions.map(option => {
+              const active = personFilter === option;
+              return (
+                <TouchableOpacity
+                  key={option}
+                  style={[styles.filterChip, active && styles.filterChipActive]}
+                  onPress={() => setPersonFilter(option)}>
+                  <Text
+                    style={[
+                      styles.filterChipText,
+                      active && styles.filterChipTextActive,
+                    ]}>
+                    {option === 'all' ? 'All' : option}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
         <ReportSection title="Overview">
           <View style={styles.statRow}>
@@ -120,6 +177,33 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 15,
     color: colors.textSecondary,
+  },
+  personFilterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 16,
+  },
+  filterChip: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginRight: 10,
+    marginBottom: 8,
+  },
+  filterChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  filterChipText: {
+    color: colors.text,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  filterChipTextActive: {
+    color: '#FFFFFF',
   },
   statRow: {
     flexDirection: 'row',

@@ -18,24 +18,32 @@ interface Props {
   medication: Medication;
   onPress: (event: GestureResponderEvent) => void;
   onTakePress: (event: GestureResponderEvent) => void;
+  allDoneToday?: boolean;
 }
 
 const MedicationCard: React.FC<Props> = ({
                                            medication,
                                            onPress,
                                            onTakePress,
+                                           allDoneToday = false,
                                          }) => {
   const availableNow = isMedicationAvailableNow(medication);
   const dailyLimitReached = hasReachedDailyLimit(medication);
 
   const takeDisabled =
-    medication.type === 'as_needed' && (!availableNow || dailyLimitReached);
+    allDoneToday ||
+    (medication.type === 'as_needed' && (!availableNow || dailyLimitReached));
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
+    <TouchableOpacity
+      style={[styles.card, allDoneToday && styles.cardDone]}
+      onPress={onPress}
+      activeOpacity={0.85}>
       <View style={styles.topRow}>
         <View style={styles.info}>
-          <Text style={styles.name}>{medication.name}</Text>
+          <Text style={[styles.name, allDoneToday && styles.textDone]}>
+            {medication.name}
+          </Text>
           {medication.patientName ? (
             <Text style={styles.patientName}>For: {medication.patientName}</Text>
           ) : null}
@@ -58,10 +66,15 @@ const MedicationCard: React.FC<Props> = ({
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.status}>{getAvailabilityLabel(medication)}</Text>
-
-      {dailyLimitReached && (
-        <Text style={styles.warning}>Daily limit reached</Text>
+      {allDoneToday ? (
+        <Text style={styles.completedBadge}>All doses completed today</Text>
+      ) : (
+        <>
+          <Text style={styles.status}>{getAvailabilityLabel(medication)}</Text>
+          {dailyLimitReached && (
+            <Text style={styles.warning}>Daily limit reached</Text>
+          )}
+        </>
       )}
     </TouchableOpacity>
   );
@@ -75,6 +88,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#E7ECF3',
+  },
+  cardDone: {
+    backgroundColor: '#F8FAFC',
+    borderColor: '#E7ECF3',
+    opacity: 0.75,
+  },
+  textDone: {
+    color: '#9BA8B4',
+  },
+  completedBadge: {
+    marginTop: 10,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#12B76A',
   },
   topRow: {
     flexDirection: 'row',

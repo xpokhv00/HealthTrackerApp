@@ -42,15 +42,49 @@ const DoctorReportScreen: React.FC = () => {
 
   const [isExporting, setIsExporting] = useState(false);
   const [reportWindow, setReportWindow] = useState<ReportWindow>(14);
+  const [personFilter, setPersonFilter] = useState<string>('all');
+
+  const peopleOptions = useMemo(() => {
+    const names = [
+      ...medications.map(m => m.patientName),
+      ...symptoms.map(s => s.patientName),
+      ...appointments.map(a => a.patientName),
+    ].filter(Boolean) as string[];
+    return ['all', ...Array.from(new Set(names))];
+  }, [medications, symptoms, appointments]);
+
+  const filteredMedications = useMemo(
+    () =>
+      personFilter === 'all'
+        ? medications
+        : medications.filter(m => m.patientName === personFilter),
+    [medications, personFilter],
+  );
+
+  const filteredSymptoms = useMemo(
+    () =>
+      personFilter === 'all'
+        ? symptoms
+        : symptoms.filter(s => s.patientName === personFilter),
+    [symptoms, personFilter],
+  );
+
+  const filteredAppointments = useMemo(
+    () =>
+      personFilter === 'all'
+        ? appointments
+        : appointments.filter(a => a.patientName === personFilter),
+    [appointments, personFilter],
+  );
 
   const activeMedications = useMemo(
-    () => getActiveMedicationsForReport(medications),
-    [medications],
+    () => getActiveMedicationsForReport(filteredMedications),
+    [filteredMedications],
   );
 
   const recentSymptoms = useMemo(
-    () => getRecentSymptomsForReport(symptoms, 12, reportWindow),
-    [symptoms, reportWindow],
+    () => getRecentSymptomsForReport(filteredSymptoms, 12, reportWindow),
+    [filteredSymptoms, reportWindow],
   );
 
   const groupedSymptoms = useMemo(
@@ -59,13 +93,13 @@ const DoctorReportScreen: React.FC = () => {
   );
 
   const upcomingAppointments = useMemo(
-    () => getUpcomingAppointmentsForReport(appointments),
-    [appointments],
+    () => getUpcomingAppointmentsForReport(filteredAppointments),
+    [filteredAppointments],
   );
 
   const pastAppointments = useMemo(
-    () => getPastAppointmentsForReport(appointments, reportWindow).slice(0, 5),
-    [appointments, reportWindow],
+    () => getPastAppointmentsForReport(filteredAppointments, reportWindow).slice(0, 5),
+    [filteredAppointments, reportWindow],
   );
 
   const mostFrequentSymptom = useMemo(
@@ -84,8 +118,8 @@ const DoctorReportScreen: React.FC = () => {
   );
 
   const adherenceSummary = useMemo(
-    () => getRoutineAdherenceSummary(medications, routineSlots, reportWindow),
-    [medications, routineSlots, reportWindow],
+    () => getRoutineAdherenceSummary(filteredMedications, routineSlots, reportWindow),
+    [filteredMedications, routineSlots, reportWindow],
   );
 
   const handleExportAndShare = async () => {
@@ -93,9 +127,9 @@ const DoctorReportScreen: React.FC = () => {
       setIsExporting(true);
 
       const {fileUrl} = await exportDoctorReportPdf({
-        medications,
-        appointments,
-        symptoms,
+        medications: filteredMedications,
+        appointments: filteredAppointments,
+        symptoms: filteredSymptoms,
         routineSlots,
         reportWindow,
       });
@@ -114,6 +148,28 @@ const DoctorReportScreen: React.FC = () => {
         <Text style={styles.subtitle}>
           A compact overview of current symptoms, treatments, visits, and routine adherence
         </Text>
+
+        {peopleOptions.length > 1 && (
+          <View style={styles.personFilterRow}>
+            {peopleOptions.map(option => {
+              const active = personFilter === option;
+              return (
+                <TouchableOpacity
+                  key={option}
+                  style={[styles.filterChip, active && styles.filterChipActive]}
+                  onPress={() => setPersonFilter(option)}>
+                  <Text
+                    style={[
+                      styles.filterChipText,
+                      active && styles.filterChipTextActive,
+                    ]}>
+                    {option === 'all' ? 'All' : option}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
         <View style={styles.filterRow}>
           {[7, 14, 30, 'all'].map(item => {
@@ -310,6 +366,11 @@ const styles = StyleSheet.create({
   },
   filterRow: {
     flexDirection: 'row',
+    marginBottom: 14,
+  },
+  personFilterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     marginBottom: 14,
   },
   filterChip: {
