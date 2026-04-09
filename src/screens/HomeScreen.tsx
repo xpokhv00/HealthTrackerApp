@@ -374,10 +374,12 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   heroTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#111827',
-    marginBottom: 6,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#667085',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
   heroMessage: {
     fontSize: 14,
@@ -400,7 +402,7 @@ const styles = StyleSheet.create({
     color: '#B42318',
   },
   nextDoseName: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: '800',
     color: '#111827',
   },
