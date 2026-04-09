@@ -93,19 +93,19 @@ const MedicationsScreen: React.FC<Props> = ({navigation}) => {
   }, [slots, todayKey, medications]);
 
   const peopleOptions = useMemo(() => {
+    const hasMe = medications.some(m => !m.patientName);
     const names = medications
       .map(m => m.patientName)
       .filter(Boolean) as string[];
-    return ['all', ...Array.from(new Set(names))];
+    const unique = Array.from(new Set(names));
+    return ['all', ...(hasMe ? ['me'] : []), ...unique];
   }, [medications]);
 
-  const personFiltered = useMemo(
-    () =>
-      personFilter === 'all'
-        ? medications
-        : medications.filter(m => m.patientName === personFilter),
-    [medications, personFilter],
-  );
+  const personFiltered = useMemo(() => {
+    if (personFilter === 'all') {return medications;}
+    if (personFilter === 'me') {return medications.filter(m => !m.patientName);}
+    return medications.filter(m => m.patientName === personFilter);
+  }, [medications, personFilter]);
 
   // Routine: active (not all done today) first, done ones at the end
   const {routineActive, routineDone} = useMemo(() => {
@@ -171,7 +171,7 @@ const MedicationsScreen: React.FC<Props> = ({navigation}) => {
                             styles.filterChipText,
                             active && styles.filterChipTextActive,
                           ]}>
-                          {option === 'all' ? 'All' : option}
+                          {option === 'all' ? 'All' : option === 'me' ? 'Me' : option}
                         </Text>
                       </TouchableOpacity>
                     );

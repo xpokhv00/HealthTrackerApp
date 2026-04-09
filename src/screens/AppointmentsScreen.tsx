@@ -30,19 +30,19 @@ const AppointmentsScreen: React.FC = () => {
     selectedTab === 'upcoming' ? upcomingAppointments : pastAppointments;
 
   const peopleOptions = useMemo(() => {
+    const hasMe = appointments.some(a => !a.patientName);
     const names = appointments
       .map(a => a.patientName)
       .filter(Boolean) as string[];
-    return ['all', ...Array.from(new Set(names))];
+    const unique = Array.from(new Set(names));
+    return ['all', ...(hasMe ? ['me'] : []), ...unique];
   }, [appointments]);
 
-  const data = useMemo(
-    () =>
-      personFilter === 'all'
-        ? tabData
-        : tabData.filter(a => a.patientName === personFilter),
-    [tabData, personFilter],
-  );
+  const data = useMemo(() => {
+    if (personFilter === 'all') {return tabData;}
+    if (personFilter === 'me') {return tabData.filter(a => !a.patientName);}
+    return tabData.filter(a => a.patientName === personFilter);
+  }, [tabData, personFilter]);
 
   return (
     <Screen>
@@ -101,7 +101,7 @@ const AppointmentsScreen: React.FC = () => {
                       styles.filterChipText,
                       active && styles.filterChipTextActive,
                     ]}>
-                    {option === 'all' ? 'All' : option}
+                    {option === 'all' ? 'All' : option === 'me' ? 'Me' : option}
                   </Text>
                 </TouchableOpacity>
               );

@@ -72,19 +72,19 @@ const SymptomsScreen: React.FC = () => {
   );
 
   const peopleOptions = useMemo(() => {
+    const hasMe = timeFilteredSymptoms.some(s => !s.patientName);
     const names = timeFilteredSymptoms
       .map(s => s.patientName)
       .filter(Boolean) as string[];
-    return ['all', ...Array.from(new Set(names))];
+    const unique = Array.from(new Set(names));
+    return ['all', ...(hasMe ? ['me'] : []), ...unique];
   }, [timeFilteredSymptoms]);
 
-  const personFilteredSymptoms = useMemo(
-    () =>
-      personFilter === 'all'
-        ? timeFilteredSymptoms
-        : timeFilteredSymptoms.filter(s => s.patientName === personFilter),
-    [timeFilteredSymptoms, personFilter],
-  );
+  const personFilteredSymptoms = useMemo(() => {
+    if (personFilter === 'all') {return timeFilteredSymptoms;}
+    if (personFilter === 'me') {return timeFilteredSymptoms.filter(s => !s.patientName);}
+    return timeFilteredSymptoms.filter(s => s.patientName === personFilter);
+  }, [timeFilteredSymptoms, personFilter]);
 
   const categoryFilteredSymptoms = useMemo(
     () => filterSymptomsByCategory(personFilteredSymptoms, categoryFilter),
@@ -257,7 +257,7 @@ const SymptomsScreen: React.FC = () => {
                               styles.filterChipText,
                               active && styles.filterChipTextActive,
                             ]}>
-                            {option === 'all' ? 'All' : option}
+                            {option === 'all' ? 'All' : option === 'me' ? 'Me' : option}
                           </Text>
                         </TouchableOpacity>
                       );

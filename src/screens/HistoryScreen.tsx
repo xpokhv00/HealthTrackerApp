@@ -30,37 +30,36 @@ const HistoryScreen: React.FC = () => {
   const [personFilter, setPersonFilter] = useState<string>('all');
 
   const peopleOptions = useMemo(() => {
+    const hasMe =
+      medications.some(m => !m.patientName) ||
+      symptoms.some(s => !s.patientName) ||
+      appointments.some(a => !a.patientName);
     const names = [
       ...medications.map(m => m.patientName),
       ...symptoms.map(s => s.patientName),
       ...appointments.map(a => a.patientName),
     ].filter(Boolean) as string[];
-    return ['all', ...Array.from(new Set(names))];
+    const unique = Array.from(new Set(names));
+    return ['all', ...(hasMe ? ['me'] : []), ...unique];
   }, [medications, symptoms, appointments]);
 
-  const filteredMedications = useMemo(
-    () =>
-      personFilter === 'all'
-        ? medications
-        : medications.filter(m => m.patientName === personFilter),
-    [medications, personFilter],
-  );
+  const filteredMedications = useMemo(() => {
+    if (personFilter === 'all') {return medications;}
+    if (personFilter === 'me') {return medications.filter(m => !m.patientName);}
+    return medications.filter(m => m.patientName === personFilter);
+  }, [medications, personFilter]);
 
-  const filteredSymptoms = useMemo(
-    () =>
-      personFilter === 'all'
-        ? symptoms
-        : symptoms.filter(s => s.patientName === personFilter),
-    [symptoms, personFilter],
-  );
+  const filteredSymptoms = useMemo(() => {
+    if (personFilter === 'all') {return symptoms;}
+    if (personFilter === 'me') {return symptoms.filter(s => !s.patientName);}
+    return symptoms.filter(s => s.patientName === personFilter);
+  }, [symptoms, personFilter]);
 
-  const filteredAppointments = useMemo(
-    () =>
-      personFilter === 'all'
-        ? appointments
-        : appointments.filter(a => a.patientName === personFilter),
-    [appointments, personFilter],
-  );
+  const filteredAppointments = useMemo(() => {
+    if (personFilter === 'all') {return appointments;}
+    if (personFilter === 'me') {return appointments.filter(a => !a.patientName);}
+    return appointments.filter(a => a.patientName === personFilter);
+  }, [appointments, personFilter]);
 
   const activeMedications = getActiveMedicationsForReport(filteredMedications);
   const recentSymptoms = getRecentSymptomsForReport(filteredSymptoms, 5);
@@ -89,7 +88,7 @@ const HistoryScreen: React.FC = () => {
                       styles.filterChipText,
                       active && styles.filterChipTextActive,
                     ]}>
-                    {option === 'all' ? 'All' : option}
+                    {option === 'all' ? 'All' : option === 'me' ? 'Me' : option}
                   </Text>
                 </TouchableOpacity>
               );
