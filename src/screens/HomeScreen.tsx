@@ -128,9 +128,11 @@ const HomeScreen: React.FC = () => {
             <View style={styles.heroLeft}>
               <Text style={styles.heroTitle}>Today's routine</Text>
 
-              {primaryAction && routineSummary.overdueCount === 0 ? (
+              {primaryAction ? (
                 <View style={styles.nextDoseBlock}>
-                  <Text style={styles.nextDoseLabel}>Next up</Text>
+                  <Text style={[styles.nextDoseLabel, routineSummary.overdueCount > 0 && styles.nextDoseLabelOverdue]}>
+                    {routineSummary.overdueCount > 0 ? 'Overdue' : 'Next up'}
+                  </Text>
                   <Text style={styles.nextDoseName}>{primaryAction.medicationName}</Text>
                   <Text style={styles.nextDoseTime}>🕐 {primaryAction.scheduledTime}</Text>
                 </View>
@@ -393,6 +395,9 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginBottom: 2,
     textTransform: 'uppercase',
+  },
+  nextDoseLabelOverdue: {
+    color: '#B42318',
   },
   nextDoseName: {
     fontSize: 20,
