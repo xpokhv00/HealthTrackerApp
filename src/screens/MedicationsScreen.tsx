@@ -84,6 +84,7 @@ const MedicationsScreen: React.FC<Props> = ({navigation}) => {
       const medSlots = todaySlots.filter(s => s.medicationId === medId);
       if (
         medSlots.length > 0 &&
+        medSlots.some(s => s.status === 'taken_on_time' || s.status === 'taken_late') &&
         medSlots.every(s => s.status === 'taken_on_time' || s.status === 'taken_late' || s.status === 'missed')
       ) {
         done.add(medId);
