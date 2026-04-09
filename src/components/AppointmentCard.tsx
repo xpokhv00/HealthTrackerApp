@@ -21,6 +21,9 @@ const AppointmentCard: React.FC<Props> = ({appointment, onPress}) => {
       <View style={styles.topRow}>
         <View style={styles.info}>
           <Text style={styles.visitType}>{appointment.visitType}</Text>
+          {appointment.patientName ? (
+            <Text style={styles.patientName}>For: {appointment.patientName}</Text>
+          ) : null}
           <Text style={styles.doctor}>
             {appointment.doctorName} • {appointment.specialty}
           </Text>
@@ -71,6 +74,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
     color: '#111827',
+  },
+  patientName: {
+    marginTop: 3,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#4C7EFF',
   },
   doctor: {
     marginTop: 4,

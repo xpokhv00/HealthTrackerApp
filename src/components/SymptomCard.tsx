@@ -16,6 +16,9 @@ const SymptomCard: React.FC<Props> = ({symptom, onPress}) => {
       <View style={styles.topRow}>
         <View style={styles.info}>
           <Text style={styles.name}>{symptom.symptom}</Text>
+          {symptom.patientName ? (
+            <Text style={styles.patientName}>For: {symptom.patientName}</Text>
+          ) : null}
           <Text style={styles.meta}>
             Severity {symptom.severity}/10 • {getSeverityLabel(symptom.severity)}
           </Text>
@@ -79,6 +82,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
     color: '#111827',
+  },
+  patientName: {
+    marginTop: 2,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#4C7EFF',
   },
   meta: {
     marginTop: 4,

@@ -110,8 +110,13 @@ export const buildDoctorReportHtml = ({
                   Type: ${item.type === 'routine' ? 'Routine' : 'As needed'}
                 </div>
                 ${
-            item.notes
-              ? `<div class="item-note">Notes: ${escapeHtml(item.notes)}</div>`
+            item.purpose
+              ? `<div class="item-note">Purpose: ${escapeHtml(item.purpose)}</div>`
+              : ''
+          }
+                ${
+            item.usageInstructions
+              ? `<div class="item-note">Take: ${escapeHtml(item.usageInstructions)}</div>`
               : ''
           }
               </div>

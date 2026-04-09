@@ -51,6 +51,7 @@ const AddMedicationScreen: React.FC = () => {
   const isEditMode = !!existingMedication;
 
   const [name, setName] = useState(existingMedication?.name ?? '');
+  const [patientName, setPatientName] = useState(existingMedication?.patientName ?? '');
   const [dosage, setDosage] = useState(existingMedication?.dosage ?? '');
   const [form, setForm] = useState(existingMedication?.form ?? '');
   const [type, setType] = useState<MedicationType>(
@@ -68,7 +69,10 @@ const AddMedicationScreen: React.FC = () => {
   const [maxDailyDoses, setMaxDailyDoses] = useState(
     String(existingMedication?.maxDailyDoses ?? 4),
   );
-  const [notes, setNotes] = useState(existingMedication?.notes ?? '');
+  const [purpose, setPurpose] = useState(existingMedication?.purpose ?? '');
+  const [usageInstructions, setUsageInstructions] = useState(
+    existingMedication?.usageInstructions ?? '',
+  );
   const [startDate, setStartDate] = useState<Date | null>(
     existingMedication?.startDate
       ? new Date(existingMedication.startDate)
@@ -239,6 +243,7 @@ const AddMedicationScreen: React.FC = () => {
 
     const medication: Medication = {
       id: existingMedication?.id ?? Date.now().toString(),
+      patientName: patientName.trim() || undefined,
       name: name.trim(),
       dosage: dosage.trim(),
       form: form.trim() || undefined,
@@ -254,7 +259,8 @@ const AddMedicationScreen: React.FC = () => {
         type === 'as_needed' ? normalizedMinHoursBetweenDoses : undefined,
       maxDailyDoses:
         type === 'as_needed' ? normalizedMaxDailyDoses : undefined,
-      notes: notes.trim() || undefined,
+      purpose: purpose.trim() || undefined,
+      usageInstructions: usageInstructions || undefined,
       startDate: (startDate || new Date()).toISOString(),
       endDate: endDate ? endDate.toISOString() : undefined,
       lastTakenAt: existingMedication?.lastTakenAt,
@@ -349,6 +355,15 @@ const AddMedicationScreen: React.FC = () => {
             value={name}
             onChangeText={setName}
             placeholder="e.g. Magnesium"
+            placeholderTextColor={colors.textSecondary}
+            style={styles.input}
+          />
+
+          <Text style={styles.label}>For (optional)</Text>
+          <TextInput
+            value={patientName}
+            onChangeText={setPatientName}
+            placeholder="e.g. Emma, my son..."
             placeholderTextColor={colors.textSecondary}
             style={styles.input}
           />
@@ -518,7 +533,7 @@ const AddMedicationScreen: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Dates and notes</Text>
+          <Text style={styles.sectionTitle}>Dates and details</Text>
 
           <DateTimeField
             label="Start date"
@@ -534,15 +549,41 @@ const AddMedicationScreen: React.FC = () => {
             onChange={setEndDate}
           />
 
-          <Text style={styles.label}>Notes</Text>
+          <Text style={styles.label}>Purpose</Text>
           <TextInput
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Optional notes"
+            value={purpose}
+            onChangeText={setPurpose}
+            placeholder="e.g. For seasonal allergy symptoms"
             placeholderTextColor={colors.textSecondary}
             style={[styles.input, styles.multilineInput]}
             multiline
           />
+
+          <Text style={styles.label}>Usage instructions</Text>
+          <View style={styles.wrapRow}>
+            {[
+              'Before food',
+              'After food',
+              'With food',
+              'On empty stomach',
+              'Before bed',
+              'In the morning',
+            ].map(option => {
+              const active = usageInstructions === option;
+              return (
+                <TouchableOpacity
+                  key={option}
+                  style={[styles.chip, active && styles.chipActive, styles.wrapChip]}
+                  onPress={() =>
+                    setUsageInstructions(active ? '' : option)
+                  }>
+                  <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -681,6 +722,35 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   segmentButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  wrapRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  chip: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  wrapChip: {
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  chipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  chipText: {
+    color: colors.text,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  chipTextActive: {
     color: '#FFFFFF',
   },
   saveButton: {

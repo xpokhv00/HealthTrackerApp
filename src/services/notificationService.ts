@@ -10,6 +10,7 @@ import {NOTIFICATION_ACTIONS} from '../constants/notificationActions';
 const CHANNELS = {
   medication: 'medication-reminders',
   appointment: 'appointment-reminders',
+  summary: 'daily-summary',
 };
 
 type NotificationData = Record<string, string>;
@@ -68,6 +69,12 @@ export const notificationService = {
     await notifee.createChannel({
       id: CHANNELS.appointment,
       name: 'Appointment reminders',
+      importance: AndroidImportance.HIGH,
+    });
+
+    await notifee.createChannel({
+      id: CHANNELS.summary,
+      name: 'Daily medication summary',
       importance: AndroidImportance.HIGH,
     });
   },
@@ -204,6 +211,37 @@ export const notificationService = {
 
   async cancelAllNotifications() {
     await notifee.cancelAllNotifications();
+  },
+
+  async scheduleDailySummaryNotification(params: {
+    notificationId: string;
+    title: string;
+    body: string;
+    timestamp: number;
+  }) {
+    const trigger: TimestampTrigger = {
+      type: TriggerType.TIMESTAMP,
+      timestamp: params.timestamp,
+      repeatFrequency: RepeatFrequency.DAILY,
+    };
+
+    await notifee.createTriggerNotification(
+      {
+        id: params.notificationId,
+        title: params.title,
+        body: params.body,
+        data: {screen: 'Medications'},
+        android: {
+          channelId: CHANNELS.summary,
+          pressAction: {id: 'default', launchActivity: 'default'},
+        },
+      },
+      trigger,
+    );
+  },
+
+  async cancelDailySummaryNotification(notificationId: string) {
+    await notifee.cancelNotification(notificationId);
   },
 
   async scheduleOneTimeMedicationSnooze(params: {

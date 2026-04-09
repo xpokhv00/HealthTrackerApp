@@ -9,6 +9,7 @@ export type SymptomCategory =
 
 export interface SymptomEntry {
   id: string;
+  patientName?: string;
   symptom: string;
   severity: number;
   note?: string;

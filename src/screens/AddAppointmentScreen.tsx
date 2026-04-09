@@ -36,6 +36,7 @@ const AddAppointmentScreen: React.FC = () => {
   const isEditMode = !!existingAppointment;
 
   const [doctorName, setDoctorName] = useState(existingAppointment?.doctorName ?? '');
+  const [patientName, setPatientName] = useState(existingAppointment?.patientName ?? '');
   const [specialty, setSpecialty] = useState(existingAppointment?.specialty ?? '');
   const [visitType, setVisitType] = useState(
     existingAppointment?.visitType ?? visitTypes[0] ?? '',
@@ -90,6 +91,7 @@ const AddAppointmentScreen: React.FC = () => {
 
     const appointment: Appointment = {
       id: existingAppointment?.id ?? Date.now().toString(),
+      patientName: patientName.trim() || undefined,
       doctorName: doctorName.trim(),
       specialty: specialty.trim(),
       visitType: visitType.trim(),
@@ -109,10 +111,18 @@ const AddAppointmentScreen: React.FC = () => {
     const reminderDate = getBestAppointmentReminderDate(appointment);
 
     if (reminderDate) {
+      const timeStr = mergedDateTime.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      const prepList =
+        appointment.preparation.length > 0
+          ? ` Reminders: ${appointment.preparation.slice(0, 3).join(', ')}.`
+          : '';
       await notificationService.scheduleAppointmentReminder({
         id: appointment.id,
-        title: `Upcoming appointment: ${appointment.visitType}`,
-        body: `${appointment.doctorName} • ${appointment.specialty}`,
+        title: `Tomorrow: ${appointment.visitType} with ${appointment.doctorName}`,
+        body: `${appointment.specialty} • ${timeStr}${appointment.location ? ` • ${appointment.location}` : ''}${prepList}`,
         timestamp: reminderDate.getTime(),
         appointmentId: appointment.id,
       });
@@ -130,6 +140,15 @@ const AddAppointmentScreen: React.FC = () => {
           value={doctorName}
           onChangeText={setDoctorName}
           placeholder="e.g. Dr. Novak"
+          placeholderTextColor={colors.textSecondary}
+          style={styles.input}
+        />
+
+        <Text style={styles.label}>For (optional)</Text>
+        <TextInput
+          value={patientName}
+          onChangeText={setPatientName}
+          placeholder="e.g. Emma, my son..."
           placeholderTextColor={colors.textSecondary}
           style={styles.input}
         />

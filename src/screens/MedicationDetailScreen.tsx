@@ -198,6 +198,9 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
                   {medication.dosage}
                   {medication.form ? ` • ${medication.form}` : ''}
                 </Text>
+                {medication.patientName ? (
+                  <Text style={styles.patientName}>For: {medication.patientName}</Text>
+                ) : null}
                 <Text style={styles.type}>
                   {medication.type === 'routine'
                     ? 'Routine medication'
@@ -340,10 +343,21 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
             )}
           </View>
 
-          {medication.notes ? (
+          {medication.purpose || medication.usageInstructions ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Notes</Text>
-              <Text style={styles.value}>{medication.notes}</Text>
+              <Text style={styles.sectionTitle}>Usage</Text>
+              {medication.purpose ? (
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Purpose</Text>
+                  <Text style={styles.infoValue}>{medication.purpose}</Text>
+                </View>
+              ) : null}
+              {medication.usageInstructions ? (
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Usage instructions</Text>
+                  <Text style={styles.infoValue}>{medication.usageInstructions}</Text>
+                </View>
+              ) : null}
             </View>
           ) : null}
 
@@ -445,6 +459,12 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 16,
     color: '#667085',
+  },
+  patientName: {
+    marginTop: 4,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#4C7EFF',
   },
   type: {
     marginTop: 10,

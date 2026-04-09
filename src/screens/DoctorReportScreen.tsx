@@ -240,8 +240,11 @@ const DoctorReportScreen: React.FC = () => {
                 <Text style={styles.itemMeta}>
                   Type: {item.type === 'routine' ? 'Routine' : 'As needed'}
                 </Text>
-                {item.notes ? (
-                  <Text style={styles.itemNote}>Notes: {item.notes}</Text>
+                {item.purpose ? (
+                  <Text style={styles.itemNote}>Purpose: {item.purpose}</Text>
+                ) : null}
+                {item.usageInstructions ? (
+                  <Text style={styles.itemNote}>Take: {item.usageInstructions}</Text>
                 ) : null}
               </View>
             ))

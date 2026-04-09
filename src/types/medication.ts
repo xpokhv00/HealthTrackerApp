@@ -3,6 +3,7 @@ export type RoutineFrequencyType = 'daily' | 'interval_days';
 
 export interface Medication {
   id: string;
+  patientName?: string;
   name: string;
   dosage: string;
   form?: string;
@@ -18,7 +19,8 @@ export interface Medication {
   minHoursBetweenDoses?: number;
   maxDailyDoses?: number;
 
-  notes?: string;
+  purpose?: string;
+  usageInstructions?: string;
   startDate: string;
   endDate?: string;
 

@@ -12,7 +12,8 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import Screen from '../components/Screen';
 import {colors} from '../theme/colors';
 import {useSymptomStore} from '../store/symptomStore';
-import {SymptomCategory, SymptomEntry} from '../types/symptom';
+import {SymptomEntry} from '../types/symptom';
+import {getCategoryForSymptom} from '../utils/symptom';
 
 const symptomSuggestions = [
   'Headache',
@@ -26,16 +27,6 @@ const symptomSuggestions = [
 ];
 
 const severityOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-const categoryOptions: SymptomCategory[] = [
-  'Pain',
-  'Respiratory',
-  'Digestive',
-  'Mood',
-  'Energy',
-  'Skin',
-  'Other',
-];
 
 const triggerOptions = [
   'Stress',
@@ -65,14 +56,16 @@ const AddSymptomScreen: React.FC = () => {
   const isEditMode = !!existingSymptom;
 
   const [symptom, setSymptom] = useState(existingSymptom?.symptom ?? '');
+  const [patientName, setPatientName] = useState(existingSymptom?.patientName ?? '');
   const [severity, setSeverity] = useState(existingSymptom?.severity ?? 5);
   const [note, setNote] = useState(existingSymptom?.note ?? '');
-  const [category, setCategory] = useState<SymptomCategory | undefined>(
-    existingSymptom?.category,
-  );
   const [triggers, setTriggers] = useState<string[]>(
     existingSymptom?.triggers ?? [],
   );
+
+  const handleSetSymptom = (value: string) => {
+    setSymptom(value);
+  };
 
   const toggleTrigger = (value: string) => {
     setTriggers(current =>
@@ -90,10 +83,11 @@ const AddSymptomScreen: React.FC = () => {
 
     const entry: SymptomEntry = {
       id: existingSymptom?.id ?? Date.now().toString(),
+      patientName: patientName.trim() || undefined,
       symptom: symptom.trim(),
       severity,
       note: note.trim() || undefined,
-      category,
+      category: getCategoryForSymptom(symptom),
       triggers: triggers.length > 0 ? triggers : undefined,
       createdAt: existingSymptom?.createdAt ?? new Date().toISOString(),
     };
@@ -128,7 +122,7 @@ const AddSymptomScreen: React.FC = () => {
                 <TouchableOpacity
                   key={item}
                   style={[styles.chip, active && styles.chipActive]}
-                  onPress={() => setSymptom(item)}>
+                  onPress={() => handleSetSymptom(item)}>
                   <Text style={[styles.chipText, active && styles.chipTextActive]}>
                     {item}
                   </Text>
@@ -140,15 +134,24 @@ const AddSymptomScreen: React.FC = () => {
           <Text style={styles.label}>Symptom name</Text>
           <TextInput
             value={symptom}
-            onChangeText={setSymptom}
+            onChangeText={handleSetSymptom}
             placeholder="e.g. Headache"
+            placeholderTextColor={colors.textSecondary}
+            style={styles.input}
+          />
+
+          <Text style={styles.label}>For (optional)</Text>
+          <TextInput
+            value={patientName}
+            onChangeText={setPatientName}
+            placeholder="e.g. Emma, my son..."
             placeholderTextColor={colors.textSecondary}
             style={styles.input}
           />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Severity and category</Text>
+          <Text style={styles.sectionTitle}>Severity</Text>
 
           <Text style={styles.label}>Severity</Text>
           <Text style={styles.helperText}>Choose a value from 1 to 10.</Text>
@@ -181,24 +184,6 @@ const AddSymptomScreen: React.FC = () => {
           </ScrollView>
 
           <Text style={styles.severityText}>Selected severity: {severity}/10</Text>
-
-          <Text style={styles.label}>Category</Text>
-          <View style={styles.wrapRow}>
-            {categoryOptions.map(item => {
-              const active = category === item;
-
-              return (
-                <TouchableOpacity
-                  key={item}
-                  style={[styles.chip, active && styles.chipActive, styles.wrapChip]}
-                  onPress={() => setCategory(item)}>
-                  <Text style={[styles.chipText, active && styles.chipTextActive]}>
-                    {item}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
         </View>
 
         <View style={styles.section}>

@@ -10,6 +10,7 @@ import {syncRoutineMedicationReminders} from './src/services/medicationReminderS
 import {notificationNavigationService} from './src/services/notificationNavigation';
 import {syncTodayRoutineDoseSlots} from './src/services/syncRoutineDoseSlots';
 import {syncAllWidgets} from './src/services/widgetSync';
+import {syncDailySummaryNotification} from './src/services/dailySummarySync';
 
 import {useAppointmentStore} from './src/store/appointmentStore';
 import {useMedicationStore} from './src/store/medicationStore';
@@ -58,6 +59,7 @@ const App = () => {
 
       const medications = useMedicationStore.getState().medications;
       await syncRoutineMedicationReminders(medications);
+      await syncDailySummaryNotification(medications);
       await syncAllWidgets();
 
       notificationNavigationService.registerForegroundHandler();
@@ -73,6 +75,7 @@ const App = () => {
 
         const medications = useMedicationStore.getState().medications;
         await syncRoutineMedicationReminders(medications);
+        await syncDailySummaryNotification(medications);
         await syncAllWidgets();
       }
     });

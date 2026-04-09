@@ -36,6 +36,9 @@ const MedicationCard: React.FC<Props> = ({
       <View style={styles.topRow}>
         <View style={styles.info}>
           <Text style={styles.name}>{medication.name}</Text>
+          {medication.patientName ? (
+            <Text style={styles.patientName}>For: {medication.patientName}</Text>
+          ) : null}
           <Text style={styles.meta}>
             {medication.dosage}
             {medication.form ? ` • ${medication.form}` : ''}
@@ -85,6 +88,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#1A1F36',
+  },
+  patientName: {
+    marginTop: 2,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#4C7EFF',
   },
   meta: {
     marginTop: 4,

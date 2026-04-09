@@ -1,4 +1,62 @@
-import {SymptomEntry} from '../types/symptom';
+import {SymptomCategory, SymptomEntry} from '../types/symptom';
+
+const SYMPTOM_CATEGORY_MAP: Record<string, SymptomCategory> = {
+  // Pain
+  headache: 'Pain',
+  migraine: 'Pain',
+  'back pain': 'Pain',
+  'muscle pain': 'Pain',
+  'chest pain': 'Pain',
+  'stomach pain': 'Pain',
+  'joint pain': 'Pain',
+  'ear pain': 'Pain',
+  // Respiratory
+  cough: 'Respiratory',
+  'sore throat': 'Respiratory',
+  'nasal congestion': 'Respiratory',
+  'runny nose': 'Respiratory',
+  sneezing: 'Respiratory',
+  'shortness of breath': 'Respiratory',
+  wheezing: 'Respiratory',
+  'stuffy nose': 'Respiratory',
+  // Digestive
+  nausea: 'Digestive',
+  vomiting: 'Digestive',
+  diarrhea: 'Digestive',
+  constipation: 'Digestive',
+  bloating: 'Digestive',
+  heartburn: 'Digestive',
+  'loss of appetite': 'Digestive',
+  // Mood
+  anxiety: 'Mood',
+  depression: 'Mood',
+  irritability: 'Mood',
+  'mood swings': 'Mood',
+  stress: 'Mood',
+  // Energy
+  fatigue: 'Energy',
+  'low energy': 'Energy',
+  insomnia: 'Energy',
+  dizziness: 'Energy',
+  weakness: 'Energy',
+  // Skin
+  rash: 'Skin',
+  itching: 'Skin',
+  hives: 'Skin',
+  'dry skin': 'Skin',
+  'skin irritation': 'Skin',
+  'eye irritation': 'Skin',
+  'dry eyes': 'Skin',
+  // Other
+  fever: 'Other',
+  chills: 'Other',
+  'night sweats': 'Other',
+};
+
+export const getCategoryForSymptom = (
+  name: string,
+): SymptomCategory | undefined =>
+  SYMPTOM_CATEGORY_MAP[name.toLowerCase().trim()];
 
 export const formatSymptomDateTime = (iso: string) => {
   const date = new Date(iso);
