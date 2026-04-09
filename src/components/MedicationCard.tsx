@@ -21,14 +21,20 @@ interface Props {
   allDoneToday?: boolean;
 }
 
+// Routine: blue. As-needed: teal.
+const ROUTINE_COLOR = '#4C7EFF';
+const AS_NEEDED_COLOR = '#0BA5A4';
+
 const MedicationCard: React.FC<Props> = ({
-                                           medication,
-                                           onPress,
-                                           onTakePress,
-                                           allDoneToday = false,
-                                         }) => {
+  medication,
+  onPress,
+  onTakePress,
+  allDoneToday = false,
+}) => {
+  const isRoutine = medication.type === 'routine';
   const availableNow = isMedicationAvailableNow(medication);
   const dailyLimitReached = hasReachedDailyLimit(medication);
+  const accentColor = isRoutine ? ROUTINE_COLOR : AS_NEEDED_COLOR;
 
   const takeDisabled =
     allDoneToday ||
@@ -39,43 +45,66 @@ const MedicationCard: React.FC<Props> = ({
       style={[styles.card, allDoneToday && styles.cardDone]}
       onPress={onPress}
       activeOpacity={0.85}>
-      <View style={styles.topRow}>
-        <View style={styles.info}>
-          <Text style={[styles.name, allDoneToday && styles.textDone]}>
-            {medication.name}
-          </Text>
-          {medication.patientName ? (
-            <Text style={styles.patientName}>For: {medication.patientName}</Text>
-          ) : null}
-          <Text style={styles.meta}>
-            {medication.dosage}
-            {medication.form ? ` • ${medication.form}` : ''}
-          </Text>
-          <Text style={styles.type}>
-            {medication.type === 'routine'
-              ? `Routine • ${getRoutineScheduleLabel(medication)}`
-              : 'As needed'}
-          </Text>
+      {/* Colored left accent bar */}
+      <View style={[styles.accent, {backgroundColor: allDoneToday ? '#D0D5DD' : accentColor}]} />
+
+      <View style={styles.body}>
+        <View style={styles.topRow}>
+          <View style={styles.info}>
+            {/* Type badge + name row */}
+            <View style={styles.nameRow}>
+              <View style={[styles.typeBadge, {backgroundColor: allDoneToday ? '#F2F4F7' : accentColor + '1A'}]}>
+                <Text style={[styles.typeBadgeText, {color: allDoneToday ? '#9BA8B4' : accentColor}]}>
+                  {isRoutine ? 'Daily' : 'As needed'}
+                </Text>
+              </View>
+            </View>
+
+            <Text style={[styles.name, allDoneToday && styles.textDone]}>
+              {medication.name}
+            </Text>
+
+            <Text style={styles.meta}>
+              {medication.dosage}
+              {medication.form ? ` · ${medication.form}` : ''}
+            </Text>
+
+            {medication.patientName ? (
+              <Text style={styles.patientName}>👤 {medication.patientName}</Text>
+            ) : null}
+          </View>
+
+          {/* Take button */}
+          <TouchableOpacity
+            style={[
+              styles.takeButton,
+              {backgroundColor: allDoneToday ? '#F2F4F7' : takeDisabled ? '#F2F4F7' : accentColor},
+            ]}
+            onPress={onTakePress}
+            disabled={takeDisabled}>
+            <Text style={[styles.takeButtonText, {color: allDoneToday || takeDisabled ? '#9BA8B4' : '#FFFFFF'}]}>
+              ✓
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={[styles.takeButton, takeDisabled && styles.takeButtonDisabled]}
-          onPress={onTakePress}
-          disabled={takeDisabled}>
-          <Text style={styles.takeButtonText}>Taken</Text>
-        </TouchableOpacity>
+        {/* Status line */}
+        {allDoneToday ? (
+          <Text style={styles.completedBadge}>✓ All doses completed today</Text>
+        ) : (
+          <View style={styles.statusRow}>
+            {isRoutine ? (
+              <Text style={styles.statusText}>
+                🕐 {getRoutineScheduleLabel(medication)}
+              </Text>
+            ) : (
+              <Text style={[styles.statusText, dailyLimitReached && styles.statusWarning]}>
+                {dailyLimitReached ? '⚠ Daily limit reached' : `⏱ ${getAvailabilityLabel(medication)}`}
+              </Text>
+            )}
+          </View>
+        )}
       </View>
-
-      {allDoneToday ? (
-        <Text style={styles.completedBadge}>All doses completed today</Text>
-      ) : (
-        <>
-          <Text style={styles.status}>{getAvailabilityLabel(medication)}</Text>
-          {dailyLimitReached && (
-            <Text style={styles.warning}>Daily limit reached</Text>
-          )}
-        </>
-      )}
     </TouchableOpacity>
   );
 };
@@ -84,24 +113,24 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 16,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#E7ECF3',
+    flexDirection: 'row',
+    overflow: 'hidden',
   },
   cardDone: {
     backgroundColor: '#F8FAFC',
-    borderColor: '#E7ECF3',
     opacity: 0.75,
   },
-  textDone: {
-    color: '#9BA8B4',
+  accent: {
+    width: 4,
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
   },
-  completedBadge: {
-    marginTop: 10,
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#12B76A',
+  body: {
+    flex: 1,
+    padding: 14,
   },
   topRow: {
     flexDirection: 'row',
@@ -111,52 +140,68 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  typeBadge: {
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  typeBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
   name: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     color: '#1A1F36',
   },
-  patientName: {
-    marginTop: 2,
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#4C7EFF',
+  textDone: {
+    color: '#9BA8B4',
   },
   meta: {
-    marginTop: 4,
-    fontSize: 14,
+    marginTop: 3,
+    fontSize: 13,
     color: '#5F6B7A',
   },
-  type: {
-    marginTop: 6,
-    fontSize: 13,
-    color: '#4C7EFF',
+  patientName: {
+    marginTop: 4,
+    fontSize: 12,
     fontWeight: '600',
+    color: '#667085',
   },
-  status: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#344054',
+  takeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  warning: {
-    marginTop: 8,
+  takeButtonText: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  statusRow: {
+    marginTop: 10,
+  },
+  statusText: {
     fontSize: 13,
+    color: '#667085',
+  },
+  statusWarning: {
     color: '#C2410C',
     fontWeight: '600',
   },
-  takeButton: {
-    backgroundColor: '#4C7EFF',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  takeButtonDisabled: {
-    backgroundColor: '#B8C4D6',
-  },
-  takeButtonText: {
-    color: '#FFFFFF',
+  completedBadge: {
+    marginTop: 10,
+    fontSize: 13,
     fontWeight: '700',
+    color: '#12B76A',
   },
 });
 

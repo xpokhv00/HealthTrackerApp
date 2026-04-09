@@ -1,4 +1,3 @@
-
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {Appointment} from '../types/appointment';
@@ -13,73 +12,96 @@ interface Props {
   onPress: () => void;
 }
 
+// Color the countdown badge by urgency
+function countdownColors(dateTime: string): {bg: string; text: string} {
+  const diff = new Date(dateTime).getTime() - Date.now();
+  const days = diff / (1000 * 60 * 60 * 24);
+  if (days <= 1)  {return {bg: '#FEF3F2', text: '#B42318'};} // today/tomorrow → red
+  if (days <= 7)  {return {bg: '#FFFAEB', text: '#B54708'};} // this week → amber
+  return {bg: '#EEF4FF', text: '#3538CD'};                    // later → blue
+}
+
 const AppointmentCard: React.FC<Props> = ({appointment, onPress}) => {
   const isUpcoming = isUpcomingAppointment(appointment);
   const [expanded, setExpanded] = useState(false);
 
   const hasPrep = appointment.preparation.length > 0;
   const showToggle = appointment.preparation.length > 1;
+  const badge = isUpcoming ? countdownColors(appointment.dateTime) : null;
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
-      <View style={styles.topRow}>
-        <View style={styles.info}>
-          <Text style={styles.visitType}>{appointment.visitType}</Text>
-          {appointment.patientName ? (
-            <Text style={styles.patientName}>For: {appointment.patientName}</Text>
-          ) : null}
-          <Text style={styles.doctor}>
-            {appointment.doctorName} • {appointment.specialty}
-          </Text>
-          <Text style={styles.dateTime}>
-            {formatAppointmentDateTime(appointment.dateTime)}
-          </Text>
-          {appointment.location ? (
-            <Text style={styles.location}>{appointment.location}</Text>
-          ) : null}
-        </View>
+      {/* Accent bar — green for upcoming, grey for past */}
+      <View style={[styles.accent, {backgroundColor: isUpcoming ? '#12B76A' : '#D0D5DD'}]} />
 
-        <View style={[styles.badge, !isUpcoming && styles.badgePast]}>
-          <Text style={[styles.badgeText, !isUpcoming && styles.badgeTextPast]}>
-            {isUpcoming
-              ? getTimeUntilAppointment(appointment.dateTime)
-              : 'Past'}
-          </Text>
-        </View>
-      </View>
+      <View style={styles.body}>
+        <View style={styles.topRow}>
+          <View style={styles.info}>
+            <Text style={styles.visitType}>{appointment.visitType}</Text>
 
-      {hasPrep ? (
-        <View style={styles.prepSection}>
-          {expanded ? (
-            appointment.preparation.map((item, index) => (
-              <Text key={`${item}-${index}`} style={styles.prepItem}>
-                • {item}
-              </Text>
-            ))
-          ) : (
-            <Text style={styles.preparation}>
-              Prep: {appointment.preparation[0]}
-              {appointment.preparation.length > 1
-                ? ` +${appointment.preparation.length - 1} more`
-                : ''}
+            {appointment.patientName ? (
+              <Text style={styles.patientName}>👤 {appointment.patientName}</Text>
+            ) : null}
+
+            <Text style={styles.doctor}>
+              🩺 {appointment.doctorName} · {appointment.specialty}
             </Text>
-          )}
 
-          {showToggle ? (
-            <TouchableOpacity
-              onPress={e => {
-                e.stopPropagation?.();
-                setExpanded(prev => !prev);
-              }}
-              style={styles.toggleButton}
-              hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
-              <Text style={styles.toggleText}>
-                {expanded ? 'Show less' : 'Show all'}
+            <Text style={styles.dateTime}>
+              🗓 {formatAppointmentDateTime(appointment.dateTime)}
+            </Text>
+
+            {appointment.location ? (
+              <Text style={styles.location}>📍 {appointment.location}</Text>
+            ) : null}
+          </View>
+
+          {badge ? (
+            <View style={[styles.badge, {backgroundColor: badge.bg}]}>
+              <Text style={[styles.badgeText, {color: badge.text}]}>
+                {getTimeUntilAppointment(appointment.dateTime)}
               </Text>
-            </TouchableOpacity>
-          ) : null}
+            </View>
+          ) : (
+            <View style={styles.badgePast}>
+              <Text style={styles.badgeTextPast}>Past</Text>
+            </View>
+          )}
         </View>
-      ) : null}
+
+        {hasPrep ? (
+          <View style={styles.prepSection}>
+            {expanded ? (
+              appointment.preparation.map((item, index) => (
+                <Text key={`${item}-${index}`} style={styles.prepItem}>
+                  • {item}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.preparation}>
+                📋 {appointment.preparation[0]}
+                {appointment.preparation.length > 1
+                  ? ` +${appointment.preparation.length - 1} more`
+                  : ''}
+              </Text>
+            )}
+
+            {showToggle ? (
+              <TouchableOpacity
+                onPress={e => {
+                  e.stopPropagation?.();
+                  setExpanded(prev => !prev);
+                }}
+                style={styles.toggleButton}
+                hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+                <Text style={styles.toggleText}>
+                  {expanded ? 'Show less ↑' : 'Show all ↓'}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        ) : null}
+      </View>
     </TouchableOpacity>
   );
 };
@@ -88,10 +110,20 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 16,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#E7ECF3',
+    flexDirection: 'row',
+    overflow: 'hidden',
+  },
+  accent: {
+    width: 4,
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+  },
+  body: {
+    flex: 1,
+    padding: 14,
   },
   topRow: {
     flexDirection: 'row',
@@ -102,68 +134,75 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   visitType: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '800',
     color: '#111827',
   },
   patientName: {
     marginTop: 3,
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#4C7EFF',
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#667085',
   },
   doctor: {
-    marginTop: 4,
-    fontSize: 14,
+    marginTop: 5,
+    fontSize: 13,
     color: '#475467',
   },
   dateTime: {
-    marginTop: 6,
-    fontSize: 14,
+    marginTop: 4,
+    fontSize: 13,
     color: '#1D2939',
     fontWeight: '700',
   },
   location: {
-    marginTop: 4,
-    fontSize: 14,
+    marginTop: 3,
+    fontSize: 13,
     color: '#667085',
   },
   badge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#EEF4FF',
     borderRadius: 12,
     paddingHorizontal: 10,
     paddingVertical: 8,
   },
-  badgePast: {
-    backgroundColor: '#F2F4F7',
-  },
   badgeText: {
-    color: '#3538CD',
     fontWeight: '700',
     fontSize: 12,
   },
+  badgePast: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F2F4F7',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
   badgeTextPast: {
     color: '#667085',
+    fontWeight: '700',
+    fontSize: 12,
   },
   prepSection: {
-    marginTop: 12,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F2F4F7',
   },
   preparation: {
     fontSize: 13,
     color: '#475467',
   },
   prepItem: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#344054',
-    marginBottom: 6,
+    marginBottom: 5,
   },
   toggleButton: {
     marginTop: 6,
     alignSelf: 'flex-start',
   },
   toggleText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
     color: '#4C7EFF',
   },
