@@ -31,7 +31,6 @@ type CategoryFilter =
   | 'Energy'
   | 'Skin'
   | 'Other';
-type SortOption = 'newest' | 'oldest' | 'severity_asc' | 'severity_desc';
 
 const categoryOptions: CategoryFilter[] = [
   'all',
@@ -42,13 +41,6 @@ const categoryOptions: CategoryFilter[] = [
   'Energy',
   'Skin',
   'Other',
-];
-
-const sortOptions: {label: string; value: SortOption}[] = [
-  {label: 'Newest', value: 'newest'},
-  {label: 'Oldest', value: 'oldest'},
-  {label: 'Severity ↑', value: 'severity_asc'},
-  {label: 'Severity ↓', value: 'severity_desc'},
 ];
 
 import SymptomTrendCard from '../components/SymptomTrendCard';
@@ -64,7 +56,7 @@ const SymptomsScreen: React.FC = () => {
   const [windowFilter, setWindowFilter] = useState<WindowFilter>(7);
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [personFilter, setPersonFilter] = useState<string>('all');
-  const [sortOption, setSortOption] = useState<SortOption>('newest');
+  const [activeDimension, setActiveDimension] = useState<'time' | 'category' | 'person'>('time');
 
   const timeFilteredSymptoms = useMemo(
     () => filterSymptomsByDays(symptoms, windowFilter),
@@ -86,31 +78,10 @@ const SymptomsScreen: React.FC = () => {
     return timeFilteredSymptoms.filter(s => s.patientName === personFilter);
   }, [timeFilteredSymptoms, personFilter]);
 
-  const categoryFilteredSymptoms = useMemo(
+  const visibleSymptoms = useMemo(
     () => filterSymptomsByCategory(personFilteredSymptoms, categoryFilter),
     [personFilteredSymptoms, categoryFilter],
   );
-
-  const visibleSymptoms = useMemo(() => {
-    const arr = [...categoryFilteredSymptoms];
-    switch (sortOption) {
-      case 'oldest':
-        return arr.sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        );
-      case 'severity_asc':
-        return arr.sort((a, b) => a.severity - b.severity);
-      case 'severity_desc':
-        return arr.sort((a, b) => b.severity - a.severity);
-      case 'newest':
-      default:
-        return arr.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
-    }
-  }, [categoryFilteredSymptoms, sortOption]);
 
   const summary = useMemo(
     () => getSymptomSummary(visibleSymptoms),
@@ -161,131 +132,87 @@ const SymptomsScreen: React.FC = () => {
             </View>
 
             <View style={styles.filtersSection}>
-              <Text style={styles.filtersLabel}>Time range</Text>
-              <View style={styles.filterRow}>
+              {/* Row 1: dimension selector */}
+              <View style={styles.dimensionRow}>
                 <TouchableOpacity
-                  style={[
-                    styles.filterChip,
-                    windowFilter === 7 && styles.filterChipActive,
-                  ]}
-                  onPress={() => setWindowFilter(7)}>
-                  <Text
-                    style={[
-                      styles.filterChipText,
-                      windowFilter === 7 && styles.filterChipTextActive,
-                    ]}>
-                    7 days
+                  style={[styles.dimensionTab, activeDimension === 'time' && styles.dimensionTabActive]}
+                  onPress={() => setActiveDimension('time')}>
+                  <Text style={[styles.dimensionTabText, activeDimension === 'time' && styles.dimensionTabTextActive]}>
+                    Time
+                    {windowFilter !== 7 ? (
+                      <Text style={styles.dimensionBadge}> ·</Text>
+                    ) : null}
                   </Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity
-                  style={[
-                    styles.filterChip,
-                    windowFilter === 30 && styles.filterChipActive,
-                  ]}
-                  onPress={() => setWindowFilter(30)}>
-                  <Text
-                    style={[
-                      styles.filterChipText,
-                      windowFilter === 30 && styles.filterChipTextActive,
-                    ]}>
-                    30 days
+                  style={[styles.dimensionTab, activeDimension === 'category' && styles.dimensionTabActive]}
+                  onPress={() => setActiveDimension('category')}>
+                  <Text style={[styles.dimensionTabText, activeDimension === 'category' && styles.dimensionTabTextActive]}>
+                    Category
+                    {categoryFilter !== 'all' ? (
+                      <Text style={styles.dimensionBadge}> ·</Text>
+                    ) : null}
                   </Text>
                 </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.filterChip,
-                    windowFilter === 'all' && styles.filterChipActive,
-                  ]}
-                  onPress={() => setWindowFilter('all')}>
-                  <Text
-                    style={[
-                      styles.filterChipText,
-                      windowFilter === 'all' && styles.filterChipTextActive,
-                    ]}>
-                    All
-                  </Text>
-                </TouchableOpacity>
+                {peopleOptions.length > 1 && (
+                  <TouchableOpacity
+                    style={[styles.dimensionTab, activeDimension === 'person' && styles.dimensionTabActive]}
+                    onPress={() => setActiveDimension('person')}>
+                    <Text style={[styles.dimensionTabText, activeDimension === 'person' && styles.dimensionTabTextActive]}>
+                      Person
+                      {personFilter !== 'all' ? (
+                        <Text style={styles.dimensionBadge}> ·</Text>
+                      ) : null}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
 
-              <Text style={[styles.filtersLabel, styles.categoryLabel]}>
-                Category
-              </Text>
+              {/* Row 2: chips for active dimension */}
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalFilterRow}>
-                {categoryOptions.map(option => {
+                contentContainerStyle={styles.chipRow}>
+                {activeDimension === 'time' && (
+                  <>
+                    {([7, 30, 'all'] as WindowFilter[]).map(val => {
+                      const label = val === 'all' ? 'All time' : `${val} days`;
+                      const active = windowFilter === val;
+                      return (
+                        <TouchableOpacity
+                          key={String(val)}
+                          style={[styles.filterChip, active && styles.filterChipActive]}
+                          onPress={() => setWindowFilter(val)}>
+                          <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>
+                            {label}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </>
+                )}
+                {activeDimension === 'category' && categoryOptions.map(option => {
                   const active = categoryFilter === option;
-
                   return (
                     <TouchableOpacity
                       key={option}
                       style={[styles.filterChip, active && styles.filterChipActive]}
                       onPress={() => setCategoryFilter(option)}>
-                      <Text
-                        style={[
-                          styles.filterChipText,
-                          active && styles.filterChipTextActive,
-                        ]}>
+                      <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>
                         {option === 'all' ? 'All' : option}
                       </Text>
                     </TouchableOpacity>
                   );
                 })}
-              </ScrollView>
-
-              {peopleOptions.length > 1 && (
-                <>
-                  <Text style={[styles.filtersLabel, styles.categoryLabel]}>
-                    Person
-                  </Text>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.horizontalFilterRow}>
-                    {peopleOptions.map(option => {
-                      const active = personFilter === option;
-                      return (
-                        <TouchableOpacity
-                          key={option}
-                          style={[styles.filterChip, active && styles.filterChipActive]}
-                          onPress={() => setPersonFilter(option)}>
-                          <Text
-                            style={[
-                              styles.filterChipText,
-                              active && styles.filterChipTextActive,
-                            ]}>
-                            {option === 'all' ? 'All' : option === 'me' ? 'Me' : option}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </ScrollView>
-                </>
-              )}
-
-              <Text style={[styles.filtersLabel, styles.categoryLabel]}>
-                Sort
-              </Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalFilterRow}>
-                {sortOptions.map(opt => {
-                  const active = sortOption === opt.value;
+                {activeDimension === 'person' && peopleOptions.map(option => {
+                  const active = personFilter === option;
                   return (
                     <TouchableOpacity
-                      key={opt.value}
+                      key={option}
                       style={[styles.filterChip, active && styles.filterChipActive]}
-                      onPress={() => setSortOption(opt.value)}>
-                      <Text
-                        style={[
-                          styles.filterChipText,
-                          active && styles.filterChipTextActive,
-                        ]}>
-                        {opt.label}
+                      onPress={() => setPersonFilter(option)}>
+                      <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>
+                        {option === 'all' ? 'All' : option === 'me' ? 'Me' : option}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -450,17 +377,36 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 8,
   },
-  filtersLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#667085',
+  dimensionRow: {
+    flexDirection: 'row',
     marginBottom: 8,
   },
-  categoryLabel: {
-    marginTop: 10,
+  dimensionTab: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginRight: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
-  filterRow: {
-    flexDirection: 'row',
+  dimensionTabActive: {
+    borderColor: colors.primary,
+    backgroundColor: '#EEF4FF',
+  },
+  dimensionTabText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.textSecondary,
+  },
+  dimensionTabTextActive: {
+    color: colors.primary,
+  },
+  dimensionBadge: {
+    color: colors.primary,
+    fontSize: 16,
+  },
+  chipRow: {
+    paddingRight: 20,
   },
   horizontalFilterRow: {
     paddingRight: 20,
