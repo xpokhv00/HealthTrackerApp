@@ -127,7 +127,16 @@ const HomeScreen: React.FC = () => {
           <View style={styles.heroTopRow}>
             <View style={styles.heroLeft}>
               <Text style={styles.heroTitle}>Today's routine</Text>
-              <Text style={[styles.heroMessage, {color: heroMessageColor}]}>{heroMessage}</Text>
+
+              {primaryAction && routineSummary.overdueCount === 0 ? (
+                <View style={styles.nextDoseBlock}>
+                  <Text style={styles.nextDoseLabel}>Next up</Text>
+                  <Text style={styles.nextDoseName}>{primaryAction.medicationName}</Text>
+                  <Text style={styles.nextDoseTime}>🕐 {primaryAction.scheduledTime}</Text>
+                </View>
+              ) : (
+                <Text style={[styles.heroMessage, {color: heroMessageColor}]}>{heroMessage}</Text>
+              )}
 
               <View style={styles.statsRow}>
                 <View style={styles.statChip}>
@@ -373,6 +382,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     lineHeight: 20,
     marginBottom: 14,
+  },
+  nextDoseBlock: {
+    marginBottom: 14,
+  },
+  nextDoseLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    color: colors.primary,
+    marginBottom: 2,
+    textTransform: 'uppercase',
+  },
+  nextDoseName: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  nextDoseTime: {
+    marginTop: 2,
+    fontSize: 13,
+    color: '#667085',
   },
   statsRow: {
     flexDirection: 'row',
