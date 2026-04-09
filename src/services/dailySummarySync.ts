@@ -43,15 +43,9 @@ const buildSummaryBody = (medications: Medication[]): {body: string; bigText: st
     };
   }
 
-  // Collapsed single-line body
-  const allNames = [
-    ...routineMeds.map(m => m.name),
-    ...asNeededMeds.map(m => m.name),
-  ];
-  const body =
-    allNames.length <= 3
-      ? allNames.join(', ')
-      : `${allNames.slice(0, 3).join(', ')} +${allNames.length - 3} more`;
+  // Collapsed single-line body — just a count
+  const total = routineMeds.length + asNeededMeds.length;
+  const body = total === 1 ? '1 medication today' : `${total} medications today`;
 
   // Expanded HTML bigText
   const lines: string[] = [];
