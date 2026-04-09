@@ -223,6 +223,7 @@ export const notificationService = {
     notificationId: string;
     title: string;
     body: string;
+    bigText?: string;
     timestamp: number;
   }) {
     const trigger: TimestampTrigger = {
@@ -240,6 +241,10 @@ export const notificationService = {
         android: {
           channelId: CHANNELS.summary,
           pressAction: {id: 'default', launchActivity: 'default'},
+          style: {
+            type: AndroidStyle.BIGTEXT,
+            text: params.bigText ?? params.body,
+          },
         },
       },
       trigger,

@@ -15,10 +15,8 @@ const getNext7amTimestamp = (): number => {
   return next.getTime();
 };
 
-const buildSummaryBody = (medications: Medication[]): string => {
+const buildSummaryBody = (medications: Medication[]): {body: string; bigText: string} => {
   const today = new Date();
-  const todayStart = new Date(today);
-  todayStart.setHours(0, 0, 0, 0);
 
   const routineMeds = medications.filter(
     item =>
@@ -39,39 +37,62 @@ const buildSummaryBody = (medications: Medication[]): string => {
   );
 
   if (routineMeds.length === 0 && asNeededMeds.length === 0) {
-    return 'No medications scheduled for today.';
+    return {
+      body: 'No medications scheduled for today.',
+      bigText: 'No medications scheduled for today.',
+    };
   }
 
-  const parts: string[] = [];
+  // Collapsed single-line body
+  const allNames = [
+    ...routineMeds.map(m => m.name),
+    ...asNeededMeds.map(m => m.name),
+  ];
+  const body =
+    allNames.length <= 3
+      ? allNames.join(', ')
+      : `${allNames.slice(0, 3).join(', ')} +${allNames.length - 3} more`;
+
+  // Expanded HTML bigText
+  const lines: string[] = [];
 
   if (routineMeds.length > 0) {
-    const names = routineMeds
-      .map(m => {
-        const times = m.scheduledTimes?.join(', ') ?? '';
-        return `${m.name} (${times})`;
-      })
-      .join(', ');
-    parts.push(names);
+    lines.push('<b>Routine</b>');
+    routineMeds.forEach(m => {
+      const times = m.scheduledTimes?.join(', ') ?? '';
+      const who = m.patientName ? ` <i>(${m.patientName})</i>` : '';
+      const dose = m.dosage ? ` — ${m.dosage}` : '';
+      lines.push(`&nbsp;&nbsp;• <b>${m.name}</b>${dose}${who}`);
+      if (times) {
+        lines.push(`&nbsp;&nbsp;&nbsp;&nbsp;🕐 ${times}`);
+      }
+    });
   }
 
   if (asNeededMeds.length > 0) {
-    const names = asNeededMeds.map(m => `${m.name} as needed`).join(', ');
-    parts.push(names);
+    if (lines.length > 0) {lines.push('');}
+    lines.push('<b>As needed</b>');
+    asNeededMeds.forEach(m => {
+      const who = m.patientName ? ` <i>(${m.patientName})</i>` : '';
+      const dose = m.dosage ? ` — ${m.dosage}` : '';
+      lines.push(`&nbsp;&nbsp;• <b>${m.name}</b>${dose}${who}`);
+    });
   }
 
-  return parts.join('; ');
+  return {body, bigText: lines.join('<br>')};
 };
 
 export const syncDailySummaryNotification = async (
   medications: Medication[],
 ) => {
-  const body = buildSummaryBody(medications);
+  const {body, bigText} = buildSummaryBody(medications);
   const timestamp = getNext7amTimestamp();
 
   await notificationService.scheduleDailySummaryNotification({
     notificationId: DAILY_SUMMARY_ID,
     title: "Today's medications",
     body,
+    bigText,
     timestamp,
   });
 };
