@@ -1,6 +1,7 @@
 import notifee, {
   AndroidImportance,
   AndroidLaunchActivityFlag,
+  AndroidStyle,
   RepeatFrequency,
   TimestampTrigger,
   TriggerType,
@@ -161,6 +162,7 @@ export const notificationService = {
     id: string;
     title: string;
     body: string;
+    bigText?: string;
     timestamp: number;
     appointmentId: string;
   }) {
@@ -185,6 +187,10 @@ export const notificationService = {
           channelId: CHANNELS.appointment,
           pressAction: {
             id: 'default',
+          },
+          style: {
+            type: AndroidStyle.BIGTEXT,
+            text: params.bigText ?? params.body,
           },
         },
       },

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {Appointment} from '../types/appointment';
 import {
@@ -15,6 +15,10 @@ interface Props {
 
 const AppointmentCard: React.FC<Props> = ({appointment, onPress}) => {
   const isUpcoming = isUpcomingAppointment(appointment);
+  const [expanded, setExpanded] = useState(false);
+
+  const hasPrep = appointment.preparation.length > 0;
+  const showToggle = appointment.preparation.length > 1;
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
@@ -44,10 +48,37 @@ const AppointmentCard: React.FC<Props> = ({appointment, onPress}) => {
         </View>
       </View>
 
-      {appointment.preparation.length > 0 ? (
-        <Text style={styles.preparation}>
-          Prep: {appointment.preparation[0]}
-        </Text>
+      {hasPrep ? (
+        <View style={styles.prepSection}>
+          {expanded ? (
+            appointment.preparation.map((item, index) => (
+              <Text key={`${item}-${index}`} style={styles.prepItem}>
+                • {item}
+              </Text>
+            ))
+          ) : (
+            <Text style={styles.preparation}>
+              Prep: {appointment.preparation[0]}
+              {appointment.preparation.length > 1
+                ? ` +${appointment.preparation.length - 1} more`
+                : ''}
+            </Text>
+          )}
+
+          {showToggle ? (
+            <TouchableOpacity
+              onPress={e => {
+                e.stopPropagation?.();
+                setExpanded(prev => !prev);
+              }}
+              style={styles.toggleButton}
+              hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+              <Text style={styles.toggleText}>
+                {expanded ? 'Show less' : 'Show all'}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       ) : null}
     </TouchableOpacity>
   );
@@ -115,10 +146,26 @@ const styles = StyleSheet.create({
   badgeTextPast: {
     color: '#667085',
   },
-  preparation: {
+  prepSection: {
     marginTop: 12,
+  },
+  preparation: {
     fontSize: 13,
     color: '#475467',
+  },
+  prepItem: {
+    fontSize: 14,
+    color: '#344054',
+    marginBottom: 6,
+  },
+  toggleButton: {
+    marginTop: 6,
+    alignSelf: 'flex-start',
+  },
+  toggleText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#4C7EFF',
   },
 });
 

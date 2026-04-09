@@ -7,6 +7,7 @@ import {
   FlatList,
   ScrollView,
 } from 'react-native';
+
 import {useNavigation} from '@react-navigation/native';
 import Screen from '../components/Screen';
 import SymptomCard from '../components/SymptomCard';
@@ -30,6 +31,7 @@ type CategoryFilter =
   | 'Energy'
   | 'Skin'
   | 'Other';
+type SortOption = 'newest' | 'oldest' | 'severity_asc' | 'severity_desc';
 
 const categoryOptions: CategoryFilter[] = [
   'all',
@@ -40,6 +42,13 @@ const categoryOptions: CategoryFilter[] = [
   'Energy',
   'Skin',
   'Other',
+];
+
+const sortOptions: {label: string; value: SortOption}[] = [
+  {label: 'Newest', value: 'newest'},
+  {label: 'Oldest', value: 'oldest'},
+  {label: 'Severity ↑', value: 'severity_asc'},
+  {label: 'Severity ↓', value: 'severity_desc'},
 ];
 
 import SymptomTrendCard from '../components/SymptomTrendCard';
@@ -54,16 +63,54 @@ const SymptomsScreen: React.FC = () => {
 
   const [windowFilter, setWindowFilter] = useState<WindowFilter>(7);
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
+  const [personFilter, setPersonFilter] = useState<string>('all');
+  const [sortOption, setSortOption] = useState<SortOption>('newest');
 
   const timeFilteredSymptoms = useMemo(
     () => filterSymptomsByDays(symptoms, windowFilter),
     [symptoms, windowFilter],
   );
 
-  const visibleSymptoms = useMemo(
-    () => filterSymptomsByCategory(timeFilteredSymptoms, categoryFilter),
-    [timeFilteredSymptoms, categoryFilter],
+  const peopleOptions = useMemo(() => {
+    const names = timeFilteredSymptoms
+      .map(s => s.patientName)
+      .filter(Boolean) as string[];
+    return ['all', ...Array.from(new Set(names))];
+  }, [timeFilteredSymptoms]);
+
+  const personFilteredSymptoms = useMemo(
+    () =>
+      personFilter === 'all'
+        ? timeFilteredSymptoms
+        : timeFilteredSymptoms.filter(s => s.patientName === personFilter),
+    [timeFilteredSymptoms, personFilter],
   );
+
+  const categoryFilteredSymptoms = useMemo(
+    () => filterSymptomsByCategory(personFilteredSymptoms, categoryFilter),
+    [personFilteredSymptoms, categoryFilter],
+  );
+
+  const visibleSymptoms = useMemo(() => {
+    const arr = [...categoryFilteredSymptoms];
+    switch (sortOption) {
+      case 'oldest':
+        return arr.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        );
+      case 'severity_asc':
+        return arr.sort((a, b) => a.severity - b.severity);
+      case 'severity_desc':
+        return arr.sort((a, b) => b.severity - a.severity);
+      case 'newest':
+      default:
+        return arr.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        );
+    }
+  }, [categoryFilteredSymptoms, sortOption]);
 
   const summary = useMemo(
     () => getSymptomSummary(visibleSymptoms),
@@ -183,6 +230,62 @@ const SymptomsScreen: React.FC = () => {
                           active && styles.filterChipTextActive,
                         ]}>
                         {option === 'all' ? 'All' : option}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              {peopleOptions.length > 1 && (
+                <>
+                  <Text style={[styles.filtersLabel, styles.categoryLabel]}>
+                    Person
+                  </Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.horizontalFilterRow}>
+                    {peopleOptions.map(option => {
+                      const active = personFilter === option;
+                      return (
+                        <TouchableOpacity
+                          key={option}
+                          style={[styles.filterChip, active && styles.filterChipActive]}
+                          onPress={() => setPersonFilter(option)}>
+                          <Text
+                            style={[
+                              styles.filterChipText,
+                              active && styles.filterChipTextActive,
+                            ]}>
+                            {option === 'all' ? 'All' : option}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+                </>
+              )}
+
+              <Text style={[styles.filtersLabel, styles.categoryLabel]}>
+                Sort
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.horizontalFilterRow}>
+                {sortOptions.map(opt => {
+                  const active = sortOption === opt.value;
+                  return (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={[styles.filterChip, active && styles.filterChipActive]}
+                      onPress={() => setSortOption(opt.value)}>
+                      <Text
+                        style={[
+                          styles.filterChipText,
+                          active && styles.filterChipTextActive,
+                        ]}>
+                        {opt.label}
                       </Text>
                     </TouchableOpacity>
                   );

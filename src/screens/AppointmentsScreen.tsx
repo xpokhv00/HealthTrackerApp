@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   FlatList,
+  ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useAppointmentStore} from '../store/appointmentStore';
@@ -14,17 +15,34 @@ import {
   getUpcomingAppointments,
 } from '../utils/appointment';
 import Screen from '../components/Screen';
+import {colors} from '../theme/colors';
 
 const AppointmentsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const appointments = useAppointmentStore(state => state.appointments);
   const [selectedTab, setSelectedTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [personFilter, setPersonFilter] = useState<string>('all');
 
   const upcomingAppointments = getUpcomingAppointments(appointments);
   const pastAppointments = getPastAppointments(appointments);
 
-  const data =
+  const tabData =
     selectedTab === 'upcoming' ? upcomingAppointments : pastAppointments;
+
+  const peopleOptions = useMemo(() => {
+    const names = appointments
+      .map(a => a.patientName)
+      .filter(Boolean) as string[];
+    return ['all', ...Array.from(new Set(names))];
+  }, [appointments]);
+
+  const data = useMemo(
+    () =>
+      personFilter === 'all'
+        ? tabData
+        : tabData.filter(a => a.patientName === personFilter),
+    [tabData, personFilter],
+  );
 
   return (
     <Screen>
@@ -63,6 +81,34 @@ const AppointmentsScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {peopleOptions.length > 1 && (
+        <View style={styles.filtersSection}>
+          <Text style={styles.filtersLabel}>Person</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalFilterRow}>
+            {peopleOptions.map(option => {
+              const active = personFilter === option;
+              return (
+                <TouchableOpacity
+                  key={option}
+                  style={[styles.filterChip, active && styles.filterChipActive]}
+                  onPress={() => setPersonFilter(option)}>
+                  <Text
+                    style={[
+                      styles.filterChipText,
+                      active && styles.filterChipTextActive,
+                    ]}>
+                    {option === 'all' ? 'All' : option}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
 
       {data.length === 0 ? (
         <View style={styles.emptyState}>
@@ -152,6 +198,40 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   tabButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  filtersSection: {
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+  },
+  filtersLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#667085',
+    marginBottom: 8,
+  },
+  horizontalFilterRow: {
+    paddingRight: 20,
+  },
+  filterChip: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginRight: 10,
+  },
+  filterChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  filterChipText: {
+    color: colors.text,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  filterChipTextActive: {
     color: '#FFFFFF',
   },
   listContent: {

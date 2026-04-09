@@ -115,14 +115,17 @@ const AddAppointmentScreen: React.FC = () => {
         hour: '2-digit',
         minute: '2-digit',
       });
-      const prepList =
+      const header = `${appointment.specialty} • ${timeStr}${appointment.location ? ` • ${appointment.location}` : ''}`;
+      const prepLines =
         appointment.preparation.length > 0
-          ? ` Reminders: ${appointment.preparation.slice(0, 3).join(', ')}.`
+          ? '\n\nPreparation:\n' +
+            appointment.preparation.map(p => `• ${p}`).join('\n')
           : '';
       await notificationService.scheduleAppointmentReminder({
         id: appointment.id,
         title: `Tomorrow: ${appointment.visitType} with ${appointment.doctorName}`,
-        body: `${appointment.specialty} • ${timeStr}${appointment.location ? ` • ${appointment.location}` : ''}${prepList}`,
+        body: header,
+        bigText: header + prepLines,
         timestamp: reminderDate.getTime(),
         appointmentId: appointment.id,
       });
