@@ -4,23 +4,362 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
-              android:padding="12dp"
-              android:background="@android:color/white">
+              android:padding="14dp"
+              android:background="@drawable/widget_bg_white">
 
+    <!-- Header -->
     <TextView
-            android:id="@+id/widget_routine_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Routine medications"
+            android:text="My Meds Timeline"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="#111827" />
+            android:textSize="17sp"
+            android:textColor="#111827"
+            android:layout_marginBottom="10dp" />
 
-    <ListView
-            android:id="@+id/widget_routine_list"
+    <!-- Timeline wrapper: left blue line + sections -->
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:divider="@android:color/transparent"
-            android:dividerHeight="8dp" />
+            android:orientation="horizontal">
+
+        <!-- Blue vertical timeline line (only between action-required and next-up) -->
+        <View
+                android:id="@+id/timeline_line"
+                android:layout_width="3dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/widget_timeline_line" />
+
+        <!-- Sections column -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+            <!-- SECTION: ACTION REQUIRED (missed) -->
+            <LinearLayout
+                    android:id="@+id/section_action_required"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/widget_bg_salmon"
+                    android:visibility="gone">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ACTION REQUIRED"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="#CC4A1A"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="6dp" />
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                    <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                        <TextView
+                                android:id="@+id/missed_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textStyle="bold"
+                                android:textSize="15sp"
+                                android:textColor="#111827" />
+
+                        <TextView
+                                android:id="@+id/missed_meta"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="12sp"
+                                android:textColor="#667085"
+                                android:layout_marginTop="2dp" />
+                    </LinearLayout>
+
+                    <TextView
+                            android:id="@+id/btn_rescue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:gravity="center"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:textColor="#FFFFFF"
+                            android:text="RESCUE\nTAKE NOW"
+                            android:background="@drawable/widget_btn_orange" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- SECTION: NEXT UP (pending) -->
+            <LinearLayout
+                    android:id="@+id/section_next_up"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@android:color/transparent"
+                    android:visibility="gone">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="NEXT UP:"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="#2F80ED"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="6dp" />
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                    <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                        <TextView
+                                android:id="@+id/next_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textStyle="bold"
+                                android:textSize="15sp"
+                                android:textColor="#111827" />
+
+                        <TextView
+                                android:id="@+id/next_meta"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="12sp"
+                                android:textColor="#667085"
+                                android:layout_marginTop="2dp" />
+                    </LinearLayout>
+
+                    <!-- Countdown circle + TAKE button stacked -->
+                    <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal">
+
+                        <TextView
+                                android:id="@+id/next_countdown"
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textSize="12sp"
+                                android:textColor="#2F80ED"
+                                android:background="@drawable/widget_countdown_ring"
+                                android:layout_marginBottom="4dp" />
+
+                        <TextView
+                                android:id="@+id/btn_take_next"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:paddingStart="10dp"
+                                android:paddingEnd="10dp"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textSize="10sp"
+                                android:textColor="#FFFFFF"
+                                android:background="@drawable/widget_btn_blue" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- SECTION: DONE TODAY (taken) - outside timeline -->
+    <LinearLayout
+            android:id="@+id/section_done_today"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/widget_bg_green_header"
+            android:visibility="gone">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp"
+                android:gravity="center_vertical">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✓"
+                    android:textSize="13sp"
+                    android:textColor="#27AE60"
+                    android:layout_marginEnd="6dp" />
+
+            <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="DONE TODAY"
+                    android:textStyle="bold"
+                    android:textSize="11sp"
+                    android:textColor="#27AE60"
+                    android:letterSpacing="0.06" />
+        </LinearLayout>
+
+        <!-- Up to 3 done items -->
+        <LinearLayout
+                android:id="@+id/done_item_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="6dp"
+                android:gravity="center_vertical"
+                android:visibility="gone">
+
+            <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/done_name_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:textColor="#374151" />
+
+                <TextView
+                        android:id="@+id/done_meta_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="#9CA3AF" />
+            </LinearLayout>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Taken"
+                    android:textSize="11sp"
+                    android:textColor="#27AE60"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:background="@drawable/widget_badge_taken" />
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/done_item_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="6dp"
+                android:gravity="center_vertical"
+                android:visibility="gone">
+
+            <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/done_name_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:textColor="#374151" />
+
+                <TextView
+                        android:id="@+id/done_meta_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="#9CA3AF" />
+            </LinearLayout>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Taken"
+                    android:textSize="11sp"
+                    android:textColor="#27AE60"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:background="@drawable/widget_badge_taken" />
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/done_item_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="8dp"
+                android:gravity="center_vertical"
+                android:visibility="gone">
+
+            <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/done_name_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:textColor="#374151" />
+
+                <TextView
+                        android:id="@+id/done_meta_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="#9CA3AF" />
+            </LinearLayout>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Taken"
+                    android:textSize="11sp"
+                    android:textColor="#27AE60"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:background="@drawable/widget_badge_taken" />
+        </LinearLayout>
+    </LinearLayout>
+
 </LinearLayout>

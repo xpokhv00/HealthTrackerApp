@@ -4,22 +4,254 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
-              android:padding="12dp"
-              android:background="@android:color/white">
+              android:padding="14dp"
+              android:background="@drawable/widget_bg_white">
 
+    <!-- Header -->
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="As-needed medications"
+            android:text="Instant Relief Panel"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="#111827" />
+            android:textSize="17sp"
+            android:textColor="#111827"
+            android:layout_marginBottom="10dp" />
 
-    <ListView
-            android:id="@+id/widget_as_needed_list"
+    <!-- READY section -->
+    <LinearLayout
+            android:id="@+id/section_ready"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:divider="@android:color/transparent"
-            android:dividerHeight="8dp" />
+            android:orientation="vertical"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone">
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="READY"
+                android:textStyle="bold"
+                android:textSize="10sp"
+                android:textColor="#27AE60"
+                android:letterSpacing="0.08"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:background="@drawable/widget_bg_green_header" />
+
+        <!-- Row 1: cards A and B (ready) -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp">
+
+            <!-- Ready card 1 -->
+            <LinearLayout
+                    android:id="@+id/ready_card_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:background="@drawable/widget_card_white"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="gone">
+
+                <TextView
+                        android:id="@+id/ready_name_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="13sp"
+                        android:textColor="#111827"
+                        android:layout_marginBottom="2dp" />
+
+                <TextView
+                        android:id="@+id/ready_meta_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="#667085"
+                        android:layout_marginBottom="8dp" />
+
+                <TextView
+                        android:id="@+id/ready_btn_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="34dp"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:textSize="11sp"
+                        android:textColor="#FFFFFF"
+                        android:text="TAKE NOW"
+                        android:background="@drawable/widget_btn_green" />
+            </LinearLayout>
+
+            <!-- Ready card 2 -->
+            <LinearLayout
+                    android:id="@+id/ready_card_2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:background="@drawable/widget_card_white"
+                    android:layout_marginStart="4dp"
+                    android:visibility="gone">
+
+                <TextView
+                        android:id="@+id/ready_name_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="13sp"
+                        android:textColor="#111827"
+                        android:layout_marginBottom="2dp" />
+
+                <TextView
+                        android:id="@+id/ready_meta_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="#667085"
+                        android:layout_marginBottom="8dp" />
+
+                <TextView
+                        android:id="@+id/ready_btn_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="34dp"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:textSize="11sp"
+                        android:textColor="#FFFFFF"
+                        android:text="TAKE NOW"
+                        android:background="@drawable/widget_btn_green" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ON COOLDOWN section -->
+    <LinearLayout
+            android:id="@+id/section_cooldown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ON COOLDOWN"
+                android:textStyle="bold"
+                android:textSize="10sp"
+                android:textColor="#667085"
+                android:letterSpacing="0.08"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:background="@drawable/widget_bg_grey_section" />
+
+        <!-- Row: cooldown cards -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp">
+
+            <!-- Cooldown card 1 -->
+            <LinearLayout
+                    android:id="@+id/cooldown_card_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:gravity="center_horizontal"
+                    android:background="@drawable/widget_card_white"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="gone">
+
+                <TextView
+                        android:id="@+id/cooldown_name_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="13sp"
+                        android:textColor="#374151"
+                        android:gravity="center"
+                        android:layout_marginBottom="6dp" />
+
+                <TextView
+                        android:id="@+id/cooldown_timer_1"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:gravity="center"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="#667085"
+                        android:background="@drawable/widget_countdown_ring_grey"
+                        android:layout_marginBottom="6dp" />
+
+                <TextView
+                        android:id="@+id/cooldown_btn_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="28dp"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:textSize="11sp"
+                        android:textColor="#9CA3AF"
+                        android:text="TAKE"
+                        android:background="@drawable/widget_btn_disabled" />
+            </LinearLayout>
+
+            <!-- Cooldown card 2 -->
+            <LinearLayout
+                    android:id="@+id/cooldown_card_2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:gravity="center_horizontal"
+                    android:background="@drawable/widget_card_white"
+                    android:layout_marginStart="4dp"
+                    android:visibility="gone">
+
+                <TextView
+                        android:id="@+id/cooldown_name_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="13sp"
+                        android:textColor="#374151"
+                        android:gravity="center"
+                        android:layout_marginBottom="6dp" />
+
+                <TextView
+                        android:id="@+id/cooldown_timer_2"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:gravity="center"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="#667085"
+                        android:background="@drawable/widget_countdown_ring_grey"
+                        android:layout_marginBottom="6dp" />
+
+                <TextView
+                        android:id="@+id/cooldown_btn_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="28dp"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:textSize="11sp"
+                        android:textColor="#9CA3AF"
+                        android:text="TAKE"
+                        android:background="@drawable/widget_btn_disabled" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
 </LinearLayout>
