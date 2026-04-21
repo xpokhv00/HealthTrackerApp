@@ -52,6 +52,9 @@ const AddAppointmentScreen: React.FC = () => {
   const [preparation, setPreparation] = useState<string[]>(
     existingAppointment?.preparation ?? [],
   );
+  const [symptomsToDiscuss, setSymptomsToDiscuss] = useState(
+    existingAppointment?.symptomsToDiscuss?.join(', ') ?? '',
+  );
 
   useEffect(() => {
     if (!isEditMode && visitType && appointmentTemplates[visitType]) {
@@ -99,6 +102,10 @@ const AddAppointmentScreen: React.FC = () => {
       location: location.trim() || undefined,
       notes: notes.trim() || undefined,
       preparation,
+      symptomsToDiscuss: symptomsToDiscuss
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean),
     };
 
     if (isEditMode) {
@@ -223,6 +230,15 @@ const AddAppointmentScreen: React.FC = () => {
           placeholderTextColor={colors.textSecondary}
           multiline
           style={[styles.input, styles.multilineInput]}
+        />
+
+        <Text style={styles.label}>Symptoms to discuss (comma-separated)</Text>
+        <TextInput
+          value={symptomsToDiscuss}
+          onChangeText={setSymptomsToDiscuss}
+          placeholder="e.g. Fatigue, Headache, Sore Throat"
+          placeholderTextColor={colors.textSecondary}
+          style={styles.input}
         />
 
         <Text style={styles.label}>Notes</Text>

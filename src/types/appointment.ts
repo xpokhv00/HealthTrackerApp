@@ -7,5 +7,6 @@ export interface Appointment {
   dateTime: string;
   location?: string;
   preparation: string[];
+  symptomsToDiscuss?: string[];
   notes?: string;
 }
