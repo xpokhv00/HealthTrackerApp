@@ -146,7 +146,7 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
                             val item = pageItems[i]
                             setViewVisibility(cardIds[i], View.VISIBLE)
                             setTextViewText(nameIds[i], item.name)
-                            setTextViewText(timerIds[i], item.availableInText.replace("Available in ", "READY IN\n"))
+                            setTextViewText(timerIds[i], item.availableInText.replace("Available in ", ""))
                             setProgressBar(progressIds[i], 100, item.cooldownProgress, false)
                         } else {
                             setViewVisibility(cardIds[i], View.INVISIBLE)

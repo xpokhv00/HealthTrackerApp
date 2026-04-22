@@ -90,11 +90,18 @@ class RoutineWidgetProvider : AppWidgetProvider() {
             // DONE TODAY section — scrollable ListView via RemoteViewsService
             if (taken.isNotEmpty()) {
                 views.setViewVisibility(R.id.section_done_today, View.VISIBLE)
+
+                val hasActionSections = missed.isNotEmpty() || pending.isNotEmpty()
+                val activeListId = if (hasActionSections) R.id.done_list else R.id.done_list_tall
+                val inactiveListId = if (hasActionSections) R.id.done_list_tall else R.id.done_list
+                views.setViewVisibility(activeListId, View.VISIBLE)
+                views.setViewVisibility(inactiveListId, View.GONE)
+
                 val serviceIntent = Intent(context, RoutineWidgetService::class.java).apply {
                     putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
                 }
-                views.setRemoteAdapter(R.id.done_list, serviceIntent)
-                manager.notifyAppWidgetViewDataChanged(widgetId, R.id.done_list)
+                views.setRemoteAdapter(activeListId, serviceIntent)
+                manager.notifyAppWidgetViewDataChanged(widgetId, activeListId)
             } else {
                 views.setViewVisibility(R.id.section_done_today, View.GONE)
             }

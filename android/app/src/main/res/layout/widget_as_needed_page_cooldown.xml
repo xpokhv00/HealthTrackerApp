@@ -19,7 +19,7 @@
 
         <TextView
                 android:id="@+id/cooldown_name_a"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textSize="13sp"
@@ -27,31 +27,34 @@
                 android:gravity="center"
                 android:layout_marginBottom="6dp" />
 
-        <!-- Progress ring with centered time text -->
-        <FrameLayout
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+        <!-- Progress bar + time text -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="6dp">
 
             <ProgressBar
                     android:id="@+id/cooldown_progress_a"
                     style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:progressDrawable="@drawable/widget_cooldown_progress_ring"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_weight="1"
+                    android:progressDrawable="@drawable/widget_cooldown_progress_bar"
                     android:max="100"
                     android:progress="0" />
 
             <TextView
                     android:id="@+id/cooldown_timer_a"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:textColor="#667085" />
 
-        </FrameLayout>
+        </LinearLayout>
 
         <TextView
                 android:layout_width="match_parent"
@@ -78,7 +81,7 @@
 
         <TextView
                 android:id="@+id/cooldown_name_b"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textSize="13sp"
@@ -86,31 +89,34 @@
                 android:gravity="center"
                 android:layout_marginBottom="6dp" />
 
-        <!-- Progress ring with centered time text -->
-        <FrameLayout
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+        <!-- Progress bar + time text -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="6dp">
 
             <ProgressBar
                     android:id="@+id/cooldown_progress_b"
                     style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:progressDrawable="@drawable/widget_cooldown_progress_ring"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_weight="1"
+                    android:progressDrawable="@drawable/widget_cooldown_progress_bar"
                     android:max="100"
                     android:progress="0" />
 
             <TextView
                     android:id="@+id/cooldown_timer_b"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:textColor="#667085" />
 
-        </FrameLayout>
+        </LinearLayout>
 
         <TextView
                 android:layout_width="match_parent"

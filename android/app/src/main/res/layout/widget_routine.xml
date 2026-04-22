@@ -240,10 +240,19 @@
         <ListView
                 android:id="@+id/done_list"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="108dp"
                 android:divider="@null"
                 android:dividerHeight="0dp"
                 android:scrollbars="vertical" />
+
+        <ListView
+                android:id="@+id/done_list_tall"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:divider="@null"
+                android:dividerHeight="0dp"
+                android:scrollbars="vertical"
+                android:visibility="gone" />
 
     </LinearLayout>
 
