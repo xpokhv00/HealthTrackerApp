@@ -14,7 +14,14 @@
 
         <receiver
                 android:name=".widgets.WidgetActionReceiver"
-                android:exported="false" />
+                android:exported="false">
+            <intent-filter>
+                <action android:name="com.healthtrackerapp.ACTION_TAKE_ROUTINE" />
+                <action android:name="com.healthtrackerapp.ACTION_TAKE_AS_NEEDED" />
+                <action android:name="com.healthtrackerapp.ACTION_NEXT_READY_PAGE" />
+                <action android:name="com.healthtrackerapp.ACTION_NEXT_COOLDOWN_PAGE" />
+            </intent-filter>
+        </receiver>
 
         <receiver
                 android:name=".widgets.providers.RoutineWidgetProvider"

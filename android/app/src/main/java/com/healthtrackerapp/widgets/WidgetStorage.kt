@@ -83,6 +83,26 @@ object WidgetStorage {
         )
     }
 
+    fun getReadyPage(context: Context, widgetId: Int): Int {
+        return context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+            .getInt("ready_page_$widgetId", 0)
+    }
+
+    fun setReadyPage(context: Context, widgetId: Int, page: Int) {
+        context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+            .edit().putInt("ready_page_$widgetId", page).apply()
+    }
+
+    fun getCooldownPage(context: Context, widgetId: Int): Int {
+        return context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+            .getInt("cooldown_page_$widgetId", 0)
+    }
+
+    fun setCooldownPage(context: Context, widgetId: Int, page: Int) {
+        context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+            .edit().putInt("cooldown_page_$widgetId", page).apply()
+    }
+
     fun saveAppointment(context: Context, rawJson: String?) {
         context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
             .edit()

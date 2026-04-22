@@ -38,8 +38,7 @@
         <ImageView
                 android:id="@+id/timeline_line"
                 android:layout_width="3dp"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
                 android:layout_marginEnd="10dp"
                 android:background="@drawable/widget_timeline_line"
                 android:contentDescription="@null" />
@@ -238,141 +237,14 @@
                     android:letterSpacing="0.06" />
         </LinearLayout>
 
-        <!-- Up to 3 done items -->
-        <LinearLayout
-                android:id="@+id/done_item_1"
+        <ListView
+                android:id="@+id/done_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="6dp"
-                android:gravity="center_vertical"
-                android:visibility="gone">
+                android:layout_height="200dp"
+                android:divider="@null"
+                android:dividerHeight="0dp"
+                android:scrollbars="vertical" />
 
-            <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                <TextView
-                        android:id="@+id/done_name_1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:textColor="#374151" />
-
-                <TextView
-                        android:id="@+id/done_meta_1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="11sp"
-                        android:textColor="#9CA3AF" />
-            </LinearLayout>
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Taken"
-                    android:textSize="11sp"
-                    android:textColor="#27AE60"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"
-                    android:background="@drawable/widget_badge_taken" />
-        </LinearLayout>
-
-        <LinearLayout
-                android:id="@+id/done_item_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="6dp"
-                android:gravity="center_vertical"
-                android:visibility="gone">
-
-            <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                <TextView
-                        android:id="@+id/done_name_2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:textColor="#374151" />
-
-                <TextView
-                        android:id="@+id/done_meta_2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="11sp"
-                        android:textColor="#9CA3AF" />
-            </LinearLayout>
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Taken"
-                    android:textSize="11sp"
-                    android:textColor="#27AE60"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"
-                    android:background="@drawable/widget_badge_taken" />
-        </LinearLayout>
-
-        <LinearLayout
-                android:id="@+id/done_item_3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="8dp"
-                android:gravity="center_vertical"
-                android:visibility="gone">
-
-            <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                <TextView
-                        android:id="@+id/done_name_3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:textColor="#374151" />
-
-                <TextView
-                        android:id="@+id/done_meta_3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="11sp"
-                        android:textColor="#9CA3AF" />
-            </LinearLayout>
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Taken"
-                    android:textSize="11sp"
-                    android:textColor="#27AE60"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"
-                    android:background="@drawable/widget_badge_taken" />
-        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

@@ -10,6 +10,9 @@ object WidgetConstants {
 
     const val ACTION_TAKE_ROUTINE = "com.healthtrackerapp.ACTION_TAKE_ROUTINE"
     const val ACTION_TAKE_AS_NEEDED = "com.healthtrackerapp.ACTION_TAKE_AS_NEEDED"
+    const val ACTION_NEXT_READY_PAGE = "com.healthtrackerapp.ACTION_NEXT_READY_PAGE"
+    const val ACTION_NEXT_COOLDOWN_PAGE = "com.healthtrackerapp.ACTION_NEXT_COOLDOWN_PAGE"
 
     const val EXTRA_ITEM_ID = "extra_item_id"
+    const val EXTRA_WIDGET_ID = "extra_widget_id"
 }

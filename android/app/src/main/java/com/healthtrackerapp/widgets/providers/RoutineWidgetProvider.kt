@@ -9,10 +9,10 @@ import android.content.Intent
 import android.view.View
 import android.widget.RemoteViews
 import com.healthtrackerapp.R
-import com.healthtrackerapp.widgets.RoutineWidgetItem
 import com.healthtrackerapp.widgets.WidgetActionReceiver
 import com.healthtrackerapp.widgets.WidgetConstants
 import com.healthtrackerapp.widgets.WidgetStorage
+import com.healthtrackerapp.widgets.services.RoutineWidgetService
 
 class RoutineWidgetProvider : AppWidgetProvider() {
 
@@ -46,10 +46,6 @@ class RoutineWidgetProvider : AppWidgetProvider() {
                 views.setTextViewText(R.id.missed_name, item.name)
                 views.setTextViewText(R.id.missed_meta, "${item.dosage} · ${item.time}")
 
-                val rescueIntent = Intent().apply {
-                    action = WidgetConstants.ACTION_TAKE_ROUTINE
-                    putExtra(WidgetConstants.EXTRA_ITEM_ID, item.id)
-                }
                 val rescuePending = PendingIntent.getBroadcast(
                     context,
                     (102 + widgetId * 10 + 1),
@@ -91,24 +87,14 @@ class RoutineWidgetProvider : AppWidgetProvider() {
                 views.setViewVisibility(R.id.timeline_line, View.GONE)
             }
 
-            // DONE TODAY section — show up to 3 taken items
+            // DONE TODAY section — scrollable ListView via RemoteViewsService
             if (taken.isNotEmpty()) {
                 views.setViewVisibility(R.id.section_done_today, View.VISIBLE)
-                val doneSlots = listOf(
-                    Triple(R.id.done_item_1, R.id.done_name_1, R.id.done_meta_1),
-                    Triple(R.id.done_item_2, R.id.done_name_2, R.id.done_meta_2),
-                    Triple(R.id.done_item_3, R.id.done_name_3, R.id.done_meta_3),
-                )
-                doneSlots.forEachIndexed { index, (rowId, nameId, metaId) ->
-                    if (index < taken.size) {
-                        val item = taken[index]
-                        views.setViewVisibility(rowId, View.VISIBLE)
-                        views.setTextViewText(nameId, item.name)
-                        views.setTextViewText(metaId, "${item.dosage} · ${item.time}")
-                    } else {
-                        views.setViewVisibility(rowId, View.GONE)
-                    }
+                val serviceIntent = Intent(context, RoutineWidgetService::class.java).apply {
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
                 }
+                views.setRemoteAdapter(R.id.done_list, serviceIntent)
+                manager.notifyAppWidgetViewDataChanged(widgetId, R.id.done_list)
             } else {
                 views.setViewVisibility(R.id.section_done_today, View.GONE)
             }

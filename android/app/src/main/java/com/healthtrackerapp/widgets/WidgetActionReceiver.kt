@@ -11,10 +11,9 @@ import org.json.JSONObject
 class WidgetActionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val itemId = intent.getStringExtra(WidgetConstants.EXTRA_ITEM_ID) ?: return
-
         when (intent.action) {
             WidgetConstants.ACTION_TAKE_ROUTINE -> {
+                val itemId = intent.getStringExtra(WidgetConstants.EXTRA_ITEM_ID) ?: return
                 val items = WidgetStorage.getRoutineItems(context).map {
                     if (it.id == itemId) it.copy(status = "taken") else it
                 }.sortedWith(compareBy(
@@ -41,15 +40,9 @@ class WidgetActionReceiver : BroadcastReceiver() {
             }
 
             WidgetConstants.ACTION_TAKE_AS_NEEDED -> {
+                val itemId = intent.getStringExtra(WidgetConstants.EXTRA_ITEM_ID) ?: return
                 val items = WidgetStorage.getAsNeededItems(context).map {
-                    if (it.id == itemId) {
-                        it.copy(
-                            available = false,
-                            availableInText = "Updating…"
-                        )
-                    } else {
-                        it
-                    }
+                    if (it.id == itemId) it.copy(available = false, availableInText = "Updating…") else it
                 }
 
                 val arr = JSONArray()
@@ -67,6 +60,31 @@ class WidgetActionReceiver : BroadcastReceiver() {
 
                 WidgetStorage.saveAsNeededItems(context, arr.toString())
                 WidgetActionQueue.enqueueAsNeededTaken(context, itemId)
+                AsNeededWidgetProvider.updateAll(context)
+            }
+
+            WidgetConstants.ACTION_NEXT_READY_PAGE -> {
+                val widgetId = intent.getIntExtra(WidgetConstants.EXTRA_WIDGET_ID, -1)
+                if (widgetId == -1) return
+                val ready = WidgetStorage.getAsNeededItems(context).filter { it.available }
+                val pageCount = (ready.size + 1) / 2
+                if (pageCount > 1) {
+                    val current = WidgetStorage.getReadyPage(context, widgetId)
+                    WidgetStorage.setReadyPage(context, widgetId, (current + 1) % pageCount)
+                }
+                AsNeededWidgetProvider.updateAll(context)
+            }
+
+            WidgetConstants.ACTION_NEXT_COOLDOWN_PAGE -> {
+                val widgetId = intent.getIntExtra(WidgetConstants.EXTRA_WIDGET_ID, -1)
+                if (widgetId == -1) return
+                val cooldown = WidgetStorage.getAsNeededItems(context)
+                    .filter { !it.available && it.availableInText != "Daily limit reached" }
+                val pageCount = (cooldown.size + 1) / 2
+                if (pageCount > 1) {
+                    val current = WidgetStorage.getCooldownPage(context, widgetId)
+                    WidgetStorage.setCooldownPage(context, widgetId, (current + 1) % pageCount)
+                }
                 AsNeededWidgetProvider.updateAll(context)
             }
         }
