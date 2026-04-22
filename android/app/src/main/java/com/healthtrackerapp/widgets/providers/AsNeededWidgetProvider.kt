@@ -42,26 +42,19 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
                 val currentReadyPage = WidgetStorage.getReadyPage(context, widgetId)
                     .coerceIn(0, readyPages.lastIndex)
 
-                val flipperViews = buildReadyFlipper(context, widgetId, readyPages, currentReadyPage)
                 views.removeAllViews(R.id.ready_flipper)
-                flipperViews.forEach { views.addView(R.id.ready_flipper, it) }
+                for (page in buildReadyPages(context, widgetId, readyPages)) {
+                    views.addView(R.id.ready_flipper, page)
+                }
                 views.setDisplayedChild(R.id.ready_flipper, currentReadyPage)
 
                 if (readyPages.size > 1) {
                     views.setViewVisibility(R.id.ready_dots, View.VISIBLE)
                     views.setTextViewText(R.id.ready_dots, buildDots(readyPages.size, currentReadyPage))
-
-                    val nextIntent = PendingIntent.getBroadcast(
-                        context,
-                        (300 + widgetId * 10),
-                        Intent(context, WidgetActionReceiver::class.java).apply {
-                            setPackage(context.packageName)
-                            action = WidgetConstants.ACTION_NEXT_READY_PAGE
-                            putExtra(WidgetConstants.EXTRA_WIDGET_ID, widgetId)
-                        },
-                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    views.setOnClickPendingIntent(
+                        R.id.ready_flipper,
+                        makeBroadcast(context, 300 + widgetId * 10, WidgetConstants.ACTION_NEXT_READY_PAGE, widgetId)
                     )
-                    views.setOnClickPendingIntent(R.id.ready_flipper, nextIntent)
                 } else {
                     views.setViewVisibility(R.id.ready_dots, View.GONE)
                 }
@@ -77,26 +70,19 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
                 val currentCooldownPage = WidgetStorage.getCooldownPage(context, widgetId)
                     .coerceIn(0, cooldownPages.lastIndex)
 
-                val flipperViews = buildCooldownFlipper(context, cooldownPages, currentCooldownPage)
                 views.removeAllViews(R.id.cooldown_flipper)
-                flipperViews.forEach { views.addView(R.id.cooldown_flipper, it) }
+                for (page in buildCooldownPages(context, cooldownPages)) {
+                    views.addView(R.id.cooldown_flipper, page)
+                }
                 views.setDisplayedChild(R.id.cooldown_flipper, currentCooldownPage)
 
                 if (cooldownPages.size > 1) {
                     views.setViewVisibility(R.id.cooldown_dots, View.VISIBLE)
                     views.setTextViewText(R.id.cooldown_dots, buildDots(cooldownPages.size, currentCooldownPage))
-
-                    val nextIntent = PendingIntent.getBroadcast(
-                        context,
-                        (300 + widgetId * 10 + 1),
-                        Intent(context, WidgetActionReceiver::class.java).apply {
-                            setPackage(context.packageName)
-                            action = WidgetConstants.ACTION_NEXT_COOLDOWN_PAGE
-                            putExtra(WidgetConstants.EXTRA_WIDGET_ID, widgetId)
-                        },
-                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    views.setOnClickPendingIntent(
+                        R.id.cooldown_flipper,
+                        makeBroadcast(context, 301 + widgetId * 10, WidgetConstants.ACTION_NEXT_COOLDOWN_PAGE, widgetId)
                     )
-                    views.setOnClickPendingIntent(R.id.cooldown_flipper, nextIntent)
                 } else {
                     views.setViewVisibility(R.id.cooldown_dots, View.GONE)
                 }
@@ -104,7 +90,6 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
                 views.setViewVisibility(R.id.section_cooldown, View.GONE)
             }
 
-            // Tap root to open app
             val clickPending = PendingIntent.getActivity(
                 context, 201,
                 context.packageManager.getLaunchIntentForPackage(context.packageName),
@@ -115,73 +100,83 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
             manager.updateAppWidget(widgetId, views)
         }
 
-        private fun buildReadyFlipper(
+        private fun buildReadyPages(
             context: Context,
             widgetId: Int,
-            pages: List<List<AsNeededWidgetItem>>,
-            currentPage: Int
+            pages: List<List<AsNeededWidgetItem>>
         ): List<RemoteViews> {
+            val cardIds = intArrayOf(R.id.ready_card_a, R.id.ready_card_b)
+            val nameIds = intArrayOf(R.id.ready_name_a, R.id.ready_name_b)
+            val metaIds = intArrayOf(R.id.ready_meta_a, R.id.ready_meta_b)
+            val btnIds = intArrayOf(R.id.ready_btn_a, R.id.ready_btn_b)
+
             return pages.mapIndexed { pageIndex, pageItems ->
                 RemoteViews(context.packageName, R.layout.widget_as_needed_page_ready).apply {
-                    val cards = listOf(
-                        Triple(R.id.ready_card_a, R.id.ready_name_a, R.id.ready_meta_a) to R.id.ready_btn_a,
-                        Triple(R.id.ready_card_b, R.id.ready_name_b, R.id.ready_meta_b) to R.id.ready_btn_b,
-                    )
-                    cards.forEachIndexed { i, (ids, btnId) ->
-                        val (cardId, nameId, metaId) = ids
+                    for (i in 0..1) {
                         if (i < pageItems.size) {
                             val item = pageItems[i]
-                            setViewVisibility(cardId, View.VISIBLE)
-                            setTextViewText(nameId, item.name)
-                            setTextViewText(metaId, item.dosage)
-                            val takePending = PendingIntent.getBroadcast(
-                                context,
-                                (202 + widgetId * 20 + pageIndex * 2 + i),
-                                Intent(context, WidgetActionReceiver::class.java).apply {
-                                    setPackage(context.packageName)
-                                    action = WidgetConstants.ACTION_TAKE_AS_NEEDED
-                                    putExtra(WidgetConstants.EXTRA_ITEM_ID, item.id)
-                                },
-                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                            setViewVisibility(cardIds[i], View.VISIBLE)
+                            setTextViewText(nameIds[i], item.name)
+                            setTextViewText(metaIds[i], item.dosage)
+                            setOnClickPendingIntent(
+                                btnIds[i],
+                                makeTakeAsNeededIntent(context, 202 + widgetId * 20 + pageIndex * 2 + i, item.id)
                             )
-                            setOnClickPendingIntent(btnId, takePending)
                         } else {
-                            setViewVisibility(cardId, View.INVISIBLE)
+                            setViewVisibility(cardIds[i], View.INVISIBLE)
                         }
                     }
                 }
             }
         }
 
-        private fun buildCooldownFlipper(
+        private fun buildCooldownPages(
             context: Context,
-            pages: List<List<AsNeededWidgetItem>>,
-            currentPage: Int
+            pages: List<List<AsNeededWidgetItem>>
         ): List<RemoteViews> {
+            val cardIds = intArrayOf(R.id.cooldown_card_a, R.id.cooldown_card_b)
+            val nameIds = intArrayOf(R.id.cooldown_name_a, R.id.cooldown_name_b)
+            val timerIds = intArrayOf(R.id.cooldown_timer_a, R.id.cooldown_timer_b)
+
             return pages.map { pageItems ->
                 RemoteViews(context.packageName, R.layout.widget_as_needed_page_cooldown).apply {
-                    val cards = listOf(
-                        Triple(R.id.cooldown_card_a, R.id.cooldown_name_a, R.id.cooldown_timer_a),
-                        Triple(R.id.cooldown_card_b, R.id.cooldown_name_b, R.id.cooldown_timer_b),
-                    )
-                    cards.forEachIndexed { i, (cardId, nameId, timerId) ->
+                    for (i in 0..1) {
                         if (i < pageItems.size) {
                             val item = pageItems[i]
-                            setViewVisibility(cardId, View.VISIBLE)
-                            setTextViewText(nameId, item.name)
-                            setTextViewText(timerId, formatCooldownTimer(item.availableInText))
+                            setViewVisibility(cardIds[i], View.VISIBLE)
+                            setTextViewText(nameIds[i], item.name)
+                            setTextViewText(timerIds[i], item.availableInText.replace("Available in ", "READY IN\n"))
                         } else {
-                            setViewVisibility(cardId, View.INVISIBLE)
+                            setViewVisibility(cardIds[i], View.INVISIBLE)
                         }
                     }
                 }
             }
         }
+
+        private fun makeTakeAsNeededIntent(context: Context, requestCode: Int, itemId: String): PendingIntent =
+            PendingIntent.getBroadcast(
+                context, requestCode,
+                Intent(context, WidgetActionReceiver::class.java).apply {
+                    setPackage(context.packageName)
+                    action = WidgetConstants.ACTION_TAKE_AS_NEEDED
+                    putExtra(WidgetConstants.EXTRA_ITEM_ID, itemId)
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+        private fun makeBroadcast(context: Context, requestCode: Int, action: String, widgetId: Int): PendingIntent =
+            PendingIntent.getBroadcast(
+                context, requestCode,
+                Intent(context, WidgetActionReceiver::class.java).apply {
+                    setPackage(context.packageName)
+                    this.action = action
+                    putExtra(WidgetConstants.EXTRA_WIDGET_ID, widgetId)
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
 
         private fun buildDots(total: Int, current: Int): String =
             (0 until total).joinToString("  ") { if (it == current) "●" else "○" }
-
-        private fun formatCooldownTimer(text: String): String =
-            text.replace("Available in ", "READY IN\n")
     }
 }
