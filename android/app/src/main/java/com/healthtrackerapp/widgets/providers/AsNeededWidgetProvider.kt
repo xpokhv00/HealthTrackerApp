@@ -41,8 +41,10 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
                 val readyCards = listOf(
                     Triple(R.id.ready_card_1, R.id.ready_name_1, R.id.ready_meta_1),
                     Triple(R.id.ready_card_2, R.id.ready_name_2, R.id.ready_meta_2),
+                    Triple(R.id.ready_card_3, R.id.ready_name_3, R.id.ready_meta_3),
+                    Triple(R.id.ready_card_4, R.id.ready_name_4, R.id.ready_meta_4),
                 )
-                val readyBtns = listOf(R.id.ready_btn_1, R.id.ready_btn_2)
+                val readyBtns = listOf(R.id.ready_btn_1, R.id.ready_btn_2, R.id.ready_btn_3, R.id.ready_btn_4)
 
                 readyCards.forEachIndexed { index, (cardId, nameId, metaId) ->
                     if (index < ready.size) {
@@ -77,6 +79,8 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
                 val cooldownCards = listOf(
                     Triple(R.id.cooldown_card_1, R.id.cooldown_name_1, R.id.cooldown_timer_1),
                     Triple(R.id.cooldown_card_2, R.id.cooldown_name_2, R.id.cooldown_timer_2),
+                    Triple(R.id.cooldown_card_3, R.id.cooldown_name_3, R.id.cooldown_timer_3),
+                    Triple(R.id.cooldown_card_4, R.id.cooldown_name_4, R.id.cooldown_timer_4),
                 )
 
                 cooldownCards.forEachIndexed { index, (cardId, nameId, timerId) ->
