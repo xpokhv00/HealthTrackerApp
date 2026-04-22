@@ -27,16 +27,31 @@
                 android:gravity="center"
                 android:layout_marginBottom="6dp" />
 
-        <TextView
-                android:id="@+id/cooldown_timer_a"
+        <!-- Progress ring with centered time text -->
+        <FrameLayout
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:gravity="center"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#667085"
-                android:background="@drawable/widget_countdown_ring_grey"
-                android:layout_marginBottom="6dp" />
+                android:layout_marginBottom="6dp">
+
+            <ProgressBar
+                    android:id="@+id/cooldown_progress_a"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:progressDrawable="@drawable/widget_cooldown_progress_ring"
+                    android:max="100"
+                    android:progress="0" />
+
+            <TextView
+                    android:id="@+id/cooldown_timer_a"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#667085" />
+
+        </FrameLayout>
 
         <TextView
                 android:layout_width="match_parent"
@@ -71,16 +86,31 @@
                 android:gravity="center"
                 android:layout_marginBottom="6dp" />
 
-        <TextView
-                android:id="@+id/cooldown_timer_b"
+        <!-- Progress ring with centered time text -->
+        <FrameLayout
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:gravity="center"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#667085"
-                android:background="@drawable/widget_countdown_ring_grey"
-                android:layout_marginBottom="6dp" />
+                android:layout_marginBottom="6dp">
+
+            <ProgressBar
+                    android:id="@+id/cooldown_progress_b"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:progressDrawable="@drawable/widget_cooldown_progress_ring"
+                    android:max="100"
+                    android:progress="0" />
+
+            <TextView
+                    android:id="@+id/cooldown_timer_b"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#667085" />
+
+        </FrameLayout>
 
         <TextView
                 android:layout_width="match_parent"

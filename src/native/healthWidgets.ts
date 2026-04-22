@@ -17,6 +17,7 @@ export type AsNeededWidgetItem = {
   dosage: string;
   available: boolean;
   availableInText: string;
+  cooldownProgress: number;
 };
 
 export type AppointmentWidgetData = {

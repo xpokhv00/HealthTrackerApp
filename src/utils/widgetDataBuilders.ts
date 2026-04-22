@@ -139,6 +139,7 @@ export const buildAsNeededWidgetItems = (
           dosage: `${med.dosage}${med.form ? ` • ${med.form}` : ''}`,
           available: false,
           availableInText: 'Daily limit reached',
+          cooldownProgress: 100,
           _sortRank: 2,
           _sortValue: Number.MAX_SAFE_INTEGER,
         };
@@ -151,17 +152,24 @@ export const buildAsNeededWidgetItems = (
           dosage: `${med.dosage}${med.form ? ` • ${med.form}` : ''}`,
           available: true,
           availableInText: 'Available now',
+          cooldownProgress: 100,
           _sortRank: 0,
           _sortValue: 0,
         };
       }
 
+      const totalCooldownMs = med.minHoursBetweenDoses * 60 * 60 * 1000;
       const nextAllowed =
-        new Date(med.lastTakenAt).getTime() +
-        med.minHoursBetweenDoses * 60 * 60 * 1000;
+        new Date(med.lastTakenAt).getTime() + totalCooldownMs;
 
       const remainingMinutes = Math.ceil(
         (nextAllowed - now.getTime()) / (1000 * 60),
+      );
+
+      const elapsedMs = now.getTime() - new Date(med.lastTakenAt).getTime();
+      const cooldownProgress = Math.min(
+        100,
+        Math.max(0, Math.round((elapsedMs / totalCooldownMs) * 100)),
       );
 
       return {
@@ -170,6 +178,7 @@ export const buildAsNeededWidgetItems = (
         dosage: `${med.dosage}${med.form ? ` • ${med.form}` : ''}`,
         available: remainingMinutes <= 0,
         availableInText: formatRemaining(remainingMinutes),
+        cooldownProgress,
         _sortRank: remainingMinutes <= 0 ? 0 : 1,
         _sortValue: Math.max(remainingMinutes, 0),
       };

@@ -48,7 +48,8 @@ object WidgetStorage {
                     name = obj.optString("name"),
                     dosage = obj.optString("dosage"),
                     available = obj.optBoolean("available"),
-                    availableInText = obj.optString("availableInText")
+                    availableInText = obj.optString("availableInText"),
+                    cooldownProgress = obj.optInt("cooldownProgress", 0)
                 )
             )
         }

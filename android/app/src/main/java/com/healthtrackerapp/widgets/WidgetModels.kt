@@ -13,7 +13,8 @@ data class AsNeededWidgetItem(
     val name: String,
     val dosage: String,
     val available: Boolean,
-    val availableInText: String
+    val availableInText: String,
+    val cooldownProgress: Int
 )
 
 data class AppointmentWidgetData(

@@ -137,6 +137,7 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
             val cardIds = intArrayOf(R.id.cooldown_card_a, R.id.cooldown_card_b)
             val nameIds = intArrayOf(R.id.cooldown_name_a, R.id.cooldown_name_b)
             val timerIds = intArrayOf(R.id.cooldown_timer_a, R.id.cooldown_timer_b)
+            val progressIds = intArrayOf(R.id.cooldown_progress_a, R.id.cooldown_progress_b)
 
             return pages.map { pageItems ->
                 RemoteViews(context.packageName, R.layout.widget_as_needed_page_cooldown).apply {
@@ -146,6 +147,7 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
                             setViewVisibility(cardIds[i], View.VISIBLE)
                             setTextViewText(nameIds[i], item.name)
                             setTextViewText(timerIds[i], item.availableInText.replace("Available in ", "READY IN\n"))
+                            setProgressBar(progressIds[i], 100, item.cooldownProgress, false)
                         } else {
                             setViewVisibility(cardIds[i], View.INVISIBLE)
                         }
