@@ -36,6 +36,9 @@ class RoutineWidgetProvider : AppWidgetProvider() {
             val pending = items.filter { it.status == "pending" }
             val taken = items.filter { it.status == "taken" }
 
+            val hasAnyData = missed.isNotEmpty() || pending.isNotEmpty() || taken.isNotEmpty()
+            views.setViewVisibility(R.id.section_empty, if (hasAnyData) View.GONE else View.VISIBLE)
+
             // ACTION REQUIRED section — show first missed item
             if (missed.isNotEmpty()) {
                 val item = missed[0]

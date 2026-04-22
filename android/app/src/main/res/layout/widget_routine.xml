@@ -17,6 +17,17 @@
             android:textColor="#111827"
             android:layout_marginBottom="10dp" />
 
+    <!-- Empty state (shown when no data is loaded yet) -->
+    <TextView
+            android:id="@+id/section_empty"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:text="Open the app to sync your medications"
+            android:textSize="13sp"
+            android:textColor="#9CA3AF"
+            android:visibility="gone" />
+
     <!-- Timeline wrapper: left blue line + sections -->
     <LinearLayout
             android:layout_width="match_parent"
