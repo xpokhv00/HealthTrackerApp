@@ -9,6 +9,7 @@ export type RoutineWidgetItem = {
   dosage: string;
   time: string;
   status: 'pending' | 'missed' | 'taken';
+  scheduleProgress: number;
 };
 
 export type AsNeededWidgetItem = {

@@ -19,7 +19,8 @@ object WidgetStorage {
                     name = obj.optString("name"),
                     dosage = obj.optString("dosage"),
                     time = obj.optString("time"),
-                    status = obj.optString("status")
+                    status = obj.optString("status"),
+                    scheduleProgress = obj.optInt("scheduleProgress", 0)
                 )
             )
         }

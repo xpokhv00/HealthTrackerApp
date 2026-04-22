@@ -69,6 +69,7 @@ class RoutineWidgetProvider : AppWidgetProvider() {
                 views.setTextViewText(R.id.next_name, item.name)
                 views.setTextViewText(R.id.next_meta, "${item.dosage} · ${item.time}")
                 views.setTextViewText(R.id.next_countdown, formatCountdown(item.time))
+                views.setProgressBar(R.id.next_progress, 100, item.scheduleProgress, false)
                 views.setTextViewText(R.id.btn_take_next, "TAKE AT ${item.time}")
 
                 val takePending = PendingIntent.getBroadcast(

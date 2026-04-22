@@ -5,7 +5,8 @@ data class RoutineWidgetItem(
     val name: String,
     val dosage: String,
     val time: String,
-    val status: String
+    val status: String,
+    val scheduleProgress: Int
 )
 
 data class AsNeededWidgetItem(

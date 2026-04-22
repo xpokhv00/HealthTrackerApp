@@ -22,6 +22,11 @@ const parseTimeToday = (time: string) => {
   return date;
 };
 
+const parseTimeMinutes = (time: string): number => {
+  const [h, m] = time.split(':').map(Number);
+  return (h || 0) * 60 + (m || 0);
+};
+
 const formatRemaining = (minutes: number) => {
   if (minutes <= 0) {
     return 'Available now';
@@ -86,6 +91,8 @@ export const buildRoutineWidgetItems = (
   const items: RoutineWidgetItem[] = [];
 
   dueRoutineMeds.forEach(med => {
+    const allTimes = [...(med.scheduledTimes ?? [])].sort();
+
     (med.scheduledTimes ?? []).forEach(time => {
       const matchingSlot = slotMap.get(`${med.id}_${time}`);
 
@@ -93,14 +100,31 @@ export const buildRoutineWidgetItems = (
         ? matchingSlot.id
         : `${med.id}_${todayKey}_${time}`;
 
+      const status = matchingSlot
+        ? normalizeRoutineStatus(matchingSlot.status)
+        : getFallbackRoutineStatus(time);
+
+      // Compute progress: elapsed since previous scheduled time / window to this time
+      const timeIndex = allTimes.indexOf(time);
+      const prevTime = timeIndex > 0 ? allTimes[timeIndex - 1] : '00:00';
+      const prevMinutes = parseTimeMinutes(prevTime);
+      const thisMinutes = parseTimeMinutes(time);
+      const windowMinutes = thisMinutes - prevMinutes;
+      const nowMinutes =
+        today.getHours() * 60 + today.getMinutes();
+      const elapsedMinutes = nowMinutes - prevMinutes;
+      const scheduleProgress =
+        windowMinutes > 0
+          ? Math.min(100, Math.max(0, Math.round((elapsedMinutes / windowMinutes) * 100)))
+          : 0;
+
       items.push({
         id: slotId,
         name: med.name,
         dosage: `${med.dosage}${med.form ? ` • ${med.form}` : ''}`,
         time,
-        status: matchingSlot
-          ? normalizeRoutineStatus(matchingSlot.status)
-          : getFallbackRoutineStatus(time),
+        status,
+        scheduleProgress,
       });
     });
   });
