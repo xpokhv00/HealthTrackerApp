@@ -40,7 +40,7 @@
                 android:paddingBottom="6dp"
                 android:background="@drawable/widget_bg_green_header" />
 
-        <AdapterViewFlipper
+        <ViewFlipper
                 android:id="@+id/ready_flipper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
                 android:paddingBottom="6dp"
                 android:background="@drawable/widget_bg_grey_section" />
 
-        <AdapterViewFlipper
+        <ViewFlipper
                 android:id="@+id/cooldown_flipper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
