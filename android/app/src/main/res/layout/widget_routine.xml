@@ -28,20 +28,11 @@
             android:textColor="#9CA3AF"
             android:visibility="gone" />
 
-    <!-- Timeline wrapper: left blue line + sections -->
+    <!-- Timeline wrapper: sections -->
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
-        <!-- Blue vertical timeline line (only between action-required and next-up) -->
-        <ImageView
-                android:id="@+id/timeline_line"
-                android:layout_width="3dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/widget_timeline_line"
-                android:contentDescription="@null" />
 
         <!-- Sections column -->
         <LinearLayout

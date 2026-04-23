@@ -65,7 +65,6 @@ class RoutineWidgetProvider : AppWidgetProvider() {
             if (pending.isNotEmpty()) {
                 val item = pending[0]
                 views.setViewVisibility(R.id.section_next_up, View.VISIBLE)
-                views.setViewVisibility(R.id.timeline_line, View.VISIBLE)
                 views.setTextViewText(R.id.next_name, item.name)
                 views.setTextViewText(R.id.next_meta, "${item.dosage} · ${item.time}")
                 views.setTextViewText(R.id.next_countdown, formatCountdown(item.time))
@@ -85,7 +84,6 @@ class RoutineWidgetProvider : AppWidgetProvider() {
                 views.setOnClickPendingIntent(R.id.btn_take_next, takePending)
             } else {
                 views.setViewVisibility(R.id.section_next_up, View.GONE)
-                views.setViewVisibility(R.id.timeline_line, View.GONE)
             }
 
             // DONE TODAY section — scrollable ListView via RemoteViewsService
