@@ -29,6 +29,7 @@ class HealthWidgetsModule(private val reactContext: ReactApplicationContext) :
                         put("dosage", map.getString("dosage"))
                         put("time", map.getString("time"))
                         put("status", map.getString("status"))
+                        put("scheduleProgress", map.getInt("scheduleProgress"))
                     }
                 )
             }
@@ -54,6 +55,7 @@ class HealthWidgetsModule(private val reactContext: ReactApplicationContext) :
                         put("dosage", map.getString("dosage"))
                         put("available", map.getBoolean("available"))
                         put("availableInText", map.getString("availableInText"))
+                        put("cooldownProgress", map.getInt("cooldownProgress"))
                     }
                 )
             }
