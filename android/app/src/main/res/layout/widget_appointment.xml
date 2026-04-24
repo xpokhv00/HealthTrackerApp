@@ -86,11 +86,12 @@
     </LinearLayout>
 
     <!-- Divider -->
-    <View
+    <TextView
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginBottom="12dp"
-            android:background="#1E293B" />
+            android:background="#1E293B"
+            android:text="" />
 
     <!-- ROW 3: Prep checklist label -->
     <TextView
