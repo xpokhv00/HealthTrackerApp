@@ -5,7 +5,7 @@
               android:layout_height="wrap_content"
               android:orientation="vertical"
               android:padding="16dp"
-              android:background="@drawable/widget_bg_dark">
+              android:background="@drawable/widget_bg_white">
 
     <!-- ROW 1: Urgency pill + CTA -->
     <LinearLayout
@@ -28,7 +28,7 @@
                 android:textStyle="bold"
                 android:letterSpacing="0.07"
                 android:background="@drawable/widget_appt_pill_distant"
-                android:textColor="#94A3B8"
+                android:textColor="#6B7280"
                 android:text="NEXT APPOINTMENT" />
 
         <TextView
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="#F8FAFC"
+                android:textColor="#111827"
                 android:letterSpacing="0.01"
                 android:text="DR. NOVAK" />
 
@@ -72,7 +72,7 @@
                 android:layout_marginTop="4dp"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#60A5FA"
+                android:textColor="#2563EB"
                 android:text="Sunday · 10:00 AM" />
 
         <TextView
@@ -81,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textSize="12sp"
-                android:textColor="#64748B"
+                android:textColor="#6B7280"
                 android:text="General Practitioner · City Clinic" />
     </LinearLayout>
 
@@ -90,7 +90,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginBottom="12dp"
-            android:background="#1E293B"
+            android:background="#E5E7EB"
             android:text="" />
 
     <!-- ROW 3: Prep checklist label -->
@@ -102,7 +102,7 @@
             android:textSize="10sp"
             android:textStyle="bold"
             android:letterSpacing="0.08"
-            android:textColor="#475569"
+            android:textColor="#9CA3AF"
             android:text="PREPARATION CHECKLIST" />
 
     <!-- ROW 3: Prep checklist items -->
@@ -123,7 +123,7 @@
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:background="@drawable/widget_appt_chip_pending"
-                android:textColor="#CBD5E1"
+                android:textColor="#374151"
                 android:text="&#9744;  SYMPTOMS" />
 
         <TextView
@@ -138,7 +138,7 @@
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:background="@drawable/widget_appt_chip_pending"
-                android:textColor="#CBD5E1"
+                android:textColor="#374151"
                 android:text="&#9744;  MEDS LIST" />
 
         <TextView
@@ -152,7 +152,7 @@
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:background="@drawable/widget_appt_chip_pending"
-                android:textColor="#CBD5E1"
+                android:textColor="#374151"
                 android:text="&#9744;  BLOOD REPORT" />
     </LinearLayout>
 
