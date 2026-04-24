@@ -74,6 +74,7 @@ object WidgetStorage {
             title = obj.optString("title"),
             doctor = obj.optString("doctor"),
             specialty = obj.optString("specialty"),
+            location = obj.optString("location"),
             dayOfWeek = obj.optString("dayOfWeek"),
             dateTimeText = obj.optString("dateTimeText"),
             recommendations = buildList {

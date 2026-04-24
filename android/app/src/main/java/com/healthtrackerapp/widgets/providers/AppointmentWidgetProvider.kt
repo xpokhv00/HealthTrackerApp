@@ -22,8 +22,8 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
     companion object {
         private val CHIP_KEYS = listOf("symptoms", "meds", "report")
         private val CHIP_IDS = listOf(R.id.chip_symptoms, R.id.chip_meds, R.id.chip_report)
-        private val CHIP_READY_LABELS = listOf("✓ SYMPTOMS", "✓ MEDS LIST", "✓ BLOOD REP.")
-        private val CHIP_PENDING_LABELS = listOf("📝 SYMPTOMS", "💊 MEDS LIST", "🩸 BLOOD REP.")
+        private val CHIP_READY_LABELS = listOf("SYMPTOMS", "MEDS LIST", "BLOOD REP.")
+        private val CHIP_PENDING_LABELS = listOf("SYMPTOMS", "MEDS LIST", "BLOOD REP.")
 
         fun updateAll(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
@@ -48,8 +48,7 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
                 views.setTextViewText(R.id.appt_urgency_pill, "NO UPCOMING APPOINTMENT")
                 views.setTextViewText(R.id.appt_hero_title, "—")
                 views.setTextViewText(R.id.appt_hero_sub, "Add an appointment in the app")
-                views.setTextViewText(R.id.appt_cta_label, "OPEN APP")
-                views.setTextViewText(R.id.appt_cta_icon, "📅")
+                views.setTextViewText(R.id.appt_cta_zone, "OPEN APP")
                 applyPillDistant(views)
                 applyChipsPending(views)
                 manager.updateAppWidget(widgetId, views)
@@ -64,9 +63,9 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
 
             // Row 1: CTA
             if (urgent) {
-                views.setTextViewText(R.id.appt_cta_icon, "📍")
-                views.setTextViewText(R.id.appt_cta_label, "GET DIRECTIONS")
-                val geoIntent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=${Uri.encode(data.specialty)}"))
+                views.setTextViewText(R.id.appt_cta_zone, "GET DIRECTIONS")
+                val geoQuery = if (data.location.isNotEmpty()) data.location else data.specialty
+                val geoIntent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=${Uri.encode(geoQuery)}"))
                 geoIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 val geoPending = PendingIntent.getActivity(
                     context, 302, geoIntent,
@@ -74,16 +73,15 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
                 )
                 views.setOnClickPendingIntent(R.id.appt_cta_zone, geoPending)
             } else {
-                views.setTextViewText(R.id.appt_cta_icon, "📋")
-                views.setTextViewText(R.id.appt_cta_label, "PREPARE LIST")
+                views.setTextViewText(R.id.appt_cta_zone, "PREPARE LIST")
                 views.setOnClickPendingIntent(R.id.appt_cta_zone, launchPending)
             }
 
             // Row 2: Hero
             views.setTextViewText(R.id.appt_hero_title, data.doctor.uppercase())
             val subLine = buildString {
-                append(data.title)
-                if (data.specialty.isNotEmpty()) append(" · ${data.specialty}")
+                append(data.specialty)
+                if (data.location.isNotEmpty()) append(" · ${data.location}")
             }
             views.setTextViewText(R.id.appt_hero_sub, "${data.dayOfWeek} · ${data.dateTimeText}\n$subLine")
 
@@ -93,11 +91,11 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
                 val chipId = CHIP_IDS[i]
 
                 if (ready) {
-                    views.setTextViewText(chipId, CHIP_READY_LABELS[i])
+                    views.setTextViewText(chipId, "☑  ${CHIP_READY_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_ready)
                     views.setTextColor(chipId, 0xFFFFFFFF.toInt())
                 } else {
-                    views.setTextViewText(chipId, CHIP_PENDING_LABELS[i])
+                    views.setTextViewText(chipId, "☐  ${CHIP_PENDING_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_pending)
                     views.setTextColor(chipId, 0xFF344054.toInt())
                 }
@@ -136,7 +134,7 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
 
         private fun applyChipsPending(views: RemoteViews) {
             CHIP_IDS.forEachIndexed { i, chipId ->
-                views.setTextViewText(chipId, CHIP_PENDING_LABELS[i])
+                views.setTextViewText(chipId, "☐  ${CHIP_PENDING_LABELS[i]}")
                 views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_pending)
                 views.setTextColor(chipId, 0xFF344054.toInt())
             }

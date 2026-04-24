@@ -25,6 +25,7 @@ export type AppointmentWidgetData = {
   title: string;
   doctor: string;
   specialty: string;
+  location: string;
   dayOfWeek: string;
   dateTimeText: string;
   recommendations: string[];

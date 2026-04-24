@@ -242,6 +242,7 @@ export const buildAppointmentWidgetData = (
     title: next.visitType,
     doctor: next.doctorName,
     specialty: next.specialty,
+    location: next.location ?? '',
     dayOfWeek: date.toLocaleDateString(undefined, {weekday: 'long'}),
     dateTimeText: `${date.toLocaleDateString()} ${date.toLocaleTimeString([], {
       hour: '2-digit',

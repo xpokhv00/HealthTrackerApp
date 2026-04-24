@@ -7,7 +7,7 @@
               android:padding="16dp"
               android:background="@drawable/widget_bg_white">
 
-    <!-- ROW 1: Urgency pill + CTA -->
+    <!-- ROW 1: Urgency pill + CTA — equal height via minHeight + match_parent -->
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -19,12 +19,12 @@
         <TextView
                 android:id="@+id/appt_urgency_pill"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:minHeight="36dp"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
+                android:gravity="center_vertical"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.06"
@@ -33,37 +33,21 @@
                 android:text="NEXT APPOINTMENT" />
 
         <!-- CTA button -->
-        <LinearLayout
+        <TextView
                 android:id="@+id/appt_cta_zone"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_height="match_parent"
+                android:minHeight="36dp"
                 android:gravity="center"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
                 android:layout_marginStart="10dp"
                 android:background="@drawable/widget_appt_cta_bg"
-                android:minWidth="80dp">
-
-            <TextView
-                    android:id="@+id/appt_cta_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:text="📋" />
-
-            <TextView
-                    android:id="@+id/appt_cta_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="9sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:letterSpacing="0.05"
-                    android:text="PREPARE LIST" />
-        </LinearLayout>
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:letterSpacing="0.05"
+                android:text="PREPARE LIST" />
     </LinearLayout>
 
     <!-- ROW 2: Hero block -->
@@ -92,64 +76,55 @@
                 android:text="General Practitioner · City Clinic" />
     </LinearLayout>
 
-    <!-- ROW 3: Prep chips -->
+    <!-- ROW 3: Prep checklist (vertical) -->
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-        <!-- Chip: Symptom Notes -->
         <TextView
                 android:id="@+id/chip_symptoms"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:paddingTop="7dp"
-                android:paddingBottom="7dp"
-                android:textSize="11sp"
+                android:layout_marginBottom="5dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:gravity="center"
                 android:background="@drawable/widget_appt_chip_pending"
                 android:textColor="#344054"
-                android:text="📝 SYMPTOMS" />
+                android:text="&#9744;  SYMPTOMS" />
 
-        <!-- Chip: Medication List -->
         <TextView
                 android:id="@+id/chip_meds"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:paddingTop="7dp"
-                android:paddingBottom="7dp"
-                android:textSize="11sp"
+                android:layout_marginBottom="5dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:gravity="center"
                 android:background="@drawable/widget_appt_chip_pending"
                 android:textColor="#344054"
-                android:text="💊 MEDS LIST" />
+                android:text="&#9744;  MEDS LIST" />
 
-        <!-- Chip: Blood Report -->
         <TextView
                 android:id="@+id/chip_report"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:paddingTop="7dp"
-                android:paddingBottom="7dp"
-                android:textSize="11sp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:gravity="center"
                 android:background="@drawable/widget_appt_chip_pending"
                 android:textColor="#344054"
-                android:text="🩸 BLOOD REP." />
+                android:text="&#9744;  BLOOD REPORT" />
     </LinearLayout>
 
 </LinearLayout>

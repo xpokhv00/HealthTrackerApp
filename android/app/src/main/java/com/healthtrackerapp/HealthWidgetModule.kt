@@ -86,6 +86,7 @@ class HealthWidgetsModule(private val reactContext: ReactApplicationContext) :
                     put("title", data.getString("title"))
                     put("doctor", data.getString("doctor"))
                     put("specialty", data.getString("specialty"))
+                    put("location", data.getString("location") ?: "")
                     put("dayOfWeek", data.getString("dayOfWeek"))
                     put("dateTimeText", data.getString("dateTimeText"))
                     put("recommendations", recommendations)
