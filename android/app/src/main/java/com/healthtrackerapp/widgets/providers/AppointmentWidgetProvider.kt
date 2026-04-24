@@ -95,11 +95,11 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
                 if (ready) {
                     views.setTextViewText(chipId, "☑  ${CHIP_READY_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_ready)
-                    views.setTextColor(chipId, 0xFF4ADE80.toInt())
+                    views.setTextColor(chipId, 0xFF166534.toInt())
                 } else {
                     views.setTextViewText(chipId, "☐  ${CHIP_PENDING_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_pending)
-                    views.setTextColor(chipId, 0xFFCBD5E1.toInt())
+                    views.setTextColor(chipId, 0xFF374151.toInt())
                 }
 
                 val toggleIntent = Intent(context, WidgetActionReceiver::class.java).apply {
@@ -131,14 +131,14 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
 
         private fun applyPillDistant(views: RemoteViews) {
             views.setInt(R.id.appt_urgency_pill, "setBackgroundResource", R.drawable.widget_appt_pill_distant)
-            views.setTextColor(R.id.appt_urgency_pill, 0xFF94A3B8.toInt())
+            views.setTextColor(R.id.appt_urgency_pill, 0xFF6B7280.toInt())
         }
 
         private fun applyChipsPending(views: RemoteViews) {
             CHIP_IDS.forEachIndexed { i, chipId ->
                 views.setTextViewText(chipId, "☐  ${CHIP_PENDING_LABELS[i]}")
                 views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_pending)
-                views.setTextColor(chipId, 0xFFCBD5E1.toInt())
+                views.setTextColor(chipId, 0xFF374151.toInt())
             }
         }
     }
