@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- One flipper page: two cooldown cards side by side -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
@@ -12,7 +11,6 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:padding="10dp"
-            android:gravity="center_horizontal"
             android:background="@drawable/widget_card_white"
             android:layout_marginEnd="4dp"
             android:visibility="invisible">
@@ -25,46 +23,40 @@
                 android:textSize="13sp"
                 android:textColor="#374151"
                 android:gravity="center"
-                android:layout_marginBottom="6dp" />
+                android:layout_marginBottom="8dp" />
 
-        <!-- Progress bar + time text -->
-        <LinearLayout
+        <ProgressBar
+                android:id="@+id/cooldown_progress_a"
+                style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="6dp">
-
-            <ProgressBar
-                    android:id="@+id/cooldown_progress_a"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="0dp"
-                    android:layout_height="6dp"
-                    android:layout_weight="1"
-                    android:progressDrawable="@drawable/widget_cooldown_progress_bar"
-                    android:max="100"
-                    android:progress="0" />
-
-            <TextView
-                    android:id="@+id/cooldown_timer_a"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:textColor="#667085" />
-
-        </LinearLayout>
+                android:layout_height="5dp"
+                android:layout_marginBottom="8dp"
+                android:progressDrawable="@drawable/widget_cooldown_progress_bar"
+                android:max="100"
+                android:progress="0" />
 
         <TextView
-                android:layout_width="match_parent"
-                android:layout_height="28dp"
-                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AVAILABLE IN"
+                android:textSize="9sp"
                 android:textStyle="bold"
-                android:textSize="11sp"
+                android:letterSpacing="0.06"
                 android:textColor="#9CA3AF"
-                android:text="TAKE"
-                android:background="@drawable/widget_btn_disabled" />
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="2dp" />
+
+        <TextView
+                android:id="@+id/cooldown_timer_a"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#F97316"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -74,7 +66,6 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:padding="10dp"
-            android:gravity="center_horizontal"
             android:background="@drawable/widget_card_white"
             android:layout_marginStart="4dp"
             android:visibility="invisible">
@@ -87,46 +78,40 @@
                 android:textSize="13sp"
                 android:textColor="#374151"
                 android:gravity="center"
-                android:layout_marginBottom="6dp" />
+                android:layout_marginBottom="8dp" />
 
-        <!-- Progress bar + time text -->
-        <LinearLayout
+        <ProgressBar
+                android:id="@+id/cooldown_progress_b"
+                style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="6dp">
-
-            <ProgressBar
-                    android:id="@+id/cooldown_progress_b"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="0dp"
-                    android:layout_height="6dp"
-                    android:layout_weight="1"
-                    android:progressDrawable="@drawable/widget_cooldown_progress_bar"
-                    android:max="100"
-                    android:progress="0" />
-
-            <TextView
-                    android:id="@+id/cooldown_timer_b"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:textColor="#667085" />
-
-        </LinearLayout>
+                android:layout_height="5dp"
+                android:layout_marginBottom="8dp"
+                android:progressDrawable="@drawable/widget_cooldown_progress_bar"
+                android:max="100"
+                android:progress="0" />
 
         <TextView
-                android:layout_width="match_parent"
-                android:layout_height="28dp"
-                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AVAILABLE IN"
+                android:textSize="9sp"
                 android:textStyle="bold"
-                android:textSize="11sp"
+                android:letterSpacing="0.06"
                 android:textColor="#9CA3AF"
-                android:text="TAKE"
-                android:background="@drawable/widget_btn_disabled" />
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="2dp" />
+
+        <TextView
+                android:id="@+id/cooldown_timer_b"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#F97316"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal" />
+
     </LinearLayout>
 
 </LinearLayout>
