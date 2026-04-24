@@ -179,33 +179,25 @@
                     android:background="@drawable/widget_btn_blue" />
         </LinearLayout>
 
-        <!-- Progress + countdown row — sits below name/button, independent width -->
-        <LinearLayout
+        <!-- Progress row — sits below name/button, fixed width with padding -->
+        <ProgressBar
+                android:id="@+id/next_progress"
+                style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:progressDrawable="@drawable/widget_next_progress_bar"
+                android:max="100"
+                android:progress="0" />
+
+        <!-- Hidden countdown — kept for provider compat, not visible -->
+        <TextView
+                android:id="@+id/next_countdown"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="10dp">
-
-            <ProgressBar
-                    android:id="@+id/next_progress"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="100dp"
-                    android:layout_height="5dp"
-                    android:progressDrawable="@drawable/widget_next_progress_bar"
-                    android:max="100"
-                    android:progress="0" />
-
-            <TextView
-                    android:id="@+id/next_countdown"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:textStyle="bold"
-                    android:textSize="12sp"
-                    android:textColor="#2563EB" />
-
-        </LinearLayout>
+                android:visibility="gone" />
     </LinearLayout>
 
     <!-- SECTION: DONE TODAY -->
