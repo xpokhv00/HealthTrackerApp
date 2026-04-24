@@ -9,6 +9,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
 import com.healthtrackerapp.R
+import com.healthtrackerapp.widgets.WidgetActionReceiver
 import com.healthtrackerapp.widgets.WidgetConstants
 import com.healthtrackerapp.widgets.WidgetStorage
 
