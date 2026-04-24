@@ -20,6 +20,7 @@
                 <action android:name="com.healthtrackerapp.ACTION_TAKE_AS_NEEDED" />
                 <action android:name="com.healthtrackerapp.ACTION_NEXT_READY_PAGE" />
                 <action android:name="com.healthtrackerapp.ACTION_NEXT_COOLDOWN_PAGE" />
+                <action android:name="com.healthtrackerapp.ACTION_TOGGLE_APPT_CHIP" />
             </intent-filter>
         </receiver>
 

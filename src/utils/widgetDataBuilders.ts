@@ -248,5 +248,7 @@ export const buildAppointmentWidgetData = (
       minute: '2-digit',
     })}`,
     recommendations: next.preparation.slice(0, 3),
+    hoursUntil: Math.max(0, Math.round((date.getTime() - now) / 3600000)),
+    appointmentId: next.id,
   };
 };

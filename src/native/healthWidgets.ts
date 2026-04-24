@@ -28,6 +28,8 @@ export type AppointmentWidgetData = {
   dayOfWeek: string;
   dateTimeText: string;
   recommendations: string[];
+  hoursUntil: number;
+  appointmentId: string;
 };
 
 const noop = async () => {};

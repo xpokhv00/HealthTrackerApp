@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.healthtrackerapp.widgets.providers.AsNeededWidgetProvider
+import com.healthtrackerapp.widgets.providers.AppointmentWidgetProvider
 import com.healthtrackerapp.widgets.providers.RoutineWidgetProvider
 import org.json.JSONArray
 import org.json.JSONObject
@@ -86,6 +87,13 @@ class WidgetActionReceiver : BroadcastReceiver() {
                     WidgetStorage.setCooldownPage(context, widgetId, (current + 1) % pageCount)
                 }
                 AsNeededWidgetProvider.updateAll(context)
+            }
+
+            WidgetConstants.ACTION_TOGGLE_APPT_CHIP -> {
+                val apptId = intent.getStringExtra(WidgetConstants.EXTRA_APPT_ID) ?: return
+                val chipKey = intent.getStringExtra(WidgetConstants.EXTRA_CHIP_KEY) ?: return
+                WidgetStorage.toggleChipState(context, apptId, chipKey)
+                AppointmentWidgetProvider.updateAll(context)
             }
         }
     }

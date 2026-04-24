@@ -4,51 +4,152 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
-              android:padding="14dp"
-              android:background="@android:color/white">
+              android:padding="16dp"
+              android:background="@drawable/widget_bg_white">
 
-    <TextView
-            android:id="@+id/app_title"
-            android:layout_width="wrap_content"
+    <!-- ROW 1: Urgency pill + CTA -->
+    <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Next appointment"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="#111827" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
 
-    <TextView
-            android:id="@+id/app_visit_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="General practitioner"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#111827" />
+        <!-- Urgency pill -->
+        <TextView
+                android:id="@+id/appt_urgency_pill"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.06"
+                android:background="@drawable/widget_appt_pill_distant"
+                android:textColor="#344054"
+                android:text="NEXT APPOINTMENT" />
 
-    <TextView
-            android:id="@+id/app_doctor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Dr. Novak • GP"
-            android:textSize="14sp"
-            android:textColor="#667085" />
+        <!-- CTA button -->
+        <LinearLayout
+                android:id="@+id/appt_cta_zone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/widget_appt_cta_bg"
+                android:minWidth="80dp">
 
-    <TextView
-            android:id="@+id/app_datetime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Tuesday • 09:30"
-            android:textSize="14sp"
-            android:textColor="#4C7EFF" />
+            <TextView
+                    android:id="@+id/appt_cta_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:text="📋" />
 
-    <TextView
-            android:id="@+id/app_recommendations"
-            android:layout_width="wrap_content"
+            <TextView
+                    android:id="@+id/appt_cta_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:letterSpacing="0.05"
+                    android:text="PREPARE LIST" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ROW 2: Hero block -->
+    <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Prepare notes"
-            android:textSize="13sp"
-            android:textColor="#111827" />
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
+
+        <TextView
+                android:id="@+id/appt_hero_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#111827"
+                android:text="DR. NOVAK" />
+
+        <TextView
+                android:id="@+id/appt_hero_sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:textSize="13sp"
+                android:textColor="#667085"
+                android:text="General Practitioner · City Clinic" />
+    </LinearLayout>
+
+    <!-- ROW 3: Prep chips -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <!-- Chip: Symptom Notes -->
+        <TextView
+                android:id="@+id/chip_symptoms"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/widget_appt_chip_pending"
+                android:textColor="#344054"
+                android:text="📝 SYMPTOMS" />
+
+        <!-- Chip: Medication List -->
+        <TextView
+                android:id="@+id/chip_meds"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/widget_appt_chip_pending"
+                android:textColor="#344054"
+                android:text="💊 MEDS LIST" />
+
+        <!-- Chip: Blood Report -->
+        <TextView
+                android:id="@+id/chip_report"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/widget_appt_chip_pending"
+                android:textColor="#344054"
+                android:text="🩸 BLOOD REP." />
+    </LinearLayout>
+
 </LinearLayout>

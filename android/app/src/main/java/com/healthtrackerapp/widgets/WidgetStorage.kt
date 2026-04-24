@@ -81,8 +81,21 @@ object WidgetStorage {
                 for (i in 0 until arr.length()) {
                     add(arr.optString(i))
                 }
-            }
+            },
+            hoursUntil = obj.optInt("hoursUntil", 999),
+            appointmentId = obj.optString("appointmentId")
         )
+    }
+
+    fun getChipState(context: Context, appointmentId: String, chipKey: String): Boolean {
+        return context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+            .getBoolean("appt_chip_${appointmentId}_$chipKey", false)
+    }
+
+    fun toggleChipState(context: Context, appointmentId: String, chipKey: String) {
+        val prefs = context.getSharedPreferences(WidgetConstants.PREFS, Context.MODE_PRIVATE)
+        val current = prefs.getBoolean("appt_chip_${appointmentId}_$chipKey", false)
+        prefs.edit().putBoolean("appt_chip_${appointmentId}_$chipKey", !current).apply()
     }
 
     fun getReadyPage(context: Context, widgetId: Int): Int {

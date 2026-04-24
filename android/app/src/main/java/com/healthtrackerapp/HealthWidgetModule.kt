@@ -89,6 +89,8 @@ class HealthWidgetsModule(private val reactContext: ReactApplicationContext) :
                     put("dayOfWeek", data.getString("dayOfWeek"))
                     put("dateTimeText", data.getString("dateTimeText"))
                     put("recommendations", recommendations)
+                    put("hoursUntil", data.getInt("hoursUntil"))
+                    put("appointmentId", data.getString("appointmentId"))
                 }
 
                 WidgetStorage.saveAppointment(reactContext, obj.toString())
