@@ -5,17 +5,16 @@
               android:layout_height="wrap_content"
               android:orientation="vertical"
               android:padding="16dp"
-              android:background="@drawable/widget_bg_white">
+              android:background="@drawable/widget_bg_dark">
 
-    <!-- ROW 1: Urgency pill + CTA — equal height via minHeight + match_parent -->
+    <!-- ROW 1: Urgency pill + CTA -->
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="14dp">
 
-        <!-- Urgency pill -->
         <TextView
                 android:id="@+id/appt_urgency_pill"
                 android:layout_width="0dp"
@@ -27,26 +26,25 @@
                 android:gravity="center_vertical"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.06"
+                android:letterSpacing="0.07"
                 android:background="@drawable/widget_appt_pill_distant"
-                android:textColor="#344054"
+                android:textColor="#94A3B8"
                 android:text="NEXT APPOINTMENT" />
 
-        <!-- CTA button -->
         <TextView
                 android:id="@+id/appt_cta_zone"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:minHeight="36dp"
                 android:gravity="center"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:layout_marginStart="10dp"
                 android:background="@drawable/widget_appt_cta_bg"
                 android:textSize="10sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"
-                android:letterSpacing="0.05"
+                android:letterSpacing="0.06"
                 android:text="PREPARE LIST" />
     </LinearLayout>
 
@@ -55,7 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="14dp">
 
         <TextView
                 android:id="@+id/appt_hero_title"
@@ -63,20 +61,50 @@
                 android:layout_height="wrap_content"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="#111827"
+                android:textColor="#F8FAFC"
+                android:letterSpacing="0.01"
                 android:text="DR. NOVAK" />
+
+        <TextView
+                android:id="@+id/appt_hero_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#60A5FA"
+                android:text="Sunday · 10:00 AM" />
 
         <TextView
                 android:id="@+id/appt_hero_sub"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:textSize="13sp"
-                android:textColor="#667085"
+                android:layout_marginTop="2dp"
+                android:textSize="12sp"
+                android:textColor="#64748B"
                 android:text="General Practitioner · City Clinic" />
     </LinearLayout>
 
-    <!-- ROW 3: Prep checklist (vertical) -->
+    <!-- Divider -->
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="12dp"
+            android:background="#1E293B" />
+
+    <!-- ROW 3: Prep checklist label -->
+    <TextView
+            android:id="@+id/appt_checklist_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08"
+            android:textColor="#475569"
+            android:text="PREPARATION CHECKLIST" />
+
+    <!-- ROW 3: Prep checklist items -->
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,12 +117,12 @@
                 android:layout_marginBottom="5dp"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:background="@drawable/widget_appt_chip_pending"
-                android:textColor="#344054"
+                android:textColor="#CBD5E1"
                 android:text="&#9744;  SYMPTOMS" />
 
         <TextView
@@ -104,12 +132,12 @@
                 android:layout_marginBottom="5dp"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:background="@drawable/widget_appt_chip_pending"
-                android:textColor="#344054"
+                android:textColor="#CBD5E1"
                 android:text="&#9744;  MEDS LIST" />
 
         <TextView
@@ -118,12 +146,12 @@
                 android:layout_height="wrap_content"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:background="@drawable/widget_appt_chip_pending"
-                android:textColor="#344054"
+                android:textColor="#CBD5E1"
                 android:text="&#9744;  BLOOD REPORT" />
     </LinearLayout>
 
