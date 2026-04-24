@@ -4,20 +4,38 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
-              android:padding="14dp"
+              android:padding="16dp"
               android:background="@drawable/widget_bg_white">
 
     <!-- Header -->
-    <TextView
-            android:layout_width="wrap_content"
+    <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="My Meds Timeline"
-            android:textStyle="bold"
-            android:textSize="17sp"
-            android:textColor="#111827"
-            android:layout_marginBottom="10dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="14dp">
 
-    <!-- Empty state (shown when no data is loaded yet) -->
+        <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="My Meds Timeline"
+                android:textStyle="bold"
+                android:textSize="17sp"
+                android:textColor="#111827" />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TODAY"
+                android:textStyle="bold"
+                android:textSize="10sp"
+                android:textColor="#6B7280"
+                android:letterSpacing="0.08" />
+
+    </LinearLayout>
+
+    <!-- Empty state -->
     <TextView
             android:id="@+id/section_empty"
             android:layout_width="match_parent"
@@ -28,204 +46,185 @@
             android:textColor="#9CA3AF"
             android:visibility="gone" />
 
-    <!-- Timeline wrapper: sections -->
+    <!-- SECTION: ACTION REQUIRED (missed) -->
     <LinearLayout
+            android:id="@+id/section_action_required"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/widget_bg_salmon"
+            android:visibility="gone">
 
-        <!-- Sections column -->
-        <LinearLayout
-                android:layout_width="0dp"
+        <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:text="ACTION REQUIRED"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#CC4A1A"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="8dp" />
 
-            <!-- SECTION: ACTION REQUIRED (missed) -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
             <LinearLayout
-                    android:id="@+id/section_action_required"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
-                    android:padding="10dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/widget_bg_salmon"
-                    android:visibility="gone">
+                    android:layout_marginEnd="12dp">
 
                 <TextView
+                        android:id="@+id/missed_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ACTION REQUIRED"
-                        android:textSize="10sp"
                         android:textStyle="bold"
-                        android:textColor="#CC4A1A"
-                        android:letterSpacing="0.08"
-                        android:layout_marginBottom="6dp" />
-
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                    <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                        <TextView
-                                android:id="@+id/missed_name"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textStyle="bold"
-                                android:textSize="15sp"
-                                android:textColor="#111827" />
-
-                        <TextView
-                                android:id="@+id/missed_meta"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textSize="12sp"
-                                android:textColor="#667085"
-                                android:layout_marginTop="2dp" />
-                    </LinearLayout>
-
-                    <TextView
-                            android:id="@+id/btn_rescue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="40dp"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="12dp"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:textSize="11sp"
-                            android:textColor="#FFFFFF"
-                            android:text="RESCUE\nTAKE NOW"
-                            android:background="@drawable/widget_btn_orange" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- SECTION: NEXT UP (pending) -->
-            <LinearLayout
-                    android:id="@+id/section_next_up"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="10dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="@android:color/transparent"
-                    android:visibility="gone">
+                        android:textSize="15sp"
+                        android:textColor="#111827" />
 
                 <TextView
+                        android:id="@+id/missed_meta"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="NEXT UP:"
-                        android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:textColor="#2F80ED"
-                        android:letterSpacing="0.08"
-                        android:layout_marginBottom="6dp" />
-
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                    <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                        <TextView
-                                android:id="@+id/next_name"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textStyle="bold"
-                                android:textSize="15sp"
-                                android:textColor="#111827" />
-
-                        <TextView
-                                android:id="@+id/next_meta"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textSize="12sp"
-                                android:textColor="#667085"
-                                android:layout_marginTop="2dp" />
-
-                        <!-- Progress bar + countdown -->
-                        <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_marginTop="6dp">
-
-                            <ProgressBar
-                                    android:id="@+id/next_progress"
-                                    style="?android:attr/progressBarStyleHorizontal"
-                                    android:layout_width="0dp"
-                                    android:layout_height="6dp"
-                                    android:layout_weight="1"
-                                    android:progressDrawable="@drawable/widget_next_progress_bar"
-                                    android:max="100"
-                                    android:progress="0" />
-
-                            <TextView
-                                    android:id="@+id/next_countdown"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="6dp"
-                                    android:textStyle="bold"
-                                    android:textSize="12sp"
-                                    android:textColor="#2F80ED" />
-
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <TextView
-                            android:id="@+id/btn_take_next"
-                            android:layout_width="wrap_content"
-                            android:layout_height="40dp"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="12dp"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:textSize="11sp"
-                            android:textColor="#FFFFFF"
-                            android:background="@drawable/widget_btn_blue" />
-                </LinearLayout>
+                        android:textSize="12sp"
+                        android:textColor="#9CA3AF"
+                        android:layout_marginTop="3dp" />
             </LinearLayout>
 
+            <TextView
+                    android:id="@+id/btn_rescue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textSize="11sp"
+                    android:textColor="#FFFFFF"
+                    android:letterSpacing="0.04"
+                    android:text="TAKE NOW"
+                    android:background="@drawable/widget_btn_orange" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- SECTION: DONE TODAY (taken) - outside timeline -->
+    <!-- SECTION: NEXT UP (pending) -->
+    <LinearLayout
+            android:id="@+id/section_next_up"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/widget_bg_blue_section"
+            android:visibility="gone">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NEXT UP"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#2563EB"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+            <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="14dp">
+
+                <TextView
+                        android:id="@+id/next_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:textColor="#111827" />
+
+                <TextView
+                        android:id="@+id/next_meta"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textColor="#9CA3AF"
+                        android:layout_marginTop="3dp" />
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="8dp">
+
+                    <ProgressBar
+                            android:id="@+id/next_progress"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="0dp"
+                            android:layout_height="5dp"
+                            android:layout_weight="1"
+                            android:progressDrawable="@drawable/widget_next_progress_bar"
+                            android:max="100"
+                            android:progress="0" />
+
+                    <TextView
+                            android:id="@+id/next_countdown"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:textColor="#2563EB" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                    android:id="@+id/btn_take_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textSize="11sp"
+                    android:textColor="#FFFFFF"
+                    android:letterSpacing="0.04"
+                    android:background="@drawable/widget_btn_blue" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- SECTION: DONE TODAY -->
     <LinearLayout
             android:id="@+id/section_done_today"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/widget_bg_green_header"
+            android:background="@drawable/widget_bg_green_section"
             android:visibility="gone">
 
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="8dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:gravity="center_vertical">
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="✓"
-                    android:textSize="13sp"
-                    android:textColor="#27AE60"
-                    android:layout_marginEnd="6dp" />
 
             <TextView
                     android:layout_width="0dp"
@@ -233,9 +232,16 @@
                     android:layout_weight="1"
                     android:text="DONE TODAY"
                     android:textStyle="bold"
-                    android:textSize="11sp"
-                    android:textColor="#27AE60"
-                    android:letterSpacing="0.06" />
+                    android:textSize="10sp"
+                    android:textColor="#16A34A"
+                    android:letterSpacing="0.08" />
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✓"
+                    android:textSize="13sp"
+                    android:textColor="#16A34A" />
         </LinearLayout>
 
         <ListView
@@ -244,7 +250,7 @@
                 android:layout_height="108dp"
                 android:divider="@null"
                 android:dividerHeight="0dp"
-                android:scrollbars="vertical" />
+                android:scrollbars="none" />
 
         <ListView
                 android:id="@+id/done_list_tall"
@@ -252,7 +258,7 @@
                 android:layout_height="200dp"
                 android:divider="@null"
                 android:dividerHeight="0dp"
-                android:scrollbars="vertical"
+                android:scrollbars="none"
                 android:visibility="gone" />
 
     </LinearLayout>
