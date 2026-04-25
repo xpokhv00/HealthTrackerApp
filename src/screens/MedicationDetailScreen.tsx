@@ -22,6 +22,7 @@ import {
 } from '../utils/medication';
 import {notificationService} from '../services/notificationService';
 import {getMedicationSnoozeNotificationId} from '../utils/medicationNotifications';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {colors} from '../theme/colors.ts';
 import Screen from '../components/Screen.tsx';
 import {syncAllWidgets} from '../services/widgetSync';
@@ -387,19 +388,29 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
             <Text style={styles.takeButtonText}>{takeButtonLabel}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() =>
-              navigation.navigate('AddMedication', {
-                medicationId: medication.id,
-              })
-            }>
-            <Text style={styles.editButtonText}>Edit medication</Text>
-          </TouchableOpacity>
+          <View style={styles.footerBar}>
+            <TouchableOpacity
+              style={styles.footerAction}
+              activeOpacity={0.7}
+              onPress={() =>
+                navigation.navigate('AddMedication', {
+                  medicationId: medication.id,
+                })
+              }>
+              <Ionicons name="create-outline" size={18} color={colors.primary} />
+              <Text style={styles.footerActionText}>Edit</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <Text style={styles.deleteButtonText}>Delete medication</Text>
-          </TouchableOpacity>
+            <View style={styles.footerDivider} />
+
+            <TouchableOpacity
+              style={styles.footerAction}
+              activeOpacity={0.7}
+              onPress={handleDelete}>
+              <Ionicons name="trash-outline" size={18} color={colors.primary} />
+              <Text style={styles.footerActionText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Screen>
@@ -570,51 +581,46 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: 16,
     paddingTop: 12,
-    backgroundColor: '#F6F8FB',
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: '#E7ECF3',
+    borderTopColor: colors.border,
   },
   takeButton: {
     backgroundColor: colors.primary,
-    borderRadius: 16,
-    paddingVertical: 16,
+    borderRadius: 14,
+    paddingVertical: 15,
     alignItems: 'center',
+    marginBottom: 4,
   },
   takeButtonDisabled: {
     backgroundColor: '#B8C4D6',
   },
   takeButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
   },
-  editButton: {
-    marginTop: 12,
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
+  footerBar: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
   },
-  editButtonText: {
+  footerAction: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  footerActionText: {
+    fontSize: 15,
+    fontWeight: '700',
     color: colors.primary,
-    fontSize: 16,
-    fontWeight: '800',
   },
-  deleteButton: {
-    marginTop: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E4E7EC',
-  },
-  deleteButtonText: {
-    color: '#B42318',
-    fontSize: 16,
-    fontWeight: '800',
+  footerDivider: {
+    width: 1,
+    backgroundColor: colors.border,
+    marginVertical: 2,
   },
 });
 

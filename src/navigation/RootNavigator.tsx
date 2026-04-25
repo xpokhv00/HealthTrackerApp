@@ -20,7 +20,6 @@ import AddAppointmentScreen from '../screens/AddAppointmentScreen';
 import AppointmentDetailScreen from '../screens/AppointmentDetailScreen';
 import AddSymptomScreen from '../screens/AddSymptomScreen';
 import SymptomDetailScreen from '../screens/SymptomDetailScreen';
-import DoctorReportScreen from '../screens/DoctorReportScreen';
 
 import {navigationRef} from './navigationRef';
 
@@ -130,11 +129,6 @@ const RootNavigator = () => {
           name="SymptomDetail"
           component={SymptomDetailScreen}
           options={{title: 'Symptom Detail'}}
-        />
-        <Stack.Screen
-          name="DoctorReport"
-          component={DoctorReportScreen}
-          options={{title: 'Doctor Report'}}
         />
       </Stack.Navigator>
     </NavigationContainer>

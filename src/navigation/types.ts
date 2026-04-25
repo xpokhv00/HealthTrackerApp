@@ -30,8 +30,6 @@ export type RootStackParamList = {
   SymptomDetail: {
     symptomId: string;
   };
-
-  DoctorReport: undefined;
 };
 
 export type RootTabParamList = {

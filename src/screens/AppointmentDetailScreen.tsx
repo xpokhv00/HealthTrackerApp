@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -32,6 +32,16 @@ const AppointmentDetailScreen: React.FC = () => {
   const removeAppointment = useAppointmentStore(
     state => state.removeAppointment,
   );
+
+  const [checkedItems, setCheckedItems] = useState<boolean[]>([]);
+
+  const getChecked = (index: number) => checkedItems[index] ?? false;
+  const toggleChecked = (index: number) =>
+    setCheckedItems(prev => {
+      const next = [...prev];
+      next[index] = !next[index];
+      return next;
+    });
 
   if (!appointment) {
     return (
@@ -124,15 +134,21 @@ const AppointmentDetailScreen: React.FC = () => {
             <Text style={styles.emptyText}>No preparation notes added.</Text>
           ) : (
             appointment.preparation.map((item, index) => (
-              <View key={`prep-${index}`} style={styles.checkRow}>
+              <TouchableOpacity
+                key={`prep-${index}`}
+                style={styles.checkRow}
+                activeOpacity={0.7}
+                onPress={() => toggleChecked(index)}>
                 <Ionicons
-                  name="checkbox-outline"
+                  name={getChecked(index) ? 'checkbox' : 'checkbox-outline'}
                   size={18}
-                  color="#9CA3AF"
+                  color={getChecked(index) ? colors.primary : '#9CA3AF'}
                   style={styles.checkIcon}
                 />
-                <Text style={styles.checkText}>{item}</Text>
-              </View>
+                <Text style={[styles.checkText, getChecked(index) && styles.checkTextDone]}>
+                  {item}
+                </Text>
+              </TouchableOpacity>
             ))
           )}
         </View>
@@ -321,6 +337,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.text,
     lineHeight: 21,
+  },
+  checkTextDone: {
+    color: colors.textSecondary,
+    textDecorationLine: 'line-through',
   },
   tagsRow: {
     gap: 8,

@@ -103,7 +103,8 @@ const AddSymptomScreen: React.FC = () => {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.content}>
+      <View style={styles.screenInner}>
+        <ScrollView contentContainerStyle={styles.content}>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick suggestions</Text>
@@ -221,13 +222,16 @@ const AddSymptomScreen: React.FC = () => {
             style={[styles.input, styles.multilineInput]}
           />
         </View>
+      </ScrollView>
 
+      <View style={styles.footer}>
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>
             {isEditMode ? 'Save changes' : 'Save symptom'}
           </Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
+    </View>
     </Screen>
   );
 };
@@ -235,7 +239,7 @@ const AddSymptomScreen: React.FC = () => {
 const styles = StyleSheet.create({
   content: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 16,
   },
   header: {
     marginBottom: 18,
@@ -358,16 +362,25 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   saveButton: {
-    marginTop: 8,
     backgroundColor: colors.primary,
-    borderRadius: 16,
-    paddingVertical: 16,
+    borderRadius: 14,
+    paddingVertical: 15,
     alignItems: 'center',
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
+  },
+  screenInner: {
+    flex: 1,
+  },
+  footer: {
+    backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
 });
 
