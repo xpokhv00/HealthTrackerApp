@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState, useRef} from 'react';
 import {
   Text,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  View,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useAppointmentStore} from '../store/appointmentStore';
@@ -55,21 +56,26 @@ const AddAppointmentScreen: React.FC = () => {
   const [symptomsToDiscuss, setSymptomsToDiscuss] = useState(
     existingAppointment?.symptomsToDiscuss?.join(', ') ?? '',
   );
+  const [prepInput, setPrepInput] = useState('');
+  const prepInputRef = useRef<TextInput>(null);
+
+  const addPrepItem = () => {
+    const trimmed = prepInput.trim();
+    if (trimmed && !preparation.includes(trimmed)) {
+      setPreparation(prev => [...prev, trimmed]);
+    }
+    setPrepInput('');
+  };
+
+  const removePrepItem = (index: number) => {
+    setPreparation(prev => prev.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     if (!isEditMode && visitType && appointmentTemplates[visitType]) {
       setPreparation(appointmentTemplates[visitType]);
     }
   }, [visitType, isEditMode]);
-
-  const handlePreparationChange = (text: string) => {
-    const items = text
-      .split('\n')
-      .map(item => item.trim())
-      .filter(Boolean);
-
-    setPreparation(items);
-  };
 
   const handleSave = async () => {
     if (
@@ -223,14 +229,34 @@ const AddAppointmentScreen: React.FC = () => {
         />
 
         <Text style={styles.label}>Preparation checklist</Text>
-        <TextInput
-          value={preparation.join('\n')}
-          onChangeText={handlePreparationChange}
-          placeholder="One item per line"
-          placeholderTextColor={colors.textSecondary}
-          multiline
-          style={[styles.input, styles.multilineInput]}
-        />
+        {preparation.length > 0 && (
+          <View style={styles.prepChips}>
+            {preparation.map((item, index) => (
+              <View key={index} style={styles.prepChip}>
+                <Text style={styles.prepChipText}>{item}</Text>
+                <TouchableOpacity onPress={() => removePrepItem(index)} hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+                  <Text style={styles.prepChipRemove}>✕</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        )}
+        <View style={styles.prepInputRow}>
+          <TextInput
+            ref={prepInputRef}
+            value={prepInput}
+            onChangeText={setPrepInput}
+            onSubmitEditing={addPrepItem}
+            placeholder="Add item..."
+            placeholderTextColor={colors.textSecondary}
+            style={[styles.input, styles.prepInputField]}
+            returnKeyType="done"
+            blurOnSubmit={false}
+          />
+          <TouchableOpacity style={styles.prepAddBtn} onPress={addPrepItem}>
+            <Text style={styles.prepAddBtnText}>+</Text>
+          </TouchableOpacity>
+        </View>
 
         <Text style={styles.label}>Symptoms to discuss (comma-separated)</Text>
         <TextInput
@@ -292,6 +318,54 @@ const styles = StyleSheet.create({
   multilineInput: {
     minHeight: 110,
     textAlignVertical: 'top',
+  },
+  prepChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 10,
+  },
+  prepChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EEF4FF',
+    borderRadius: 999,
+    paddingVertical: 6,
+    paddingLeft: 12,
+    paddingRight: 8,
+    gap: 6,
+  },
+  prepChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3538CD',
+  },
+  prepChipRemove: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#6B7280',
+  },
+  prepInputRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  prepInputField: {
+    flex: 1,
+  },
+  prepAddBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: 14,
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  prepAddBtnText: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '400',
+    lineHeight: 28,
   },
   chipsRow: {
     gap: 10,

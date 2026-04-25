@@ -67,13 +67,6 @@ function timeUntil(dateTime: string): string {
   return `In ${days}d`;
 }
 
-const QUICK_ACTIONS = [
-  {label: 'Medications', icon: '💊', color: '#EEF4FF', textColor: '#3538CD', screen: 'Medications'},
-  {label: 'Appointments', icon: '🏥', color: '#ECFDF5', textColor: '#027A48', screen: 'Appointments'},
-  {label: 'Log symptom', icon: '🩺', color: '#FFF7ED', textColor: '#9A3412', screen: 'AddSymptom'},
-  {label: 'History', icon: '📋', color: '#F3E8FF', textColor: '#6B21A8', screen: 'History'},
-];
-
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
 
@@ -175,20 +168,6 @@ const HomeScreen: React.FC = () => {
                 : '💊 View medications'}
             </Text>
           </TouchableOpacity>
-        </View>
-
-        {/* Quick actions */}
-        <View style={styles.quickGrid}>
-          {QUICK_ACTIONS.map(action => (
-            <TouchableOpacity
-              key={action.screen}
-              activeOpacity={0.85}
-              style={[styles.quickCard, {backgroundColor: action.color}]}
-              onPress={() => navigation.navigate(action.screen)}>
-              <Text style={styles.quickIcon}>{action.icon}</Text>
-              <Text style={[styles.quickLabel, {color: action.textColor}]}>{action.label}</Text>
-            </TouchableOpacity>
-          ))}
         </View>
 
         {/* Next appointment */}
@@ -442,29 +421,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '800',
     fontSize: 15,
-  },
-
-  // Quick actions grid
-  quickGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 20,
-  },
-  quickCard: {
-    width: '47.5%',
-    borderRadius: 18,
-    padding: 16,
-    minHeight: 80,
-    justifyContent: 'space-between',
-  },
-  quickIcon: {
-    fontSize: 26,
-  },
-  quickLabel: {
-    fontSize: 14,
-    fontWeight: '800',
-    marginTop: 8,
   },
 
   // Sections
