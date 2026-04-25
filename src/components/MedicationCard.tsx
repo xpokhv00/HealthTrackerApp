@@ -51,6 +51,8 @@ const MedicationCard: React.FC<Props> = ({
   const isResting = variant === 'resting';
   const takeDisabled = isResting || (medication.type === 'as_needed' && (!availableNow || dailyLimitReached));
 
+  const typeLabel = isRoutine ? 'Routine' : 'As needed';
+
   // Sub-label: what's most useful to show right now
   let subLabel: string;
   let subLabelUrgent = false;
@@ -88,9 +90,9 @@ const MedicationCard: React.FC<Props> = ({
       {/* Left urgency stripe */}
       <View style={[
         styles.stripe,
-        isUrgent && styles.stripeUrgent,
-        variant === 'upcoming' && styles.stripeUpcoming,
         isResting && styles.stripeResting,
+        !isResting && (isRoutine ? styles.stripeRoutine : styles.stripeAsNeeded),
+        isUrgent && (isRoutine ? styles.stripeRoutineUrgent : styles.stripeAsNeededUrgent),
       ]} />
 
       <View style={styles.body}>
@@ -100,9 +102,16 @@ const MedicationCard: React.FC<Props> = ({
             <Text style={[styles.name, isResting && styles.nameResting]} numberOfLines={1}>
               {medication.name}
             </Text>
-            <Text style={[styles.dosage, isResting && styles.dosageResting]}>
-              {medication.dosage}{medication.form ? ` · ${medication.form}` : ''}
-            </Text>
+            <View style={styles.typeRow}>
+              <View style={[styles.typePill, isRoutine ? styles.typePillRoutine : styles.typePillAsNeeded, isResting && styles.typePillResting]}>
+                <Text style={[styles.typePillText, isRoutine ? styles.typePillTextRoutine : styles.typePillTextAsNeeded, isResting && styles.typePillTextResting]}>
+                  {typeLabel}
+                </Text>
+              </View>
+              <Text style={[styles.dosage, isResting && styles.dosageResting]}>
+                {medication.dosage}{medication.form ? ` · ${medication.form}` : ''}
+              </Text>
+            </View>
             {medication.patientName ? (
               <View style={styles.patientRow}>
                 <Ionicons name="person-outline" size={11} color="#94A3B8" />
@@ -118,7 +127,7 @@ const MedicationCard: React.FC<Props> = ({
             activeOpacity={0.8}
             style={[
               styles.takeBtn,
-              isUrgent && styles.takeBtnUrgent,
+              isUrgent && (isRoutine ? styles.takeBtnUrgentRoutine : styles.takeBtnUrgentAsNeeded),
               variant === 'upcoming' && styles.takeBtnUpcoming,
               takeDisabled && styles.takeBtnDisabled,
             ]}>
@@ -132,7 +141,7 @@ const MedicationCard: React.FC<Props> = ({
                     ? '#FFFFFF'
                     : takeDisabled
                       ? '#CBD5E1'
-                      : '#64748B'
+                      : isRoutine ? '#4C7EFF' : '#0BA5A4'
               }
             />
           </TouchableOpacity>
@@ -145,7 +154,7 @@ const MedicationCard: React.FC<Props> = ({
           ) : null}
           <Text style={[
             styles.subLabel,
-            subLabelUrgent && styles.subLabelUrgent,
+            subLabelUrgent && (isRoutine ? styles.subLabelUrgentRoutine : styles.subLabelUrgentAsNeeded),
             isResting && styles.subLabelResting,
           ]}>
             {subLabel}
@@ -198,11 +207,17 @@ const styles = StyleSheet.create({
   stripe: {
     width: 4,
   },
-  stripeUrgent: {
+  stripeRoutine: {
+    backgroundColor: '#B8CBFF',
+  },
+  stripeRoutineUrgent: {
     backgroundColor: '#4C7EFF',
   },
-  stripeUpcoming: {
-    backgroundColor: '#94A3B8',
+  stripeAsNeeded: {
+    backgroundColor: '#99E6E5',
+  },
+  stripeAsNeededUrgent: {
+    backgroundColor: '#0BA5A4',
   },
   stripeResting: {
     backgroundColor: '#E2E8F0',
@@ -228,8 +243,41 @@ const styles = StyleSheet.create({
   nameResting: {
     color: '#94A3B8',
   },
+  typeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 6,
+  },
+  typePill: {
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  typePillRoutine: {
+    backgroundColor: '#EEF4FF',
+  },
+  typePillAsNeeded: {
+    backgroundColor: '#ECFDF9',
+  },
+  typePillResting: {
+    backgroundColor: '#F1F5F9',
+  },
+  typePillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  typePillTextRoutine: {
+    color: '#4C7EFF',
+  },
+  typePillTextAsNeeded: {
+    color: '#0BA5A4',
+  },
+  typePillTextResting: {
+    color: '#CBD5E1',
+  },
   dosage: {
-    marginTop: 2,
     fontSize: 13,
     color: '#64748B',
   },
@@ -257,9 +305,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
-  takeBtnUrgent: {
+  takeBtnUrgentRoutine: {
     backgroundColor: '#4C7EFF',
     borderColor: '#4C7EFF',
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+  },
+  takeBtnUrgentAsNeeded: {
+    backgroundColor: '#0BA5A4',
+    borderColor: '#0BA5A4',
     width: 42,
     height: 42,
     borderRadius: 14,
@@ -290,8 +345,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1,
   },
-  subLabelUrgent: {
+  subLabelUrgentRoutine: {
     color: '#4C7EFF',
+    fontWeight: '600',
+  },
+  subLabelUrgentAsNeeded: {
+    color: '#0BA5A4',
     fontWeight: '600',
   },
   subLabelResting: {
