@@ -43,11 +43,14 @@ const getBarStyle = (trendDirection: Props['trendDirection']) => {
 };
 
 const SymptomTrendCard: React.FC<Props> = ({
-                                             title,
-                                             subtitle,
-                                             points,
-                                             trendDirection,
-                                           }) => {
+  title,
+  subtitle,
+  points,
+  trendDirection,
+}) => {
+  const isCompact = points.length > 10;
+  const labelInterval = points.length > 20 ? 5 : 3;
+
   return (
     <View style={styles.card}>
       <Text style={styles.eyebrow}>TREND</Text>
@@ -61,26 +64,36 @@ const SymptomTrendCard: React.FC<Props> = ({
       </View>
 
       <View style={styles.chartRow}>
-        {points.map(point => (
-          <View key={point.dateKey} style={styles.barGroup}>
-            <Text style={styles.barValue}>
-              {point.count > 0 ? point.averageSeverity : '—'}
-            </Text>
+        {points.map((point, index) => {
+          const showLabel = !isCompact || index % labelInterval === 0 || index === points.length - 1;
+          return (
+            <View key={point.dateKey} style={styles.barGroup}>
+              {!isCompact && (
+                <Text style={styles.barValue}>
+                  {point.count > 0 ? point.averageSeverity : '—'}
+                </Text>
+              )}
 
-            <View style={styles.barTrack}>
-              <View
-                style={[
-                  styles.bar,
-                  getBarStyle(trendDirection),
-                  {height: getBarHeight(point.averageSeverity)},
-                ]}
-              />
+              <View style={[styles.barTrack, isCompact && styles.barTrackCompact]}>
+                <View
+                  style={[
+                    styles.bar,
+                    isCompact && styles.barCompact,
+                    getBarStyle(trendDirection),
+                    {height: getBarHeight(point.averageSeverity)},
+                  ]}
+                />
+              </View>
+
+              <Text style={[styles.barLabel, isCompact && styles.barLabelCompact]}>
+                {showLabel ? point.label.replace(/\s+\d+$/, '') : ''}
+              </Text>
+              {!isCompact && (
+                <Text style={styles.barMeta}>{point.count}x</Text>
+              )}
             </View>
-
-            <Text style={styles.barLabel}>{point.label}</Text>
-            <Text style={styles.barMeta}>{point.count}x</Text>
-          </View>
-        ))}
+          );
+        })}
       </View>
 
       <Text style={styles.footerText}>
@@ -160,9 +173,16 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
+  barTrackCompact: {
+    width: 7,
+  },
   bar: {
     width: 18,
     borderRadius: 8,
+  },
+  barCompact: {
+    width: 7,
+    borderRadius: 3,
   },
   barNeutral: {
     backgroundColor: '#98A2B3',
@@ -177,6 +197,10 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 11,
     color: '#667085',
+  },
+  barLabelCompact: {
+    fontSize: 9,
+    marginTop: 4,
   },
   barMeta: {
     marginTop: 2,
