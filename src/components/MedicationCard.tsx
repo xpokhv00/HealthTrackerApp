@@ -4,106 +4,168 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  GestureResponderEvent,
 } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Medication} from '../types/medication';
 import {
-  getAvailabilityLabel,
+  getNextAllowedTime,
+  getTodayDoseCount,
   hasReachedDailyLimit,
   isMedicationAvailableNow,
 } from '../utils/medication';
 import {getRoutineScheduleLabel} from '../utils/routineSchedule';
 
+export type CardVariant = 'urgent' | 'upcoming' | 'resting';
+
 interface Props {
   medication: Medication;
-  onPress: (event: GestureResponderEvent) => void;
-  onTakePress: (event: GestureResponderEvent) => void;
-  allDoneToday?: boolean;
+  variant: CardVariant;
+  nextSlotTime?: string;   // HH:MM of the next pending routine slot
+  takenToday?: number;
+  totalToday?: number;
+  onPress: () => void;
+  onTakePress: () => void;
 }
 
-// Routine: blue. As-needed: teal.
-const ROUTINE_COLOR = '#4C7EFF';
-const AS_NEEDED_COLOR = '#0BA5A4';
+const formatAvailableAt = (med: Medication): string => {
+  const next = getNextAllowedTime(med);
+  if (!next) {return 'Available now';}
+  const now = new Date();
+  if (now >= next) {return 'Available now';}
+  return `Available at ${next.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
+};
 
 const MedicationCard: React.FC<Props> = ({
   medication,
+  variant,
+  nextSlotTime,
+  takenToday = 0,
+  totalToday = 0,
   onPress,
   onTakePress,
-  allDoneToday = false,
 }) => {
   const isRoutine = medication.type === 'routine';
-  const availableNow = isMedicationAvailableNow(medication);
   const dailyLimitReached = hasReachedDailyLimit(medication);
-  const accentColor = isRoutine ? ROUTINE_COLOR : AS_NEEDED_COLOR;
+  const availableNow = isMedicationAvailableNow(medication);
+  const isUrgent = variant === 'urgent';
+  const isResting = variant === 'resting';
+  const takeDisabled = isResting || (medication.type === 'as_needed' && (!availableNow || dailyLimitReached));
 
-  const takeDisabled =
-    allDoneToday ||
-    (medication.type === 'as_needed' && (!availableNow || dailyLimitReached));
+  // Sub-label: what's most useful to show right now
+  let subLabel: string;
+  let subLabelUrgent = false;
+  if (isRoutine) {
+    if (variant === 'urgent' && nextSlotTime) {
+      subLabel = `Overdue · ${nextSlotTime}`;
+      subLabelUrgent = true;
+    } else if (variant === 'upcoming' && nextSlotTime) {
+      subLabel = `Next at ${nextSlotTime}`;
+    } else if (isResting) {
+      subLabel = totalToday > 0 ? `${takenToday}/${totalToday} done today` : 'All done today';
+    } else {
+      subLabel = getRoutineScheduleLabel(medication);
+    }
+  } else {
+    if (dailyLimitReached) {
+      subLabel = 'Daily limit reached';
+      subLabelUrgent = false;
+    } else {
+      subLabel = formatAvailableAt(medication);
+      subLabelUrgent = availableNow && !isResting;
+    }
+  }
 
   return (
     <TouchableOpacity
-      style={[styles.card, allDoneToday && styles.cardDone]}
       onPress={onPress}
-      activeOpacity={0.85}>
-      {/* Colored left accent bar */}
-      <View style={[styles.accent, {backgroundColor: allDoneToday ? '#D0D5DD' : accentColor}]} />
+      activeOpacity={0.82}
+      style={[
+        styles.card,
+        isUrgent && styles.cardUrgent,
+        isResting && styles.cardResting,
+      ]}>
+
+      {/* Left urgency stripe */}
+      <View style={[
+        styles.stripe,
+        isUrgent && styles.stripeUrgent,
+        variant === 'upcoming' && styles.stripeUpcoming,
+        isResting && styles.stripeResting,
+      ]} />
 
       <View style={styles.body}>
-        <View style={styles.topRow}>
-          <View style={styles.info}>
-            {/* Type badge + name row */}
-            <View style={styles.nameRow}>
-              <View style={[styles.typeBadge, {backgroundColor: allDoneToday ? '#F2F4F7' : accentColor + '1A'}]}>
-                <Text style={[styles.typeBadgeText, {color: allDoneToday ? '#9BA8B4' : accentColor}]}>
-                  {isRoutine ? 'Daily' : 'As needed'}
-                </Text>
-              </View>
-            </View>
-
-            <Text style={[styles.name, allDoneToday && styles.textDone]}>
+        <View style={styles.mainRow}>
+          {/* Text block */}
+          <View style={styles.textBlock}>
+            <Text style={[styles.name, isResting && styles.nameResting]} numberOfLines={1}>
               {medication.name}
             </Text>
-
-            <Text style={styles.meta}>
-              {medication.dosage}
-              {medication.form ? ` · ${medication.form}` : ''}
+            <Text style={[styles.dosage, isResting && styles.dosageResting]}>
+              {medication.dosage}{medication.form ? ` · ${medication.form}` : ''}
             </Text>
-
             {medication.patientName ? (
-              <Text style={styles.patientName}>👤 {medication.patientName}</Text>
+              <View style={styles.patientRow}>
+                <Ionicons name="person-outline" size={11} color="#94A3B8" />
+                <Text style={styles.patientText}>{medication.patientName}</Text>
+              </View>
             ) : null}
           </View>
 
           {/* Take button */}
           <TouchableOpacity
-            style={[
-              styles.takeButton,
-              {backgroundColor: allDoneToday ? '#F2F4F7' : takeDisabled ? '#F2F4F7' : accentColor},
-            ]}
             onPress={onTakePress}
-            disabled={takeDisabled}>
-            <Text style={[styles.takeButtonText, {color: allDoneToday || takeDisabled ? '#9BA8B4' : '#FFFFFF'}]}>
-              ✓
-            </Text>
+            disabled={takeDisabled}
+            activeOpacity={0.8}
+            style={[
+              styles.takeBtn,
+              isUrgent && styles.takeBtnUrgent,
+              variant === 'upcoming' && styles.takeBtnUpcoming,
+              takeDisabled && styles.takeBtnDisabled,
+            ]}>
+            <Ionicons
+              name={isResting ? 'checkmark' : 'checkmark'}
+              size={isUrgent ? 20 : 17}
+              color={
+                isResting
+                  ? '#94A3B8'
+                  : isUrgent
+                    ? '#FFFFFF'
+                    : takeDisabled
+                      ? '#CBD5E1'
+                      : '#64748B'
+              }
+            />
           </TouchableOpacity>
         </View>
 
-        {/* Status line */}
-        {allDoneToday ? (
-          <Text style={styles.completedBadge}>✓ All doses completed today</Text>
-        ) : (
-          <View style={styles.statusRow}>
-            {isRoutine ? (
-              <Text style={styles.statusText}>
-                🕐 {getRoutineScheduleLabel(medication)}
-              </Text>
-            ) : (
-              <Text style={[styles.statusText, dailyLimitReached && styles.statusWarning]}>
-                {dailyLimitReached ? '⚠ Daily limit reached' : `⏱ ${getAvailabilityLabel(medication)}`}
-              </Text>
-            )}
-          </View>
-        )}
+        {/* Sub-label row */}
+        <View style={styles.subRow}>
+          {isUrgent && !isRoutine && availableNow ? (
+            <View style={styles.availableDot} />
+          ) : null}
+          <Text style={[
+            styles.subLabel,
+            subLabelUrgent && styles.subLabelUrgent,
+            isResting && styles.subLabelResting,
+          ]}>
+            {subLabel}
+          </Text>
+
+          {/* Routine progress dots */}
+          {isRoutine && totalToday > 0 && !isResting ? (
+            <View style={styles.dotRow}>
+              {Array.from({length: totalToday}).map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.dot,
+                    i < takenToday ? styles.dotTaken : styles.dotEmpty,
+                  ]}
+                />
+              ))}
+            </View>
+          ) : null}
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -111,97 +173,144 @@ const MedicationCard: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   card: {
+    flexDirection: 'row',
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E7ECF3',
-    flexDirection: 'row',
+    borderColor: '#E2E8F0',
+    marginBottom: 10,
     overflow: 'hidden',
   },
-  cardDone: {
-    backgroundColor: '#F8FAFC',
-    opacity: 0.75,
+  cardUrgent: {
+    backgroundColor: '#FAFBFF',
+    borderColor: '#C7D7FE',
+    shadowColor: '#4C7EFF',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  accent: {
+  cardResting: {
+    backgroundColor: '#F8FAFC',
+    borderColor: '#E2E8F0',
+    opacity: 0.72,
+  },
+  stripe: {
     width: 4,
-    borderTopLeftRadius: 16,
-    borderBottomLeftRadius: 16,
+  },
+  stripeUrgent: {
+    backgroundColor: '#4C7EFF',
+  },
+  stripeUpcoming: {
+    backgroundColor: '#94A3B8',
+  },
+  stripeResting: {
+    backgroundColor: '#E2E8F0',
   },
   body: {
     flex: 1,
-    padding: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
   },
-  topRow: {
+  mainRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
+    alignItems: 'center',
+    gap: 10,
   },
-  info: {
+  textBlock: {
     flex: 1,
   },
-  nameRow: {
+  name: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  nameResting: {
+    color: '#94A3B8',
+  },
+  dosage: {
+    marginTop: 2,
+    fontSize: 13,
+    color: '#64748B',
+  },
+  dosageResting: {
+    color: '#CBD5E1',
+  },
+  patientRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
-  },
-  typeBadge: {
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  typeBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.3,
-  },
-  name: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#1A1F36',
-  },
-  textDone: {
-    color: '#9BA8B4',
-  },
-  meta: {
-    marginTop: 3,
-    fontSize: 13,
-    color: '#5F6B7A',
-  },
-  patientName: {
+    gap: 3,
     marginTop: 4,
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#667085',
   },
-  takeButton: {
-    width: 40,
-    height: 40,
+  patientText: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
+  takeBtn: {
+    width: 38,
+    height: 38,
     borderRadius: 12,
-    alignSelf: 'flex-start',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
-  takeButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
+  takeBtnUrgent: {
+    backgroundColor: '#4C7EFF',
+    borderColor: '#4C7EFF',
+    width: 42,
+    height: 42,
+    borderRadius: 14,
   },
-  statusRow: {
-    marginTop: 10,
+  takeBtnUpcoming: {
+    backgroundColor: '#F8FAFC',
+    borderColor: '#E2E8F0',
   },
-  statusText: {
-    fontSize: 13,
-    color: '#667085',
+  takeBtnDisabled: {
+    backgroundColor: '#F8FAFC',
+    borderColor: '#F1F5F9',
   },
-  statusWarning: {
-    color: '#C2410C',
+  subRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 6,
+  },
+  availableDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 99,
+    backgroundColor: '#12B76A',
+  },
+  subLabel: {
+    fontSize: 12,
+    color: '#94A3B8',
+    fontWeight: '500',
+    flex: 1,
+  },
+  subLabelUrgent: {
+    color: '#4C7EFF',
     fontWeight: '600',
   },
-  completedBadge: {
-    marginTop: 10,
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#12B76A',
+  subLabelResting: {
+    color: '#CBD5E1',
+  },
+  dotRow: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 99,
+  },
+  dotTaken: {
+    backgroundColor: '#4C7EFF',
+  },
+  dotEmpty: {
+    backgroundColor: '#E2E8F0',
   },
 });
 
