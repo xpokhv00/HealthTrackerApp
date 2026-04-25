@@ -33,21 +33,19 @@ export const exportDoctorReportPdf = async ({
   const result = await generatePDF({
     html,
     fileName: `doctor-report-${Date.now()}`,
-    directory: 'Documents',
     width: 612,
     height: 792,
   });
 
-  if (!result.filePath) {
-    throw new Error('PDF file path was not returned.');
+  const rawPath = result.filePath ?? (result as any).uri ?? null;
+  if (!rawPath) {
+    throw new Error('PDF generation failed: no file path returned.');
   }
 
-  const fileUrl = result.filePath.startsWith('file://')
-    ? result.filePath
-    : `file://${result.filePath}`;
+  const fileUrl = rawPath.startsWith('file://') ? rawPath : `file://${rawPath}`;
 
   return {
-    filePath: result.filePath,
+    filePath: rawPath,
     fileUrl,
   };
 };
