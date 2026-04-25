@@ -135,7 +135,8 @@ const DoctorReportScreen: React.FC = () => {
 
       await shareDoctorReportPdf(fileUrl);
     } catch (error) {
-      Alert.alert('Export failed', 'Could not create or share the PDF report.');
+      const msg = error instanceof Error ? error.message : String(error);
+      Alert.alert('Export failed', msg);
     } finally {
       setIsExporting(false);
     }

@@ -127,8 +127,9 @@ const HistoryScreen: React.FC = () => {
         reportWindow,
       });
       await shareDoctorReportPdf(fileUrl);
-    } catch {
-      Alert.alert('Export failed', 'Could not create or share the PDF report.');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      Alert.alert('Export failed', msg);
     } finally {
       setIsExporting(false);
     }
