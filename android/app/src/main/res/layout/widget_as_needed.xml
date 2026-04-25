@@ -32,7 +32,7 @@
                 android:text="READY"
                 android:textStyle="bold"
                 android:textSize="10sp"
-                android:textColor="#27AE60"
+                android:textColor="#12B76A"
                 android:letterSpacing="0.08"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"

@@ -130,7 +130,7 @@
                 android:text="NEXT UP"
                 android:textSize="10sp"
                 android:textStyle="bold"
-                android:textColor="#2563EB"
+                android:textColor="#4C7EFF"
                 android:letterSpacing="0.08"
                 android:layout_marginBottom="8dp" />
 
@@ -226,7 +226,7 @@
                     android:text="DONE TODAY"
                     android:textStyle="bold"
                     android:textSize="10sp"
-                    android:textColor="#16A34A"
+                    android:textColor="#027A48"
                     android:letterSpacing="0.08" />
 
             <TextView
@@ -234,7 +234,7 @@
                     android:layout_height="wrap_content"
                     android:text="✓"
                     android:textSize="13sp"
-                    android:textColor="#16A34A" />
+                    android:textColor="#027A48" />
         </LinearLayout>
 
         <ListView

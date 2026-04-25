@@ -72,7 +72,7 @@
                 android:layout_marginTop="4dp"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#2563EB"
+                android:textColor="#4C7EFF"
                 android:text="Sunday · 10:00 AM" />
 
         <TextView

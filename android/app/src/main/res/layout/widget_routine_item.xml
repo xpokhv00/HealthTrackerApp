@@ -38,7 +38,7 @@
             android:gravity="center"
             android:text="✓"
             android:textSize="13sp"
-            android:textColor="#16A34A"
+            android:textColor="#027A48"
             android:background="@drawable/widget_badge_taken" />
 
 </LinearLayout>

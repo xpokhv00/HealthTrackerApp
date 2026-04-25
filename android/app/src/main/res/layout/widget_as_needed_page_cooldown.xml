@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="13sp"
                 android:textStyle="bold"
-                android:textColor="#F97316"
+                android:textColor="#F79009"
                 android:gravity="center"
                 android:layout_gravity="center_horizontal" />
 
@@ -108,7 +108,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="13sp"
                 android:textStyle="bold"
-                android:textColor="#F97316"
+                android:textColor="#F79009"
                 android:gravity="center"
                 android:layout_gravity="center_horizontal" />
 
