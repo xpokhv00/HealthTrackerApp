@@ -229,12 +229,6 @@
                     android:textColor="#027A48"
                     android:letterSpacing="0.08" />
 
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="✓"
-                    android:textSize="13sp"
-                    android:textColor="#027A48" />
         </LinearLayout>
 
         <ListView
