@@ -107,7 +107,7 @@ const AppointmentDetailScreen: React.FC = () => {
           <View style={styles.card}>
             <View style={styles.locationRow}>
               <View style={styles.mapPlaceholder}>
-                <Ionicons name="map-outline" size={28} color="#9CA3AF" />
+                <Ionicons name="map-outline" size={28} color={colors.textMuted} />
               </View>
               <View style={styles.locationContent}>
                 <Text style={styles.locationName}>{appointment.location}</Text>
@@ -142,7 +142,7 @@ const AppointmentDetailScreen: React.FC = () => {
                 <Ionicons
                   name={getChecked(index) ? 'checkbox' : 'checkbox-outline'}
                   size={18}
-                  color={getChecked(index) ? colors.primary : '#9CA3AF'}
+                  color={getChecked(index) ? colors.primary : colors.textMuted}
                   style={styles.checkIcon}
                 />
                 <Text style={[styles.checkText, getChecked(index) && styles.checkTextDone]}>
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   badge: {
     alignSelf: 'flex-start',
     marginTop: 12,
-    borderRadius: 20,
+    borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 6,
   },
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 12,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: colors.neutral,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -349,8 +349,8 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   tag: {
-    backgroundColor: '#F2F4F7',
-    borderRadius: 20,
+    backgroundColor: colors.neutral,
+    borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 6,
   },

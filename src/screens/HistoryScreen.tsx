@@ -13,7 +13,7 @@ import {useMedicationStore} from '../store/medicationStore';
 import {useAppointmentStore} from '../store/appointmentStore';
 import {useSymptomStore} from '../store/symptomStore';
 import {useRoutineDoseStore} from '../store/routineDoseStore';
-import {colors} from '../theme/colors';
+import {colors, severityColors} from '../theme/colors';
 import {
   getActiveMedicationsForReport,
   getAverageSeverity,
@@ -30,16 +30,10 @@ import {
   shareDoctorReportPdf,
 } from '../services/doctorReportExport';
 
-function severityColor(avg: number) {
-  if (avg <= 3) {return {bg: '#ECFDF5', text: '#027A48'};}
-  if (avg <= 6) {return {bg: '#FFFAEB', text: '#B54708'};}
-  return {bg: '#FEF3F2', text: '#B42318'};
-}
-
 function adherenceColor(pct: number) {
-  if (pct >= 80) {return '#027A48';}
-  if (pct >= 50) {return '#B54708';}
-  return '#B42318';
+  if (pct >= 80) {return colors.severityLowText;}
+  if (pct >= 50) {return colors.severityMidText;}
+  return colors.severityHighText;
 }
 
 const WINDOW_OPTIONS: {label: string; value: ReportWindow}[] = [
@@ -236,7 +230,7 @@ const HistoryScreen: React.FC = () => {
           ) : (
             Object.entries(groupedSymptoms).map(([name, entries]) => {
               const avg = getAverageSeverity(entries);
-              const sc = severityColor(avg);
+              const sc = severityColors(avg);
               return (
                 <View key={name} style={styles.row}>
                   <View style={styles.rowLeft}>

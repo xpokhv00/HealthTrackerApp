@@ -39,16 +39,16 @@ const formatTimeOnly = (value?: string) => {
 type StatusVariant = 'success' | 'warning' | 'neutral' | 'muted';
 
 const STATUS_BG: Record<StatusVariant, string> = {
-  success: '#ECFDF5',
-  warning: '#FEF3F2',
+  success: colors.severityLowBg,
+  warning: colors.severityHighBg,
   neutral: '#EEF2FF',
-  muted:   '#F2F4F7',
+  muted:   colors.neutral,
 };
 const STATUS_TEXT: Record<StatusVariant, string> = {
-  success: '#027A48',
-  warning: '#B42318',
+  success: colors.severityLowText,
+  warning: colors.severityHighText,
   neutral: '#3730A3',
-  muted:   '#667085',
+  muted:   colors.textSecondary,
 };
 
 const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
@@ -268,7 +268,7 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
                       <Ionicons
                         name={taken ? 'checkmark-circle' : overdue ? 'alert-circle' : 'time-outline'}
                         size={13}
-                        color={taken ? '#027A48' : overdue ? '#B42318' : colors.textSecondary}
+                        color={taken ? colors.severityLowText : overdue ? colors.severityHighText : colors.textSecondary}
                       />
                       <Text
                         style={[
@@ -452,11 +452,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  timeChipTaken: {backgroundColor: '#ECFDF5', borderColor: '#A6F4C5'},
-  timeChipOverdue: {backgroundColor: '#FEF3F2', borderColor: '#FDA29B'},
+  timeChipTaken: {backgroundColor: colors.severityLowBg, borderColor: '#A6F4C5'},
+  timeChipOverdue: {backgroundColor: colors.severityHighBg, borderColor: '#FDA29B'},
   timeChipText: {fontSize: 13, fontWeight: '700', color: colors.textSecondary},
-  timeChipTextTaken: {color: '#027A48'},
-  timeChipTextOverdue: {color: '#B42318'},
+  timeChipTextTaken: {color: colors.severityLowText},
+  timeChipTextOverdue: {color: colors.severityHighText},
 
   // Usage
   usageText: {fontSize: 14, color: colors.text, lineHeight: 20, marginBottom: 8},
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
-  takeButtonDisabled: {backgroundColor: '#B8C4D6'},
+  takeButtonDisabled: {backgroundColor: colors.textMuted},
   takeButtonText: {color: '#FFFFFF', fontSize: 15, fontWeight: '800'},
   footerBar: {
     flexDirection: 'row',

@@ -6,19 +6,11 @@ import {
   getTimeUntilAppointment,
   isUpcomingAppointment,
 } from '../utils/appointment';
+import {colors, countdownColors} from '../theme/colors';
 
 interface Props {
   appointment: Appointment;
   onPress: () => void;
-}
-
-// Color the countdown badge by urgency
-function countdownColors(dateTime: string): {bg: string; text: string} {
-  const diff = new Date(dateTime).getTime() - Date.now();
-  const days = diff / (1000 * 60 * 60 * 24);
-  if (days <= 1)  {return {bg: '#FEF3F2', text: '#B42318'};} // today/tomorrow → red
-  if (days <= 7)  {return {bg: '#FFFAEB', text: '#B54708'};} // this week → amber
-  return {bg: '#EEF4FF', text: '#3538CD'};                    // later → blue
 }
 
 const AppointmentCard: React.FC<Props> = ({appointment, onPress}) => {
@@ -32,7 +24,7 @@ const AppointmentCard: React.FC<Props> = ({appointment, onPress}) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
       {/* Accent bar — green for upcoming, grey for past */}
-      <View style={[styles.accent, {backgroundColor: isUpcoming ? '#12B76A' : '#D0D5DD'}]} />
+      <View style={[styles.accent, {backgroundColor: isUpcoming ? colors.severityLowBar : colors.border}]} />
 
       <View style={styles.body}>
         <View style={styles.topRow}>
@@ -108,11 +100,11 @@ const AppointmentCard: React.FC<Props> = ({appointment, onPress}) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E7ECF3',
+    borderColor: colors.border,
     flexDirection: 'row',
     overflow: 'hidden',
   },
@@ -136,33 +128,33 @@ const styles = StyleSheet.create({
   visitType: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#111827',
+    color: colors.text,
   },
   patientName: {
     marginTop: 3,
     fontSize: 12,
     fontWeight: '600',
-    color: '#667085',
+    color: colors.textSecondary,
   },
   doctor: {
     marginTop: 5,
     fontSize: 13,
-    color: '#475467',
+    color: colors.neutralText,
   },
   dateTime: {
     marginTop: 4,
     fontSize: 13,
-    color: '#1D2939',
+    color: colors.text,
     fontWeight: '700',
   },
   location: {
     marginTop: 3,
     fontSize: 13,
-    color: '#667085',
+    color: colors.textSecondary,
   },
   badge: {
     alignSelf: 'flex-start',
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 8,
   },
@@ -172,13 +164,13 @@ const styles = StyleSheet.create({
   },
   badgePast: {
     alignSelf: 'flex-start',
-    backgroundColor: '#F2F4F7',
-    borderRadius: 12,
+    backgroundColor: colors.neutral,
+    borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 8,
   },
   badgeTextPast: {
-    color: '#667085',
+    color: colors.textSecondary,
     fontWeight: '700',
     fontSize: 12,
   },
@@ -186,15 +178,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F2F4F7',
+    borderTopColor: colors.borderMuted,
   },
   preparation: {
     fontSize: 13,
-    color: '#475467',
+    color: colors.neutralText,
   },
   prepItem: {
     fontSize: 13,
-    color: '#344054',
+    color: colors.text,
     marginBottom: 5,
   },
   toggleButton: {
@@ -204,7 +196,7 @@ const styles = StyleSheet.create({
   toggleText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#4C7EFF',
+    color: colors.primary,
   },
 });
 

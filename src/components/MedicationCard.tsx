@@ -14,6 +14,7 @@ import {
   isMedicationAvailableNow,
 } from '../utils/medication';
 import {getRoutineScheduleLabel} from '../utils/routineSchedule';
+import {colors} from '../theme/colors';
 
 export type CardVariant = 'urgent' | 'upcoming' | 'resting';
 
@@ -136,12 +137,12 @@ const MedicationCard: React.FC<Props> = ({
               size={isUrgent ? 20 : 17}
               color={
                 isResting
-                  ? '#94A3B8'
+                  ? colors.textMuted
                   : isUrgent
-                    ? '#FFFFFF'
+                    ? colors.surface
                     : takeDisabled
-                      ? '#CBD5E1'
-                      : isRoutine ? '#4C7EFF' : '#0BA5A4'
+                      ? colors.textMuted
+                      : isRoutine ? colors.primary : colors.teal
               }
             />
           </TouchableOpacity>
@@ -183,25 +184,25 @@ const MedicationCard: React.FC<Props> = ({
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.border,
     marginBottom: 10,
     overflow: 'hidden',
   },
   cardUrgent: {
     backgroundColor: '#FAFBFF',
     borderColor: '#C7D7FE',
-    shadowColor: '#4C7EFF',
+    shadowColor: colors.primary,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
   },
   cardResting: {
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
+    backgroundColor: colors.background,
+    borderColor: colors.border,
     opacity: 0.72,
   },
   stripe: {
@@ -211,16 +212,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#B8CBFF',
   },
   stripeRoutineUrgent: {
-    backgroundColor: '#4C7EFF',
+    backgroundColor: colors.primary,
   },
   stripeAsNeeded: {
     backgroundColor: '#99E6E5',
   },
   stripeAsNeededUrgent: {
-    backgroundColor: '#0BA5A4',
+    backgroundColor: colors.teal,
   },
   stripeResting: {
-    backgroundColor: '#E2E8F0',
+    backgroundColor: colors.border,
   },
   body: {
     flex: 1,
@@ -238,10 +239,10 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
+    color: colors.text,
   },
   nameResting: {
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   typeRow: {
     flexDirection: 'row',
@@ -258,10 +259,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEF4FF',
   },
   typePillAsNeeded: {
-    backgroundColor: '#ECFDF9',
+    backgroundColor: colors.tealLight,
   },
   typePillResting: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: colors.background,
   },
   typePillText: {
     fontSize: 10,
@@ -269,20 +270,20 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   typePillTextRoutine: {
-    color: '#4C7EFF',
+    color: colors.primary,
   },
   typePillTextAsNeeded: {
-    color: '#0BA5A4',
+    color: colors.teal,
   },
   typePillTextResting: {
-    color: '#CBD5E1',
+    color: colors.textMuted,
   },
   dosage: {
     fontSize: 13,
-    color: '#64748B',
+    color: colors.textSecondary,
   },
   dosageResting: {
-    color: '#CBD5E1',
+    color: colors.textMuted,
   },
   patientRow: {
     flexDirection: 'row',
@@ -292,7 +293,7 @@ const styles = StyleSheet.create({
   },
   patientText: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     fontWeight: '500',
   },
   takeBtn: {
@@ -301,31 +302,31 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F1F5F9',
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.border,
   },
   takeBtnUrgentRoutine: {
-    backgroundColor: '#4C7EFF',
-    borderColor: '#4C7EFF',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
     width: 42,
     height: 42,
     borderRadius: 14,
   },
   takeBtnUrgentAsNeeded: {
-    backgroundColor: '#0BA5A4',
-    borderColor: '#0BA5A4',
+    backgroundColor: colors.teal,
+    borderColor: colors.teal,
     width: 42,
     height: 42,
     borderRadius: 14,
   },
   takeBtnUpcoming: {
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
+    backgroundColor: colors.background,
+    borderColor: colors.border,
   },
   takeBtnDisabled: {
-    backgroundColor: '#F8FAFC',
-    borderColor: '#F1F5F9',
+    backgroundColor: colors.background,
+    borderColor: colors.borderMuted,
   },
   subRow: {
     flexDirection: 'row',
@@ -337,24 +338,24 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 99,
-    backgroundColor: '#12B76A',
+    backgroundColor: colors.severityLowBar,
   },
   subLabel: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: colors.textMuted,
     fontWeight: '500',
     flex: 1,
   },
   subLabelUrgentRoutine: {
-    color: '#4C7EFF',
+    color: colors.primary,
     fontWeight: '600',
   },
   subLabelUrgentAsNeeded: {
-    color: '#0BA5A4',
+    color: colors.teal,
     fontWeight: '600',
   },
   subLabelResting: {
-    color: '#CBD5E1',
+    color: colors.textMuted,
   },
   dotRow: {
     flexDirection: 'row',
@@ -366,10 +367,10 @@ const styles = StyleSheet.create({
     borderRadius: 99,
   },
   dotTaken: {
-    backgroundColor: '#4C7EFF',
+    backgroundColor: colors.primary,
   },
   dotEmpty: {
-    backgroundColor: '#E2E8F0',
+    backgroundColor: colors.border,
   },
 });
 

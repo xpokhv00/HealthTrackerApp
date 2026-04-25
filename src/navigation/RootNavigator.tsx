@@ -7,6 +7,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {RootStackParamList, RootTabParamList} from './types';
 import {navigationTheme} from './navigationTheme';
+import {colors} from '../theme/colors';
 
 import HomeScreen from '../screens/HomeScreen';
 import MedicationsScreen from '../screens/MedicationsScreen';
@@ -53,7 +54,7 @@ const Tabs = () => {
     <Tab.Navigator
       screenOptions={({route}) => ({
         headerShown: false,
-        tabBarActiveTintColor: '#4F7CFF',
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: '#8E8E93',
         tabBarStyle: {
           height: 60 + insets.bottom,

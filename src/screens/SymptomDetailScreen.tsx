@@ -10,24 +10,9 @@ import {
 import {useNavigation, useRoute} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Screen from '../components/Screen';
-import {colors} from '../theme/colors';
+import {colors, severityColors, CATEGORY_COLORS, CATEGORY_TEXT} from '../theme/colors';
 import {useSymptomStore} from '../store/symptomStore';
 import {formatSymptomDateTime, getSeverityLabel} from '../utils/symptom';
-
-function severityColors(severity: number) {
-  if (severity <= 3) {return {bg: '#ECFDF5', text: '#027A48', bar: '#12B76A'};}
-  if (severity <= 6) {return {bg: '#FFFAEB', text: '#B54708', bar: '#F79009'};}
-  return {bg: '#FEF3F2', text: '#B42318', bar: '#F04438'};
-}
-
-const CATEGORY_COLORS: Record<string, string> = {
-  Pain: '#FEE4E2', Respiratory: '#E0F2FE', Digestive: '#FEF9C3',
-  Mood: '#F3E8FF', Energy: '#FFF7ED', Skin: '#FCE7F3', Other: '#F2F4F7',
-};
-const CATEGORY_TEXT: Record<string, string> = {
-  Pain: '#912018', Respiratory: '#0369A1', Digestive: '#854D0E',
-  Mood: '#6B21A8', Energy: '#9A3412', Skin: '#9D174D', Other: '#344054',
-};
 
 const SymptomDetailScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -96,10 +81,10 @@ const SymptomDetailScreen: React.FC = () => {
             <View style={styles.pillRow}>
               {symptom.category ? (
                 <View style={[styles.pill, {
-                  backgroundColor: CATEGORY_COLORS[symptom.category] ?? '#F2F4F7',
+                  backgroundColor: CATEGORY_COLORS[symptom.category] ?? colors.neutral,
                 }]}>
                   <Text style={[styles.pillText, {
-                    color: CATEGORY_TEXT[symptom.category] ?? '#344054',
+                    color: CATEGORY_TEXT[symptom.category] ?? colors.neutralText,
                   }]}>
                     {symptom.category}
                   </Text>
@@ -123,7 +108,7 @@ const SymptomDetailScreen: React.FC = () => {
               <View style={styles.pillRow}>
                 {symptom.triggers.map(item => (
                   <View key={item} style={styles.triggerPill}>
-                    <Ionicons name="flash-outline" size={12} color="#B54708" />
+                    <Ionicons name="flash-outline" size={12} color={colors.severityMidText} />
                     <Text style={styles.triggerPillText}>{item}</Text>
                   </View>
                 ))}
@@ -247,7 +232,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F2F4F7',
+    backgroundColor: colors.neutral,
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -268,7 +253,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#FFFAEB',
+    backgroundColor: colors.severityMidBg,
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -276,7 +261,7 @@ const styles = StyleSheet.create({
   triggerPillText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#B54708',
+    color: colors.severityMidText,
   },
   noteText: {
     fontSize: 15,

@@ -180,7 +180,7 @@ const MedicationsScreen: React.FC<Props> = ({navigation}) => {
               <Ionicons
                 name={allDoneToday ? 'checkmark-circle' : 'time-outline'}
                 size={18}
-                color={allDoneToday ? '#027A48' : colors.primary}
+                color={allDoneToday ? colors.severityLowText : colors.primary}
               />
               <Text style={[styles.progressBannerText, allDoneToday && styles.progressBannerTextDone]}>
                 {allDoneToday
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     borderColor: '#C7D7FE',
   },
   progressBannerDone: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: colors.severityLowBg,
     borderColor: '#A6F4C5',
   },
   progressBannerLeft: {
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   progressBannerTextDone: {
-    color: '#027A48',
+    color: colors.severityLowText,
   },
   progressBarWrap: {},
   progressBarTrack: {
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     borderRadius: 99,
   },
   progressBarFillDone: {
-    backgroundColor: '#12B76A',
+    backgroundColor: colors.severityLowBar,
   },
   section: {
     marginBottom: 8,
@@ -388,8 +388,7 @@ const styles = StyleSheet.create({
     height: 7,
     borderRadius: 99,
     backgroundColor: colors.primary,
-  },
-  sectionLabel: {
+  },  sectionLabel: {
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.8,

@@ -147,7 +147,7 @@ const AppointmentsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F6F8FB',
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
@@ -160,16 +160,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#111827',
+    color: colors.text,
   },
   addButton: {
-    backgroundColor: '#4C7EFF',
+    backgroundColor: colors.primary,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
   addButtonText: {
-    color: '#FFFFFF',
+    color: colors.surface,
     fontWeight: '700',
     fontSize: 15,
   },
@@ -182,19 +182,19 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#D0D5DD',
+    borderColor: colors.border,
     paddingVertical: 12,
     alignItems: 'center',
   },
   tabButtonActive: {
-    backgroundColor: '#4C7EFF',
-    borderColor: '#4C7EFF',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   tabButtonText: {
-    color: '#344054',
+    color: colors.text,
     fontWeight: '700',
   },
   tabButtonTextActive: {
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1A1F36',
+    color: colors.text,
   },
   emptyText: {
     marginTop: 8,

@@ -2,38 +2,12 @@ import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {SymptomEntry} from '../types/symptom';
 import {formatSymptomDateTime, getSeverityLabel} from '../utils/symptom';
+import {colors, severityColors, CATEGORY_COLORS, CATEGORY_TEXT} from '../theme/colors';
 
 interface Props {
   symptom: SymptomEntry;
   onPress?: () => void;
 }
-
-// Returns bg/text colors for severity 1–10
-function severityColors(severity: number): {bg: string; text: string; bar: string} {
-  if (severity <= 3) {return {bg: '#ECFDF5', text: '#027A48', bar: '#12B76A'};}
-  if (severity <= 6) {return {bg: '#FFFAEB', text: '#B54708', bar: '#F79009'};}
-  return {bg: '#FEF3F2', text: '#B42318', bar: '#F04438'};
-}
-
-const CATEGORY_COLORS: Record<string, string> = {
-  Pain:        '#FEE4E2',
-  Respiratory: '#E0F2FE',
-  Digestive:   '#FEF9C3',
-  Mood:        '#F3E8FF',
-  Energy:      '#FFF7ED',
-  Skin:        '#FCE7F3',
-  Other:       '#F2F4F7',
-};
-
-const CATEGORY_TEXT: Record<string, string> = {
-  Pain:        '#912018',
-  Respiratory: '#0369A1',
-  Digestive:   '#854D0E',
-  Mood:        '#6B21A8',
-  Energy:      '#9A3412',
-  Skin:        '#9D174D',
-  Other:       '#344054',
-};
 
 const SymptomCard: React.FC<Props> = ({symptom, onPress}) => {
   const visibleTriggers = symptom.triggers?.slice(0, 3) ?? [];
@@ -69,10 +43,10 @@ const SymptomCard: React.FC<Props> = ({symptom, onPress}) => {
           <View style={styles.pillRow}>
             {symptom.category ? (
               <View style={[styles.categoryPill, {
-                backgroundColor: CATEGORY_COLORS[symptom.category] ?? '#F2F4F7',
+                backgroundColor: CATEGORY_COLORS[symptom.category] ?? colors.neutral,
               }]}>
                 <Text style={[styles.categoryPillText, {
-                  color: CATEGORY_TEXT[symptom.category] ?? '#344054',
+                  color: CATEGORY_TEXT[symptom.category] ?? colors.neutralText,
                 }]}>
                   {symptom.category}
                 </Text>
@@ -104,11 +78,11 @@ const SymptomCard: React.FC<Props> = ({symptom, onPress}) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E7ECF3',
+    borderColor: colors.border,
     flexDirection: 'row',
     overflow: 'hidden',
   },
@@ -132,18 +106,18 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#111827',
+    color: colors.text,
   },
   patientName: {
     marginTop: 3,
     fontSize: 12,
     fontWeight: '600',
-    color: '#667085',
+    color: colors.textSecondary,
   },
   date: {
     marginTop: 5,
     fontSize: 12,
-    color: '#667085',
+    color: colors.textSecondary,
   },
   badge: {
     alignSelf: 'flex-start',
@@ -184,20 +158,20 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   triggerChip: {
-    backgroundColor: '#F2F4F7',
+    backgroundColor: colors.neutral,
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   triggerChipText: {
     fontSize: 12,
-    color: '#475467',
+    color: colors.neutralText,
     fontWeight: '600',
   },
   note: {
     marginTop: 8,
     fontSize: 13,
-    color: '#475467',
+    color: colors.neutralText,
     lineHeight: 18,
   },
 });

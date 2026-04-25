@@ -19,44 +19,13 @@ import {getRecentSymptoms, formatSymptomDateTime, getSeverityLabel} from '../uti
 import {getTodayRoutineDoseSummary} from '../utils/routineDoseSummary';
 
 import RoutineProgressCircle from '../components/RoutineProgressCircle';
-import {colors} from '../theme/colors.ts';
+import {colors, severityColors, countdownColors} from '../theme/colors';
 
 function getGreeting(): string {
   const h = new Date().getHours();
   if (h < 12) {return 'Good morning';}
   if (h < 18) {return 'Good afternoon';}
   return 'Good evening';
-}
-
-function severityBar(severity: number): string {
-  if (severity <= 3) {return '#12B76A';}
-  if (severity <= 6) {return '#F79009';}
-  return '#F04438';
-}
-
-function severityBg(severity: number): string {
-  if (severity <= 3) {return '#ECFDF5';}
-  if (severity <= 6) {return '#FFFAEB';}
-  return '#FEF3F2';}
-
-function severityText(severity: number): string {
-  if (severity <= 3) {return '#027A48';}
-  if (severity <= 6) {return '#B54708';}
-  return '#B42318';
-}
-
-function countdownBg(dateTime: string): string {
-  const days = (new Date(dateTime).getTime() - Date.now()) / 86400000;
-  if (days <= 1) {return '#FEF3F2';}
-  if (days <= 7) {return '#FFFAEB';}
-  return '#EEF4FF';
-}
-
-function countdownText(dateTime: string): string {
-  const days = (new Date(dateTime).getTime() - Date.now()) / 86400000;
-  if (days <= 1) {return '#B42318';}
-  if (days <= 7) {return '#B54708';}
-  return '#3538CD';
 }
 
 function timeUntil(dateTime: string): string {
@@ -81,6 +50,13 @@ const HomeScreen: React.FC = () => {
   const recentSymptoms = getRecentSymptoms(symptoms, 3);
   const primaryAction = routineSummary.primaryAction;
 
+  const heroMessageColor =
+    routineSummary.overdueCount > 0
+      ? colors.severityHighText
+      : routineSummary.remaining === 0 && routineSummary.total > 0
+        ? colors.severityLowText
+        : colors.neutralText;
+
   const heroMessage =
     routineSummary.overdueCount > 0
       ? `⚠ ${routineSummary.overdueCount} dose${routineSummary.overdueCount > 1 ? 's' : ''} overdue`
@@ -89,13 +65,6 @@ const HomeScreen: React.FC = () => {
         : routineSummary.total === 0
           ? 'No routine doses scheduled today'
           : '✓ All routine doses completed';
-
-  const heroMessageColor =
-    routineSummary.overdueCount > 0
-      ? '#B42318'
-      : routineSummary.remaining === 0 && routineSummary.total > 0
-        ? '#027A48'
-        : '#344054';
 
   const handlePrimaryActionPress = () => {
     if (primaryAction?.medicationId) {
@@ -195,13 +164,16 @@ const HomeScreen: React.FC = () => {
                       ? <Text style={styles.apptMeta}>📍 {nextAppointment.location}</Text>
                       : null}
                   </View>
-                  <View style={[styles.countdownBadge,
-                    {backgroundColor: countdownBg(nextAppointment.dateTime)}]}>
-                    <Text style={[styles.countdownText,
-                      {color: countdownText(nextAppointment.dateTime)}]}>
-                      {timeUntil(nextAppointment.dateTime)}
-                    </Text>
-                  </View>
+                  {(() => {
+                    const badge = countdownColors(nextAppointment.dateTime);
+                    return (
+                      <View style={[styles.countdownBadge, {backgroundColor: badge.bg}]}>
+                        <Text style={[styles.countdownText, {color: badge.text}]}>
+                          {timeUntil(nextAppointment.dateTime)}
+                        </Text>
+                      </View>
+                    );
+                  })()}
                 </View>
               </View>
             </TouchableOpacity>
@@ -231,9 +203,9 @@ const HomeScreen: React.FC = () => {
             <View style={styles.listCard}>
               {medicationPreview.map((item, idx) => {
                 const isRoutine = item.type === 'routine';
-                const accent = isRoutine ? '#4C7EFF' : '#0BA5A4';
-                const badgeBg = isRoutine ? '#EEF4FF' : '#CCFBF1';
-                const badgeText = isRoutine ? '#3538CD' : '#0D7A6B';
+                const accent = isRoutine ? colors.primary : colors.teal;
+                const badgeBg = isRoutine ? '#EEF4FF' : colors.tealLight;
+                const badgeText = isRoutine ? colors.countdownLaterText : '#0D7A6B';
                 return (
                   <TouchableOpacity
                     key={item.id}
@@ -273,25 +245,28 @@ const HomeScreen: React.FC = () => {
             </View>
           ) : (
             <View style={styles.listCard}>
-              {recentSymptoms.map((item, idx) => (
-                <View
-                  key={item.id}
-                  style={[styles.previewRow, idx < recentSymptoms.length - 1 && styles.previewRowBorder]}>
-                  <View style={[styles.previewAccent, {backgroundColor: severityBar(item.severity)}]} />
-                  <View style={styles.previewInfo}>
-                    <Text style={styles.previewTitle}>{item.symptom}</Text>
-                    <Text style={styles.previewMeta}>🗓 {formatSymptomDateTime(item.createdAt)}</Text>
+              {recentSymptoms.map((item, idx) => {
+                const sev = severityColors(item.severity);
+                return (
+                  <View
+                    key={item.id}
+                    style={[styles.previewRow, idx < recentSymptoms.length - 1 && styles.previewRowBorder]}>
+                    <View style={[styles.previewAccent, {backgroundColor: sev.bar}]} />
+                    <View style={styles.previewInfo}>
+                      <Text style={styles.previewTitle}>{item.symptom}</Text>
+                      <Text style={styles.previewMeta}>🗓 {formatSymptomDateTime(item.createdAt)}</Text>
+                    </View>
+                    <View style={[styles.previewBadge, {backgroundColor: sev.bg}]}>
+                      <Text style={[styles.previewBadgeText, {color: sev.text}]}>
+                        {item.severity}/10
+                      </Text>
+                      <Text style={[styles.previewBadgeSubtext, {color: sev.text}]}>
+                        {getSeverityLabel(item.severity)}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={[styles.previewBadge, {backgroundColor: severityBg(item.severity)}]}>
-                    <Text style={[styles.previewBadgeText, {color: severityText(item.severity)}]}>
-                      {item.severity}/10
-                    </Text>
-                    <Text style={[styles.previewBadgeSubtext, {color: severityText(item.severity)}]}>
-                      {getSeverityLabel(item.severity)}
-                    </Text>
-                  </View>
-                </View>
-              ))}
+                );
+              })}
             </View>
           )}
 
@@ -311,7 +286,7 @@ const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F6F8FB',
+    backgroundColor: colors.background,
   },
   content: {
     paddingHorizontal: 20,
@@ -326,21 +301,21 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#111827',
+    color: colors.text,
   },
   subtitle: {
     marginTop: 4,
     fontSize: 14,
-    color: '#667085',
+    color: colors.textSecondary,
   },
 
   // Hero
   heroCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
+    backgroundColor: colors.surface,
+    borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E7ECF3',
+    borderColor: colors.border,
     marginBottom: 16,
   },
   heroTopRow: {
@@ -355,7 +330,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#667085',
+    color: colors.textSecondary,
     marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
@@ -378,24 +353,24 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   nextDoseLabelOverdue: {
-    color: '#B42318',
+    color: colors.severityHighText,
   },
   nextDoseName: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#111827',
+    color: colors.text,
   },
   nextDoseTime: {
     marginTop: 2,
     fontSize: 13,
-    color: '#667085',
+    color: colors.textSecondary,
   },
   statsRow: {
     flexDirection: 'row',
     gap: 8,
   },
   statChip: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.background,
     borderRadius: 12,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -404,11 +379,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#111827',
+    color: colors.text,
   },
   statLabel: {
     fontSize: 11,
-    color: '#667085',
+    color: colors.textSecondary,
     marginTop: 1,
   },
   primaryButton: {
@@ -418,7 +393,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: colors.surface,
     fontWeight: '800',
     fontSize: 15,
   },
@@ -436,7 +411,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#111827',
+    color: colors.text,
   },
   linkText: {
     fontSize: 14,
@@ -446,16 +421,16 @@ const styles = StyleSheet.create({
 
   // Next appointment card
   apptCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E7ECF3',
+    borderColor: colors.border,
     flexDirection: 'row',
     overflow: 'hidden',
   },
   apptAccent: {
     width: 4,
-    backgroundColor: '#12B76A',
+    backgroundColor: colors.severityLowBar,
   },
   apptBody: {
     flex: 1,
@@ -469,12 +444,12 @@ const styles = StyleSheet.create({
   apptTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#111827',
+    color: colors.text,
     marginBottom: 4,
   },
   apptMeta: {
     fontSize: 13,
-    color: '#475467',
+    color: colors.neutralText,
     marginTop: 2,
   },
   countdownBadge: {
@@ -490,10 +465,10 @@ const styles = StyleSheet.create({
 
   // Shared list card
   listCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E7ECF3',
+    borderColor: colors.border,
     overflow: 'hidden',
   },
   previewRow: {
@@ -504,7 +479,7 @@ const styles = StyleSheet.create({
   },
   previewRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#F2F4F7',
+    borderBottomColor: colors.borderMuted,
   },
   previewAccent: {
     width: 4,
@@ -518,12 +493,12 @@ const styles = StyleSheet.create({
   previewTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#111827',
+    color: colors.text,
   },
   previewMeta: {
     marginTop: 2,
     fontSize: 12,
-    color: '#667085',
+    color: colors.textSecondary,
   },
   previewBadge: {
     borderRadius: 8,
@@ -544,10 +519,10 @@ const styles = StyleSheet.create({
 
   // Empty states
   emptyCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E7ECF3',
+    borderColor: colors.border,
     padding: 20,
     alignItems: 'center',
     gap: 8,
@@ -557,13 +532,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#667085',
+    color: colors.textSecondary,
   },
 
   // Secondary button
   secondaryButton: {
     marginTop: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 14,
     paddingVertical: 12,
     alignItems: 'center',
