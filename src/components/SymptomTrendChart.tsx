@@ -19,7 +19,8 @@ const getBarHeight = (value: number) =>
 
 const SymptomTrendChart: React.FC<Props> = ({points, trendDirection}) => {
   const isCompact = points.length > 14;
-  const labelEvery = points.length > 20 ? 5 : isCompact ? 3 : 1;
+  // For compact: show first, last, and every Nth label so they don't crowd
+  const labelEvery = points.length > 20 ? 7 : isCompact ? 4 : 1;
   const barColor = BAR_COLOR[trendDirection];
 
   return (
@@ -30,6 +31,10 @@ const SymptomTrendChart: React.FC<Props> = ({points, trendDirection}) => {
             index === 0 ||
             index === points.length - 1 ||
             index % labelEvery === 0;
+          // Compact: show just the day number; full: show "Apr 25" style
+          const labelText = isCompact
+            ? point.label.replace(/^\S+\s+/, '') // keep only the day number
+            : point.label;
           return (
             <View key={point.dateKey} style={styles.barGroup}>
               <View style={styles.barTrack}>
@@ -44,7 +49,7 @@ const SymptomTrendChart: React.FC<Props> = ({points, trendDirection}) => {
               <Text
                 style={[styles.barLabel, !showLabel && styles.barLabelHidden]}
                 numberOfLines={1}>
-                {point.label.replace(/\s+\d+$/, '')}
+                {labelText}
               </Text>
             </View>
           );

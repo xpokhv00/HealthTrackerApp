@@ -2,11 +2,9 @@ import {Appointment} from '../types/appointment';
 import {Medication} from '../types/medication';
 import {RoutineDoseSlot} from '../types/routineDose';
 import {SymptomEntry} from '../types/symptom';
+import {isRoutineMedicationDueToday} from './routineSchedule';
 
 export type ReportWindow = 7 | 14 | 30 | 'all';
-
-const isTakenRoutineSlot = (status: RoutineDoseSlot['status']) =>
-  status === 'taken_on_time' || status === 'taken_late';
 
 const getWindowStartTime = (window: ReportWindow) => {
   if (window === 'all') {
@@ -161,44 +159,89 @@ export const getStrongestSymptomForReport = (symptoms: SymptomEntry[]) => {
 
 export const getRoutineAdherenceSummary = (
   medications: Medication[],
-  slots: RoutineDoseSlot[],
+  _slots: RoutineDoseSlot[],
   window: ReportWindow,
 ) => {
-  const routineMedicationIds = new Set(
-    medications
-      .filter(item => item.isActive && item.type === 'routine')
-      .map(item => item.id),
+  const routineMeds = medications.filter(
+    item => item.isActive && item.type === 'routine',
   );
 
-  const startTime = getWindowStartTime(window);
+  if (routineMeds.length === 0) {
+    return {total: 0, taken: 0, missed: 0, pending: 0, adherencePercent: 0};
+  }
 
-  const relevantSlots = slots.filter(slot => {
-    if (!routineMedicationIds.has(slot.medicationId)) {
-      return false;
+  const now = new Date();
+  const windowDays = window === 'all' ? null : window;
+
+  // Build the list of days in the window (from oldest to today)
+  const days: Date[] = [];
+  if (windowDays === null) {
+    // 'all': span from the earliest medication startDate to today
+    const earliest = routineMeds.reduce<Date | null>((min, med) => {
+      const d = new Date(med.startDate);
+      return !min || d < min ? d : min;
+    }, null);
+    if (earliest) {
+      let cursor = new Date(earliest);
+      cursor.setHours(0, 0, 0, 0);
+      const todayStart = new Date(now);
+      todayStart.setHours(0, 0, 0, 0);
+      while (cursor <= todayStart) {
+        days.push(new Date(cursor));
+        cursor.setDate(cursor.getDate() + 1);
+      }
     }
-
-    const slotDateTime = new Date(`${slot.date}T${slot.scheduledTime}:00`).getTime();
-
-    if (Number.isNaN(slotDateTime)) {
-      return false;
+  } else {
+    for (let i = windowDays - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - i);
+      days.push(d);
     }
+  }
 
-    if (startTime === null) {
-      return true;
+  let totalExpected = 0;
+  let totalTaken = 0;
+
+  for (const day of days) {
+    const dayStart = day.getTime();
+    const dayEnd = dayStart + 24 * 60 * 60 * 1000 - 1;
+
+    for (const med of routineMeds) {
+      if (!isRoutineMedicationDueToday(med, day)) {
+        continue;
+      }
+      const dosesPerDay = med.scheduledTimes?.length ?? med.timesPerDay ?? 1;
+      totalExpected += dosesPerDay;
+
+      // Count taken doses on this day from takenHistory
+      const takenOnDay = med.takenHistory.filter(iso => {
+        const t = new Date(iso).getTime();
+        return t >= dayStart && t <= dayEnd;
+      }).length;
+
+      // Don't count more than expected (can't over-take for adherence purposes)
+      totalTaken += Math.min(takenOnDay, dosesPerDay);
     }
+  }
 
-    return slotDateTime >= startTime;
-  });
+  // Pending = today's remaining doses (future scheduled times today)
+  let pending = 0;
+  for (const med of routineMeds) {
+    if (!isRoutineMedicationDueToday(med, now)) {continue;}
+    const times = med.scheduledTimes ?? [];
+    const nowHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const remainingTimes = times.filter(t => t > nowHHMM);
+    pending += remainingTimes.length;
+  }
 
-  const total = relevantSlots.length;
-  const taken = relevantSlots.filter(slot => isTakenRoutineSlot(slot.status)).length;
-  const missed = relevantSlots.filter(slot => slot.status === 'missed').length;
-  const pending = relevantSlots.filter(slot => slot.status === 'pending').length;
-  const adherencePercent = total === 0 ? 0 : Math.round((taken / total) * 100);
+  const missed = Math.max(0, totalExpected - totalTaken - pending);
+  const adherencePercent =
+    totalExpected === 0 ? 0 : Math.round((totalTaken / totalExpected) * 100);
 
   return {
-    total,
-    taken,
+    total: totalExpected,
+    taken: totalTaken,
     missed,
     pending,
     adherencePercent,

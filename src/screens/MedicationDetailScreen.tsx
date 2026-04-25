@@ -14,7 +14,6 @@ import {useMedicationStore} from '../store/medicationStore';
 import {useRoutineDoseStore} from '../store/routineDoseStore';
 import {
   formatDateTime,
-  getAvailabilityLabel,
   getNextAllowedTime,
   getTodayDoseCount,
   hasReachedDailyLimit,
@@ -33,15 +32,23 @@ import {toDateKey} from '../utils/dateHelpers';
 type Props = NativeStackScreenProps<RootStackParamList, 'MedicationDetail'>;
 
 const formatTimeOnly = (value?: string) => {
-  if (!value) {
-    return '—';
-  }
+  if (!value) {return '—';}
+  return new Date(value).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+};
 
-  const date = new Date(value);
-  return date.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+type StatusVariant = 'success' | 'warning' | 'neutral' | 'muted';
+
+const STATUS_BG: Record<StatusVariant, string> = {
+  success: '#ECFDF5',
+  warning: '#FEF3F2',
+  neutral: '#EEF2FF',
+  muted:   '#F2F4F7',
+};
+const STATUS_TEXT: Record<StatusVariant, string> = {
+  success: '#027A48',
+  warning: '#B42318',
+  neutral: '#3730A3',
+  muted:   '#667085',
 };
 
 const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
@@ -60,9 +67,7 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
       <Screen>
         <View style={styles.center}>
           <Text style={styles.errorTitle}>Medication not found</Text>
-          <Text style={styles.errorText}>
-            It may have been deleted or is no longer available.
-          </Text>
+          <Text style={styles.errorText}>It may have been deleted.</Text>
         </View>
       </Screen>
     );
@@ -78,111 +83,83 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
     .filter(slot => slot.medicationId === medication.id && slot.date === todayKey)
     .sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
 
-  const overdueRoutineSlot =
-    todayRoutineSlots.find(slot => slot.status === 'missed') ?? null;
-  const pendingRoutineSlot =
-    todayRoutineSlots.find(slot => slot.status === 'pending') ?? null;
+  const overdueRoutineSlot = todayRoutineSlots.find(s => s.status === 'missed') ?? null;
+  const pendingRoutineSlot = todayRoutineSlots.find(s => s.status === 'pending') ?? null;
   const nextRoutineAction = overdueRoutineSlot ?? pendingRoutineSlot ?? null;
 
   const routineTakenToday = todayRoutineSlots.filter(
-    slot => slot.status === 'taken_on_time' || slot.status === 'taken_late',
+    s => s.status === 'taken_on_time' || s.status === 'taken_late',
   ).length;
 
-  const routineTakeDisabled =
-    medication.type === 'routine' && !nextRoutineAction;
-  const asNeededTakeDisabled =
-    medication.type === 'as_needed' && (!availableNow || dailyLimitReached);
+  const totalToday = todayRoutineSlots.length;
+  const isRoutine = medication.type === 'routine';
 
+  // Status pill logic
+  let statusLabel: string;
+  let statusVariant: StatusVariant;
+
+  if (isRoutine) {
+    if (overdueRoutineSlot) {
+      statusLabel = `Overdue · ${overdueRoutineSlot.scheduledTime}`;
+      statusVariant = 'warning';
+    } else if (pendingRoutineSlot) {
+      statusLabel = `Next · ${pendingRoutineSlot.scheduledTime}`;
+      statusVariant = 'neutral';
+    } else if (totalToday === 0) {
+      statusLabel = 'No dose today';
+      statusVariant = 'muted';
+    } else {
+      statusLabel = 'All doses done';
+      statusVariant = 'success';
+    }
+  } else {
+    if (dailyLimitReached) {
+      statusLabel = 'Daily limit reached';
+      statusVariant = 'warning';
+    } else if (availableNow) {
+      statusLabel = 'Available now';
+      statusVariant = 'success';
+    } else {
+      statusLabel = `Available ${formatTimeOnly(nextAllowedTime?.toISOString())}`;
+      statusVariant = 'neutral';
+    }
+  }
+
+  const routineTakeDisabled = isRoutine && !nextRoutineAction;
+  const asNeededTakeDisabled = !isRoutine && (!availableNow || dailyLimitReached);
   const takeDisabled = routineTakeDisabled || asNeededTakeDisabled;
 
-  const statusLabel =
-    medication.type === 'routine'
-      ? overdueRoutineSlot
-        ? 'Overdue dose'
-        : pendingRoutineSlot
-          ? 'Next routine dose'
-          : todayRoutineSlots.length === 0
-            ? 'No dose scheduled today'
-            : 'All routine doses completed'
-      : dailyLimitReached
-        ? 'Daily limit reached'
-        : availableNow
-          ? 'Available now'
-          : 'Available later';
-
-  const statusPillStyle =
-    medication.type === 'routine'
-      ? overdueRoutineSlot
-        ? styles.statusPillWarning
-        : nextRoutineAction
-          ? styles.statusPillNeutral
-          : styles.statusPillSuccess
-      : dailyLimitReached
-        ? styles.statusPillWarning
-        : availableNow
-          ? styles.statusPillSuccess
-          : styles.statusPillNeutral;
-
-  const statusDetail =
-    medication.type === 'routine'
-      ? overdueRoutineSlot
-        ? `${overdueRoutineSlot.medicationName} was scheduled for ${overdueRoutineSlot.scheduledTime}.`
-        : pendingRoutineSlot
-          ? `${pendingRoutineSlot.medicationName} is scheduled for ${pendingRoutineSlot.scheduledTime}.`
-          : todayRoutineSlots.length === 0
-            ? 'This medication does not have a routine slot for today.'
-            : 'All scheduled routine doses for today are already logged.'
-      : dailyLimitReached
-        ? `You already logged ${takenToday} dose${takenToday === 1 ? '' : 's'} today.`
-        : availableNow
-          ? 'You can log this medication now.'
-          : `Available again at ${formatTimeOnly(
-            nextAllowedTime?.toISOString(),
-          )}.`;
-
-  const takeButtonLabel =
-    medication.type === 'routine'
-      ? nextRoutineAction
-        ? overdueRoutineSlot
-          ? `Mark ${overdueRoutineSlot.scheduledTime} dose taken`
-          : `Mark ${pendingRoutineSlot?.scheduledTime} dose taken`
-        : 'No routine dose to log'
-      : dailyLimitReached
-        ? 'Daily limit reached'
-        : availableNow
-          ? 'Mark as taken'
-          : `Available at ${formatTimeOnly(nextAllowedTime?.toISOString())}`;
-
-  const handleRefreshWidgets = async () => {
-    await syncAllWidgets();
-  };
+  const takeButtonLabel = isRoutine
+    ? nextRoutineAction
+      ? `Mark ${nextRoutineAction.scheduledTime} dose taken`
+      : 'No routine dose to log'
+    : dailyLimitReached
+      ? 'Daily limit reached'
+      : availableNow
+        ? 'Mark as taken'
+        : `Available at ${formatTimeOnly(nextAllowedTime?.toISOString())}`;
 
   const handleTake = async () => {
-    if (medication.type === 'routine') {
-      if (!nextRoutineAction) {
-        return;
-      }
+    if (isRoutine) {
+      if (!nextRoutineAction) {return;}
       markNextRoutineDoseTaken(medication.id);
     } else {
       markMedicationTaken(medication.id);
     }
-
-    await handleRefreshWidgets();
+    await syncAllWidgets();
   };
 
   const handleDelete = async () => {
-    await notificationService.cancelMedicationRemindersByMedicationId(
-      medication.id,
-    );
-
+    await notificationService.cancelMedicationRemindersByMedicationId(medication.id);
     await notificationService.cancelMedicationReminder(
       getMedicationSnoozeNotificationId(medication.id),
     );
-
     removeMedication(medication.id);
-    await handleRefreshWidgets();
+    await syncAllWidgets();
     navigation.goBack();
   };
+
+  const recentHistory = [...medication.takenHistory].reverse().slice(0, 8);
 
   return (
     <Screen>
@@ -191,196 +168,165 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
           style={styles.scroll}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}>
+
+          {/* ── Hero card ── */}
           <View style={styles.heroCard}>
-            <View style={styles.heroTopRow}>
+            {/* Name + status pill */}
+            <View style={styles.heroTop}>
               <View style={styles.heroTextBlock}>
                 <Text style={styles.name}>{medication.name}</Text>
-                <Text style={styles.meta}>
-                  {medication.dosage}
-                  {medication.form ? ` • ${medication.form}` : ''}
+                <Text style={styles.dosage}>
+                  {medication.dosage}{medication.form ? ` · ${medication.form}` : ''}
                 </Text>
                 {medication.patientName ? (
-                  <Text style={styles.patientName}>For: {medication.patientName}</Text>
-                ) : null}
-                <Text style={styles.type}>
-                  {medication.type === 'routine'
-                    ? 'Routine medication'
-                    : 'As-needed medication'}
-                </Text>
-              </View>
-
-              <View style={[styles.statusPill, statusPillStyle]}>
-                <Text style={styles.statusPillText}>{statusLabel}</Text>
-              </View>
-            </View>
-
-            <Text style={styles.heroDetail}>{statusDetail}</Text>
-
-            <View style={styles.heroStatsRow}>
-              <View style={styles.heroChip}>
-                <Text style={styles.heroChipLabel}>Taken today</Text>
-                <Text style={styles.heroChipValue}>
-                  {medication.type === 'routine' ? routineTakenToday : takenToday}
-                </Text>
-              </View>
-
-              <View style={styles.heroChip}>
-                <Text style={styles.heroChipLabel}>Last taken</Text>
-                <Text style={styles.heroChipValueSmall}>
-                  {medication.lastTakenAt
-                    ? formatTimeOnly(medication.lastTakenAt)
-                    : '—'}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Current status</Text>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Availability</Text>
-              <Text style={styles.infoValue}>
-                {getAvailabilityLabel(medication)}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Last taken</Text>
-              <Text style={styles.infoValue}>
-                {formatDateTime(medication.lastTakenAt)}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Taken today</Text>
-              <Text style={styles.infoValue}>
-                {medication.type === 'routine' ? routineTakenToday : takenToday}
-              </Text>
-            </View>
-
-            {medication.type === 'routine' ? (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>
-                  {overdueRoutineSlot ? 'Overdue dose' : 'Next scheduled dose'}
-                </Text>
-                <Text style={styles.infoValue}>
-                  {nextRoutineAction ? nextRoutineAction.scheduledTime : 'None'}
-                </Text>
-              </View>
-            ) : (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Available again</Text>
-                <Text style={styles.infoValue}>
-                  {dailyLimitReached
-                    ? 'Tomorrow'
-                    : availableNow
-                      ? 'Now'
-                      : nextAllowedTime
-                        ? formatDateTime(nextAllowedTime.toISOString())
-                        : '—'}
-                </Text>
-              </View>
-            )}
-
-            {dailyLimitReached ? (
-              <Text style={styles.warning}>
-                You have reached the daily limit for this medication.
-              </Text>
-            ) : null}
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Schedule</Text>
-
-            {medication.type === 'routine' ? (
-              <>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Frequency</Text>
-                  <Text style={styles.infoValue}>
-                    {getRoutineScheduleLabel(medication)}
-                  </Text>
-                </View>
-
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Times per day</Text>
-                  <Text style={styles.infoValue}>
-                    {medication.timesPerDay ?? '-'}
-                  </Text>
-                </View>
-
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Scheduled times</Text>
-                  <Text style={styles.infoValue}>
-                    {medication.scheduledTimes?.join(', ') || '-'}
-                  </Text>
-                </View>
-
-                {medication.frequencyType === 'interval_days' ? (
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Interval days</Text>
-                    <Text style={styles.infoValue}>
-                      {medication.intervalDays ?? '-'}
-                    </Text>
+                  <View style={styles.patientRow}>
+                    <Ionicons name="person-outline" size={12} color={colors.primary} />
+                    <Text style={styles.patientName}>{medication.patientName}</Text>
                   </View>
                 ) : null}
-              </>
-            ) : (
-              <>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Minimum hours between doses</Text>
-                  <Text style={styles.infoValue}>
-                    {medication.minHoursBetweenDoses ?? '-'}
-                  </Text>
-                </View>
+              </View>
+              <View style={[styles.statusPill, {backgroundColor: STATUS_BG[statusVariant]}]}>
+                <Text style={[styles.statusPillText, {color: STATUS_TEXT[statusVariant]}]}>
+                  {statusLabel}
+                </Text>
+              </View>
+            </View>
 
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Maximum daily doses</Text>
-                  <Text style={styles.infoValue}>
-                    {medication.maxDailyDoses ?? '-'}
-                  </Text>
+            {/* Today progress bar (routine only) */}
+            {isRoutine && totalToday > 0 ? (
+              <View style={styles.progressSection}>
+                <View style={styles.progressBarTrack}>
+                  <View
+                    style={[
+                      styles.progressBarFill,
+                      {width: `${Math.round((routineTakenToday / totalToday) * 100)}%`},
+                    ]}
+                  />
                 </View>
-              </>
-            )}
+                <Text style={styles.progressLabel}>
+                  {routineTakenToday}/{totalToday} doses today
+                </Text>
+              </View>
+            ) : null}
+
+            {/* Stat row */}
+            <View style={styles.statRow}>
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>
+                  {isRoutine ? routineTakenToday : takenToday}
+                </Text>
+                <Text style={styles.statLabel}>today</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>
+                  {medication.lastTakenAt ? formatTimeOnly(medication.lastTakenAt) : '—'}
+                </Text>
+                <Text style={styles.statLabel}>last taken</Text>
+              </View>
+              {isRoutine ? (
+                <>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statItem}>
+                    <Text style={styles.statValue}>
+                      {getRoutineScheduleLabel(medication)}
+                    </Text>
+                    <Text style={styles.statLabel}>frequency</Text>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statItem}>
+                    <Text style={styles.statValue}>
+                      {medication.maxDailyDoses ?? '—'}
+                    </Text>
+                    <Text style={styles.statLabel}>max/day</Text>
+                  </View>
+                </>
+              )}
+            </View>
           </View>
 
+          {/* ── Schedule ── */}
+          {isRoutine && medication.scheduledTimes && medication.scheduledTimes.length > 0 ? (
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>SCHEDULE</Text>
+              <View style={styles.timeChips}>
+                {medication.scheduledTimes.map(time => {
+                  const slot = todayRoutineSlots.find(s => s.scheduledTime === time);
+                  const taken = slot?.status === 'taken_on_time' || slot?.status === 'taken_late';
+                  const overdue = slot?.status === 'missed';
+                  return (
+                    <View
+                      key={time}
+                      style={[
+                        styles.timeChip,
+                        taken && styles.timeChipTaken,
+                        overdue && styles.timeChipOverdue,
+                      ]}>
+                      <Ionicons
+                        name={taken ? 'checkmark-circle' : overdue ? 'alert-circle' : 'time-outline'}
+                        size={13}
+                        color={taken ? '#027A48' : overdue ? '#B42318' : colors.textSecondary}
+                      />
+                      <Text
+                        style={[
+                          styles.timeChipText,
+                          taken && styles.timeChipTextTaken,
+                          overdue && styles.timeChipTextOverdue,
+                        ]}>
+                        {time}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          ) : null}
+
+          {/* ── Usage / purpose ── */}
           {medication.purpose || medication.usageInstructions ? (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Usage</Text>
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>USAGE</Text>
               {medication.purpose ? (
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Purpose</Text>
-                  <Text style={styles.infoValue}>{medication.purpose}</Text>
-                </View>
+                <Text style={styles.usageText}>{medication.purpose}</Text>
               ) : null}
               {medication.usageInstructions ? (
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Usage instructions</Text>
-                  <Text style={styles.infoValue}>{medication.usageInstructions}</Text>
+                <View style={styles.instructionPill}>
+                  <Ionicons name="information-circle-outline" size={14} color={colors.primary} />
+                  <Text style={styles.instructionText}>{medication.usageInstructions}</Text>
                 </View>
               ) : null}
             </View>
           ) : null}
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>History</Text>
-            {medication.takenHistory.length === 0 ? (
-              <Text style={styles.value}>No doses recorded yet.</Text>
+          {/* ── History ── */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>HISTORY</Text>
+            {recentHistory.length === 0 ? (
+              <Text style={styles.emptyText}>No doses recorded yet</Text>
             ) : (
-              [...medication.takenHistory].reverse().map(entry => (
-                <Text key={entry} style={styles.historyItem}>
-                  • {formatDateTime(entry)}
-                </Text>
+              recentHistory.map((entry, i) => (
+                <View key={entry} style={[styles.historyRow, i === 0 && styles.historyRowFirst]}>
+                  <View style={[styles.historyDot, i === 0 && styles.historyDotFirst]} />
+                  <Text style={[styles.historyText, i === 0 && styles.historyTextFirst]}>
+                    {formatDateTime(entry)}
+                  </Text>
+                </View>
               ))
             )}
+            {medication.takenHistory.length > 8 ? (
+              <Text style={styles.historyMore}>
+                +{medication.takenHistory.length - 8} earlier doses
+              </Text>
+            ) : null}
           </View>
+
         </ScrollView>
 
-        <View
-          style={[
-            styles.footer,
-            {paddingBottom: Math.max(insets.bottom, 12)},
-          ]}>
+        {/* ── Footer ── */}
+        <View style={[styles.footer, {paddingBottom: Math.max(insets.bottom, 12)}]}>
           <TouchableOpacity
             style={[styles.takeButton, takeDisabled && styles.takeButtonDisabled]}
             onPress={handleTake}
@@ -392,17 +338,11 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
             <TouchableOpacity
               style={styles.footerAction}
               activeOpacity={0.7}
-              onPress={() =>
-                navigation.navigate('AddMedication', {
-                  medicationId: medication.id,
-                })
-              }>
+              onPress={() => navigation.navigate('AddMedication', {medicationId: medication.id})}>
               <Ionicons name="create-outline" size={18} color={colors.primary} />
               <Text style={styles.footerActionText}>Edit</Text>
             </TouchableOpacity>
-
             <View style={styles.footerDivider} />
-
             <TouchableOpacity
               style={styles.footerAction}
               activeOpacity={0.7}
@@ -418,166 +358,148 @@ const MedicationDetailScreen: React.FC<Props> = ({route, navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-  },
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 24,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  errorTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 15,
-    color: '#667085',
-    textAlign: 'center',
-  },
+  screen: {flex: 1},
+  scroll: {flex: 1},
+  content: {padding: 16, paddingBottom: 24},
+  center: {flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24},
+  errorTitle: {fontSize: 20, fontWeight: '800', color: colors.text, marginBottom: 8},
+  errorText: {fontSize: 14, color: colors.textSecondary, textAlign: 'center'},
+
+  // Hero
   heroCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    padding: 18,
     borderWidth: 1,
-    borderColor: '#E7ECF3',
-    marginBottom: 16,
+    borderColor: colors.border,
+    marginBottom: 12,
   },
-  heroTopRow: {
+  heroTop: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    marginBottom: 14,
   },
-  heroTextBlock: {
-    flex: 1,
-    paddingRight: 12,
-  },
-  name: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#111827',
-  },
-  meta: {
-    marginTop: 6,
-    fontSize: 16,
-    color: '#667085',
-  },
-  patientName: {
-    marginTop: 4,
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#4C7EFF',
-  },
-  type: {
-    marginTop: 10,
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.primary,
-  },
+  heroTextBlock: {flex: 1, paddingRight: 10},
+  name: {fontSize: 24, fontWeight: '800', color: colors.text},
+  dosage: {marginTop: 4, fontSize: 15, color: colors.textSecondary},
+  patientRow: {flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6},
+  patientName: {fontSize: 13, fontWeight: '700', color: colors.primary},
   statusPill: {
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 6,
+    alignSelf: 'flex-start',
   },
-  statusPillNeutral: {
-    backgroundColor: '#EEF2FF',
+  statusPillText: {fontSize: 12, fontWeight: '700'},
+
+  // Progress bar
+  progressSection: {marginBottom: 14},
+  progressBarTrack: {
+    height: 6,
+    backgroundColor: colors.border,
+    borderRadius: 99,
+    overflow: 'hidden',
+    marginBottom: 6,
   },
-  statusPillSuccess: {
-    backgroundColor: '#ECFDF3',
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: colors.primary,
+    borderRadius: 99,
   },
-  statusPillWarning: {
-    backgroundColor: '#FEF3F2',
-  },
-  statusPillText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#344054',
-  },
-  heroDetail: {
-    marginTop: 14,
-    fontSize: 15,
-    color: '#475467',
-    lineHeight: 22,
-  },
-  heroStatsRow: {
+  progressLabel: {fontSize: 12, color: colors.textSecondary, fontWeight: '500'},
+
+  // Stat row
+  statRow: {
     flexDirection: 'row',
-    marginTop: 16,
-  },
-  heroChip: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
+    backgroundColor: colors.background,
+    borderRadius: 12,
     paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginRight: 10,
   },
-  heroChipLabel: {
-    fontSize: 12,
-    color: '#667085',
-    marginBottom: 4,
-  },
-  heroChipValue: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#111827',
-  },
-  heroChipValueSmall: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  section: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 18,
+  statItem: {flex: 1, alignItems: 'center'},
+  statValue: {fontSize: 15, fontWeight: '800', color: colors.text},
+  statLabel: {marginTop: 2, fontSize: 11, color: colors.textSecondary},
+  statDivider: {width: 1, backgroundColor: colors.border, marginVertical: 4},
+
+  // Generic card
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E7ECF3',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#111827',
+    borderColor: colors.border,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 14,
     marginBottom: 12,
   },
-  infoRow: {
+  cardLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    color: colors.textSecondary,
     marginBottom: 10,
   },
-  infoLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#667085',
-    marginBottom: 2,
+
+  // Schedule time chips
+  timeChips: {flexDirection: 'row', flexWrap: 'wrap', gap: 8},
+  timeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: colors.background,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  infoValue: {
-    fontSize: 15,
-    color: '#344054',
-    lineHeight: 22,
+  timeChipTaken: {backgroundColor: '#ECFDF5', borderColor: '#A6F4C5'},
+  timeChipOverdue: {backgroundColor: '#FEF3F2', borderColor: '#FDA29B'},
+  timeChipText: {fontSize: 13, fontWeight: '700', color: colors.textSecondary},
+  timeChipTextTaken: {color: '#027A48'},
+  timeChipTextOverdue: {color: '#B42318'},
+
+  // Usage
+  usageText: {fontSize: 14, color: colors.text, lineHeight: 20, marginBottom: 8},
+  instructionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#EEF4FF',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    alignSelf: 'flex-start',
   },
-  value: {
-    fontSize: 15,
-    color: '#344054',
-    lineHeight: 22,
+  instructionText: {fontSize: 13, fontWeight: '600', color: colors.primary},
+
+  // History
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 7,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
-  historyItem: {
-    fontSize: 15,
-    color: '#344054',
-    marginBottom: 8,
+  historyRowFirst: {borderTopWidth: 0},
+  historyDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 99,
+    backgroundColor: colors.border,
   },
-  warning: {
-    color: '#B42318',
-    fontWeight: '700',
-    marginTop: 6,
+  historyDotFirst: {backgroundColor: colors.primary},
+  historyText: {fontSize: 13, color: colors.textSecondary},
+  historyTextFirst: {color: colors.text, fontWeight: '600'},
+  historyMore: {
+    marginTop: 8,
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
   },
+  emptyText: {fontSize: 14, color: colors.textSecondary},
+
+  // Footer
   footer: {
     paddingHorizontal: 16,
     paddingTop: 12,
@@ -592,14 +514,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
-  takeButtonDisabled: {
-    backgroundColor: '#B8C4D6',
-  },
-  takeButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
-  },
+  takeButtonDisabled: {backgroundColor: '#B8C4D6'},
+  takeButtonText: {color: '#FFFFFF', fontSize: 15, fontWeight: '800'},
   footerBar: {
     flexDirection: 'row',
     paddingVertical: 10,
@@ -612,16 +528,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
   },
-  footerActionText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  footerDivider: {
-    width: 1,
-    backgroundColor: colors.border,
-    marginVertical: 2,
-  },
+  footerActionText: {fontSize: 15, fontWeight: '700', color: colors.primary},
+  footerDivider: {width: 1, backgroundColor: colors.border, marginVertical: 2},
 });
 
 export default MedicationDetailScreen;
