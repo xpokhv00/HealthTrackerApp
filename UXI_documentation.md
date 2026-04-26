@@ -260,21 +260,29 @@ The second round produced no new functional issues — a signal that the core de
 
 ## Most Important Achieved Results
 
+**Finding the right idea — after two failed attempts**
+
+Before arriving at Health Tracker, the team went through two previous concepts that did not work out. First a recipe suggestion app, then a food tracking app. Neither was a bad idea in isolation — there were clear use cases for both. But the audience was too broad, the edge cases multiplied faster than we could handle them, the core message was hard to communicate clearly, and team alignment suffered as a result. We kept designing features without a sharp answer to the question: *who exactly is this for, and what is the one thing it needs to do?*
+
+Health Tracker gave us that answer. The personas were specific and recognizable. The core interaction — *remind the user to take something, as soon and as easily as possible* — was concrete enough to build everything else around. The idea had real impact, a testable audience, and a clear vision for how to design and build it. Getting to a focused, well-defined idea was itself one of the biggest achievements of the project.
+
+**A real product, not a Figma file**
+
+From the start, the goal was not to design something that *could* be built — it was to build it. Every design decision was constrained by what is actually possible to deliver to a user's phone. This meant learning what Android widgets can and cannot do before designing them, not after. It meant building the notification system, the PDF export, the cooldown timers — not drawing them.
+
+This required significantly more work than producing a polished prototype. But the result is that there is no gap between the design and the experience. What testers used is exactly what users would use. The widgets are colored, functional, informative, and live on a real home screen. The app is properly styled, covers the real requirements, and does what it says it does. It is not an abstract vision — it is a product.
+
+**The widgets**
+
+The home screen widgets are the part of the project we are most proud of. They are fully functional, visually consistent with the app, and genuinely useful in daily life. The medication timeline widget shows missed doses, the next scheduled dose with a progress bar, and today's completed doses — all without opening the app. The instant relief panel answers "can I take it now?" in a single glance. Both widgets went through a complete redesign after the first round of testing, and the final versions are the result of real feedback from real users on real devices.
+
+**From a wall of text to a readable product**
+
+The earliest versions of the app communicated primarily through text. Every state, every status, every piece of metadata was written out. Testing made it clear that users do not read — they scan, and they make decisions in seconds. The most significant design transformation across the project was replacing text with color, icons, and visual indicators without losing any informational content. The same data that previously required reading now communicates through shape and color alone. That shift — from text-heavy to visually guided — is the core design achievement of the project.
+
 **The as-needed medication panel**
 
-This is the interaction we are most proud of. The design answers a binary question — ready or not — with an immediate visual state, no reading required. When a medication is available, the card is white with a green "TAKE NOW" button. When it is in cooldown, the card is muted, shows a progress bar filling toward availability, and displays the exact remaining time. When multiple as-needed medications exist, the panel pages through them smoothly. The design is calm when nothing is urgent and attention-demanding when something needs action.
-
-**The home screen widget**
-
-Two states the user sees every day:
-- *Morning:* NEXT UP section shows the upcoming dose with a time-to-dose progress bar filling as the scheduled time approaches.
-- *Missed:* ACTION REQUIRED section appears in a warm red-orange, with the medication name and a rescue button. It cannot be missed.
-
-The widget uses the same color vocabulary as the app, so there is no translation needed between the two surfaces.
-
-**Consistent severity language**
-
-Symptoms are logged with a 1–10 severity. That number, and its color meaning, appears identically on the logging screen, the symptom card, the detail view, the history screen, and the PDF report. Green = mild (1–3), amber = moderate (4–6), red = severe (7–10). A user who has used the app for one day understands this language everywhere it appears.
+The design answers a binary question — ready or not — with an immediate visual state, no reading required. When a medication is available, the card is white with a green "TAKE NOW" button. When it is in cooldown, the card is muted, shows a progress bar filling toward availability, and displays the exact remaining time. The design is calm when nothing is urgent and impossible to misread when something needs action.
 
 **The doctor report**
 
@@ -298,32 +306,41 @@ Caregivers can assign any medication, symptom, or appointment to a named family 
 
 ## What Was the Biggest Challenge
 
-**Designing the widget under severe constraints.**
+**Finding the right idea.**
 
-Home screen widgets on Android cannot scroll freely, cannot use arbitrary layouts, and update only at intervals. Designing a useful, readable interface within these constraints was the hardest design problem we faced. Every piece of information had to be carefully chosen because space is fixed and nothing can be hidden behind a tap.
+The biggest challenge was not technical and not visual — it was conceptual. Two previous ideas were dropped before settling on Health Tracker. The time spent on those attempts was not wasted, but it was costly. The lesson learned: a project without a focused, specific audience and a single clear goal cannot produce good design, because there is no shared reference point for what "good" even means. The moment the idea crystallized, everything else — the personas, the features, the visual language, the testing — became faster and more decisive.
 
-The bigger challenge was making the widget feel like a natural extension of the app — same language, same hierarchy, same meaning — rather than a simplified afterthought. When a user sees green in the widget and green in the app, they should mean the same thing instinctively.
+**Making the design real, not theoretical.**
 
-**Balancing information density with clarity.**
+The commitment to ship a working product rather than a prototype created a constant pressure: every design decision had to survive contact with what the platform can actually do. Android widgets have hard constraints — fixed layout system, no arbitrary scrolling, limited update frequency. Designing within those constraints, rather than around them, required learning the platform before committing to the design. This is slower than designing freely in Figma, but it meant that the final design is exactly what the user gets. There is no version of the app that "would have been better if only we could build it."
 
-Health data is inherently complex. The temptation was to show everything — all medications, all symptoms, full history, every detail. The real design work was deciding what *not* to show, and trusting that showing less, more clearly, serves the user better than showing more, confusingly.
+**Turning text into a visual language.**
+
+The earliest versions of the app communicated through text. Every status was written out. Transforming that into a design where color, position, and shape carry the meaning — without losing information — took multiple iterations and two rounds of testing to get right.
 
 ---
 
 ## Experience Gained From the Project
 
-**About UI design:**
-- The most important design question is not "how should this look?" but "what does the user need to know right now?" Everything else follows from that.
-- Color is communication, not decoration. A consistent color system across an entire product builds user confidence — they learn the language once and it works everywhere.
-- Constraints produce better design. The widget's severe space limitations forced clarity that improved the whole app's visual language.
+**The most important thing we learned: how to simplify without losing meaning.**
+
+The core design challenge of the project was taking a dense, text-heavy interface and making it instantly readable. The solution was not removing information — it was encoding it differently. Status became color. Type became shape. Urgency became position. By the end, the same informational content that previously required reading now communicates in a glance. That transformation is the main design skill this project taught.
+
+**Idea selection matters more than execution speed.**
+
+The team spent the most time — across the whole project — on finding the right idea. Not building, not designing: deciding what to build. This felt like a delay at the time. In retrospect, it was the most valuable part of the process. A sharp idea with clear personas makes every subsequent decision easier and faster. A vague idea makes every decision a negotiation.
+
+**Design and build in parallel.**
+
+Starting the real implementation alongside the Figma work, rather than after it, exposed technical constraints early enough to incorporate them into the design. This is how we avoided designing widgets that the platform could not deliver.
 
 **About users:**
 - Users do not read. They scan. If the meaning is not communicated by shape, color, or position before the user reads a word, it will be missed.
-- The user's mental model of their own health is surprisingly fragile. Small design decisions — like surfacing "you missed a dose" visually rather than burying it in a list — have real behavioral impact.
+- Testing with real users on real devices found things that no amount of internal review would have caught. The feedback that drove the most important changes — the home screen redesign, the widget rebuild, the color distinction between medication types — all came from external testers, not from the team.
 
-**About working as a team on a design project:**
-- Agreeing on visual language early saves enormous time. When one person uses green for "active" and another uses green for "completed," the product becomes incoherent.
-- Design decisions need owners. Too many opinions without resolution leads to inconsistency, not quality.
+**About team coordination on a design project:**
+- Agreeing on visual language early saves enormous time. Inconsistency across screens is the most visible symptom of poor coordination.
+- The team works faster when one person owns a decision. Too many open opinions without resolution produces inconsistency, not quality.
 
 ---
 
