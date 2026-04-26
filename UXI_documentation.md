@@ -383,9 +383,12 @@ The project produced a real, working product — not a prototype, not a Figma fi
 
 - **Preserve** the freedom to define your own problem — projects with real personal motivation produce meaningfully better design.
 - **Add a checkpoint** after the first idea pitch where the audience reviews whether the target user is specific enough. A broad audience is the most common reason a project stalls — it should be caught early, not after two failed iterations.
+- **Reconsider the tone of feedback during idea reviews.** Several rounds of criticism felt unprofessional and demotivating — strong rejections that, when pushed for deeper justification, reduced to "test it on real users." The same concerns raised by the reviewer were not raised by any actual test user. Criticism that cannot be backed by reasoning beyond gut feeling creates stress and chaos within the team, and leaves students feeling that no matter the quality of their work, the feedback will not reflect it. The role of a reviewer should be to help the team find the right direction, not to dismantle their confidence.
+- **Reduce team size to 2–3 people.** For a project of this scope and nature, a team of 5 creates more coordination overhead than it resolves. Smaller teams align faster, divide work more naturally, and produce more coherent results.
 - **Stress** the difference between features and design. Adding more features is not progress. Better answers to user needs is progress.
 - **Recommend** requiring at least two rounds of external user testing with written findings — it produces the biggest design improvements per hour invested.
 - **Warn** that platform-native components (widgets, notifications, system share sheets) behave very differently from in-app UI and require separate design thinking — students should factor this into their scope early.
+- The overall process — the structure, the deliverables, the freedom of topic — is clear and acceptable. The issues above are specific, not systemic.
 
 ---
 
