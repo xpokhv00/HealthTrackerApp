@@ -356,41 +356,44 @@ Starting the real implementation alongside the Figma work, rather than after it,
 
 ## Autoevaluation
 
-**Problem Selection: 80%**
-The problem is real, affects most people at some point, and has clear design opportunity — most existing solutions are either too clinical or too passive. The multi-person / caregiver scope was slightly too broad and diluted focus.
+**Problem Selection: 70%**
+It took three attempts to find the right problem. The first two ideas — a recipe suggestion app and a food tracker — had clear use cases but audiences too broad to design for well. Health Tracker gave us a specific, testable audience and a focused goal. The final problem selection is strong, but the score reflects the cost of getting there and the time lost on earlier iterations.
 
-**Problem Analysis: 65%**
-Personas and use cases were well-defined and genuinely drove design decisions. External user research was limited — most testing was done within the team. A structured study with real users outside the project would have revealed more.
+**Problem Analysis: 75%**
+Personas were specific and grounded in real scenarios across the 18–35 age group. The young parent persona was added mid-project after a tester raised it — which shows the analysis was responsive rather than fixed. Requirements were derived directly from personas and drove concrete design decisions. The main limitation is that formal research methods were not used; insights came from conversations and testing rather than structured analysis.
 
-**Testing: 55%**
-Tests were task-based and produced actionable findings. The sample was small and not fully independent. No quantitative usability metrics were collected. The informal doctor review of the report was valuable but not systematic.
+**Testing: 75%**
+Two rounds of testing with real external users on a real installable Android app is a meaningful standard. The 5-minute walkthrough video made distribution efficient. Live sessions with some testers added depth. Every major design change in the project — the home screen redesign, the widget rebuild, the color distinction, multi-person support, the notes restructuring — was driven by specific tester feedback. The limitation is sample size and the absence of quantitative metrics.
 
-**UI Design: 80%**
-The design system is coherent and well-applied. The widget UI and as-needed panel are strong. Some secondary screens have minor inconsistencies. The onboarding experience could be more polished.
+**UI Design: 85%**
+The design system is consistent and well-enforced across every surface: screens, cards, widgets, notifications, and the PDF report all speak the same visual language. The transformation from a text-heavy interface to a color- and icon-driven one is the most significant design achievement. The widgets are functional, informative, and visually consistent with the app. The main gap is that some secondary screens received less attention than the core flows.
 
-**Use of Resources: 70%**
-We built on established design patterns for mobile health interfaces and did not reinvent navigation or interaction conventions. The color and severity language draws on familiar traffic-light conventions that users already understand.
+**Use of Resources: 75%**
+The traffic-light color convention (green/amber/red) is familiar to users and was applied deliberately rather than invented from scratch. Established mobile design patterns were followed for navigation and layout. The most original work — the widget design and the PRN cooldown interaction — was built without a direct reference because nothing comparable existed to reference.
 
-**Team Cooperation: 70%**
-The team maintained a shared product vision throughout. Some design inconsistencies crept in from parallel work without sufficient review. Regular design reviews caught most of these but not all.
+**Team Cooperation: 55%**
+The early stages of the project were marked by poor coordination and unclear ownership. Two ideas were abandoned partly because the team could not align on direction, audience, or scope — discussions were circular and decision-making was slow. A significant amount of time was lost as a result. Progress depended heavily on the project lead stepping in to force decisions and redirect work. As the project found its focus with Health Tracker, cooperation improved noticeably — roles became clearer, contributions more consistent, and the team built momentum through the testing and iteration phases. By the final stages the team was functioning well, but the early losses were real and the score reflects the full arc.
 
-**Overall Impression: 78%**
-The product solves a real problem with a coherent design language and a standout feature (the widget + PRN cooldown system). The doctor report creates genuine utility from otherwise passive data. With more time, external usability testing and a more refined onboarding would significantly improve the result.
+**Overall Impression: 82%**
+The project produced a real, working product — not a prototype, not a Figma file. Every design decision was tested against what the platform can actually deliver. The widgets are live on a real home screen. The PDF exports. The notifications fire. The result is something a user could install today and benefit from. The score reflects genuine pride in the outcome alongside honest recognition that the idea selection process was inefficient and team coordination required more overhead than ideal.
 
 ---
 
 ## Recommendation for Assigning Future Projects
 
 - **Preserve** the freedom to define your own problem — projects with real personal motivation produce meaningfully better design.
+- **Add a checkpoint** after the first idea pitch where the audience reviews whether the target user is specific enough. A broad audience is the most common reason a project stalls — it should be caught early, not after two failed iterations.
 - **Stress** the difference between features and design. Adding more features is not progress. Better answers to user needs is progress.
 - **Recommend** requiring at least two rounds of external user testing with written findings — it produces the biggest design improvements per hour invested.
-- **Warn** that platform-native components (widgets, notifications, system share sheets) behave very differently from in-app UI and require separate design thinking.
+- **Warn** that platform-native components (widgets, notifications, system share sheets) behave very differently from in-app UI and require separate design thinking — students should factor this into their scope early.
 
 ---
 
 ## Recommendation for Future Students
 
 - **Pick a problem you have personally experienced.** You will make better design decisions when you are also the user. You will also sustain motivation through the difficult parts.
+- **Narrow your audience before you start.** "Everyone who eats food" or "anyone who wants to be healthy" is not a user. A specific person with a specific frustration is. If you cannot describe your user in one sentence with no qualifiers, the idea is not ready. We lost significant time on two ideas that failed this test.
+- **Be willing to restart.** Abandoning a weak idea early is not failure — it is the right decision. The cost of a bad idea grows every week you stay with it.
 - **Start with the user's question, not the feature list.** Write down the three most important questions your user needs answered. Design backwards from those. Do not design a screen and then figure out what it answers.
 - **Test early with people outside your team.** Builders are blind to their own product's confusion. Someone seeing it for the first time in thirty seconds will find what you missed in thirty hours.
 - **Agree on a color and spacing system before building anything.** Inconsistency is the most visible sign of poor design coordination, and it is the hardest thing to fix at the end.
