@@ -94,18 +94,41 @@ Logging symptoms daily feels pointless in the moment. The doctor report makes th
 
 ## Used Technologies and Tools
 
-**Design tools**
-- Figma — interface design, component exploration, layout wireframing
+**Design & prototyping**
+- **Figma** — UI design, component library, layout wireframing, visual prototyping. Used to define the full design system: color tokens, typography scale, spacing, card variants, and widget layouts before any code was written.
 
-**Platform**
-- Mobile application (Android)
-- Home screen widgets (native Android, displayed without opening the app)
+**Frontend framework**
+- **React Native (TypeScript)** — cross-platform mobile framework that compiles to native Android. Allowed the team to build the full UI in TypeScript with a component-based architecture, while still being able to drop into native Android code where React Native has no support (widgets).
+- **React Navigation** — stack and tab-based navigation between screens
+- **React Native Vector Icons** — icon library (Ionicons set) used throughout the UI
+
+**State management & persistence**
+- **Zustand** — lightweight state management. Each data domain (medications, appointments, symptoms, routine doses) has its own store. Simple, no boilerplate, easy to share state across screens.
+- **AsyncStorage** — persistent key-value storage on the device. All user data is saved locally — no server, no account, no network required.
+
+**Notifications**
+- **Notifee** — rich local notification library for React Native. Used for: daily 7am medication summary, per-medication dose reminders, and 24-hour pre-appointment alerts with preparation details. Notifications fire reliably in background and killed app state.
+
+**Widgets (Android native)**
+- **Android AppWidgetProvider** — native Android widget framework. Widgets run entirely outside the React Native runtime, rendered by the OS using native XML layouts and updated via broadcast events.
+- **RemoteViews** — Android API for constructing widget UI. All widget layouts (medication timeline, instant relief panel) are defined in Android XML and populated programmatically.
+- A custom data sync layer serializes the app's Zustand state into a format the widget provider can read, keeping widget data in sync whenever the app state changes.
+
+**PDF generation & sharing**
+- **react-native-html-to-pdf** — generates a PDF on-device from an HTML string. The doctor report is built as structured HTML and converted to a standard A4 PDF file.
+- **react-native-share** — opens the native Android share sheet, allowing the PDF to be sent via email, messaging apps, or saved to files.
+
+**Development tools**
+- **Git / GitHub** — version control and team collaboration
+- **TypeScript** — static typing across the entire codebase, enforcing consistent data models between stores, components, and services
+- **Metro** — React Native JavaScript bundler
 
 **Key capabilities delivered to the user**
-- Offline-first: all data stays on the device, no account required, no internet dependency
-- Push notifications: medication reminders, daily morning summary, pre-appointment alerts
-- PDF export: structured health report shareable via any app on the device (email, messaging, print)
-- Real-time countdown: cooldown timers update live on the widget and in-app
+- Offline-first: all data stays on the device, no account or internet required
+- Home screen widgets: glanceable medication status without opening the app
+- Push notifications: dose reminders, daily summary, pre-appointment alerts
+- Real-time countdown: cooldown timers update live on both the widget and in-app
+- PDF export: structured health report generated on-device and shareable in one tap
 
 ---
 
