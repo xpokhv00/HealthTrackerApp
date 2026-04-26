@@ -296,11 +296,11 @@ Caregivers can assign any medication, symptom, or appointment to a named family 
 
 ## Distribution of the Work in the Team
 
-- **Vsevolod Pokhvalenko** — overall UI architecture and design system, medication tracking feature (both types), home screen widgets design and integration, PDF report design, notification design, visual consistency across all screens
-- **Serigne Mansour Diop** — symptom tracking UI, symptom detail and trend visualization, category system
+- **Vsevolod Pokhvalenko** — project lead, overall UI architecture and design system, medication tracking feature (both types), home screen widgets design and integration, PDF report design, notification design, visual consistency across all screens
+- **Serigne Mansour Diop** — Figma design and prototyping, symptom tracking UI, symptom detail and trend visualization, category system
 - **Arda Firat Gok** — appointment management screens, preparation checklist design, appointment notification design
 - **Serkan Altinbas** — doctor report screen UI, history screen, report data presentation
-- **Arturs Ungurs** — onboarding flow, home screen layout, medication card component, testing coordination
+- **Arturs Ungurs** — Figma design and prototyping, home screen layout, medication card component, testing coordination
 
 ---
 
