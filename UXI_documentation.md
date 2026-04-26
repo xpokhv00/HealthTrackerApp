@@ -134,23 +134,38 @@ Logging symptoms daily feels pointless in the moment. The doctor report makes th
 
 ## Design Preliminaries
 
-**Starting point: what does the user actually need to know?**
+**Process: iterative, parallel, grounded in real use**
 
-We began by listing the questions a user asks when they interact with health data:
+The design process was not linear. After agreeing on the core idea — a health tracker that makes taking medication as frictionless as possible — the team split into two parallel streams: one group began sketching and designing screens in Figma, while another started building the functional app. This meant that by the time the first design iteration was ready to review, there was also a working prototype to test it against. The two streams informed each other continuously.
+
+**The central insight that shaped everything**
+
+Early on we asked: what is the single most important thing the app needs to do? The answer was: *remind the user — as soon and as easily as possible — that they need to take something.* Not record it. Not analyze it. Remind and confirm.
+
+This insight led directly to two features that go beyond the app itself:
+- **Notifications** — proactive reminders that reach the user without them opening anything
+- **Home screen widgets** — persistent, glanceable status visible the moment the user looks at their phone
+
+The app itself became secondary for daily use. The widget and notification are the product for routine users. The app is where you set things up, log symptoms, and prepare for a doctor visit.
+
+**Starting questions we designed from**
+
+Before any wireframe was drawn, we listed the questions a user needs answered:
 1. Did I take my medication today?
 2. Can I take another dose right now?
 3. What do I need to do before my appointment?
 4. What have my symptoms been like recently?
 5. What do I tell my doctor?
 
-Every screen in the app was designed to answer one of these questions as directly as possible. If a screen did not answer one of them, it did not belong.
+Every screen was required to answer at least one of these directly. Screens that did not answer any of them were cut.
 
 **Personas**
 
-The four personas (Lukáš, Karolína, Marek & Tereza, Eliška) described above drove specific design requirements:
-- Lukáš's scenario → simple daily check-off, non-intrusive reminders, widget as primary surface
+The initial three personas (student, runner, allergy sufferer) covered individual users well. During the first round of testing, a tester who was a new parent raised a scenario we had not fully considered: tracking medication for a baby, under sleep deprivation, with two caregivers sharing responsibility. This led to the addition of the young parent persona and drove the multi-person support feature. Personas were not fixed upfront — they evolved with the project.
+
+- Lukáš's scenario → simple daily check-off, non-intrusive reminders, widget as the primary surface
 - Karolína's scenario → routine supplement tracking with timing awareness, exportable log for doctor
-- Marek & Tereza's scenario → multi-person support, caregiver overview, baby-safe cooldown enforcement
+- Marek & Tereza's scenario → multi-person support, shared caregiving, cooldown safety for infant dosing
 - Eliška's scenario → PRN cooldown UI, instant "can I take it?" answer without opening the app
 
 **Design requirements from user analysis**
@@ -158,45 +173,54 @@ The four personas (Lukáš, Karolína, Marek & Tereza, Eliška) described above 
 | Requirement | Source |
 |---|---|
 | Answer "can I take it?" without opening the app | Eliška, Marek & Tereza |
-| Fast daily check-off, non-disruptive reminders | Lukáš |
-| Track timing between doses of interacting supplements | Karolína |
-| Distinguish data for multiple family members (baby) | Marek & Tereza |
-| Export health log for doctor visit | Karolína |
+| Proactive reminders that reach the user before they forget | Lukáš, all personas |
+| Fast daily check-off, non-disruptive | Lukáš |
+| Track timing between interacting supplements | Karolína |
+| Distinguish data for multiple family members | Marek & Tereza |
+| Export health log for a doctor visit | Karolína |
 | Work offline, no account | All personas |
 | Scannable in under 5 seconds | All personas |
 
 **Visual hierarchy decisions**
-- The most urgent item always appears at the top of any list (missed dose before next scheduled, most severe symptom first)
+- The most urgent item always appears at the top (missed dose before next scheduled, most severe symptom first)
 - State is communicated by color before text — the user should know the meaning before they read the label
-- Buttons only appear when an action is available — a "TAKE" button on a medication in cooldown would be confusing and potentially dangerous
+- Buttons only appear when an action is available — a "TAKE" button on a medication in cooldown is absent by design, not just disabled
 
 ---
 
 ## Testing
 
-**1. First-use navigation test**
+**Approach**
 
-Three participants (not team members) were given the app with no explanation and asked to: find out when they could next take a painkiller; log a symptom; find their upcoming appointment.
+Testing was structured in two rounds. The primary method was distributing a real, installable Android application (.apk) to testers — not mockups, not screenshots. Testers used the actual product on their own devices.
 
-*Findings:* The PRN cooldown state was understood immediately without instruction — the visual green/grey distinction did the work. The symptom log was found quickly. The appointment preparation checklist was discovered only after prompting — it was not visible enough on the appointment detail screen. → The checklist section was moved up and given a distinct visual container.
+To make testing accessible and consistent, we produced a **self-explanatory 5-minute video** walking through all functionality. This allowed testers to understand the app on their own time, without needing a guided session. For some testers, a live meeting was scheduled where the team walked through each feature together and observed reactions and confusion in real time. For the majority, the video and app were shared and feedback was collected through chat.
 
-**2. Widget comprehension test**
+**Round 1 — Functional testing and core usability**
 
-Participants were shown a screenshot of the widget for five seconds, then asked to describe what it told them.
+Distributed the app to a group of external testers across the target age group (students, one young parent, one allergy sufferer). Testers were asked to use the app naturally for several days and report confusion, missing functionality, and anything that felt unnecessary.
 
-*Findings:* "Something is missed" (ACTION REQUIRED section) was identified by all participants. The NEXT UP countdown was understood by most. The DONE TODAY list was noticed but its significance (adherence confirmation) was not always clear. → Added a subtle green background to DONE TODAY to reinforce the positive meaning.
+*Key findings:*
 
-**3. Information hierarchy review**
+- The PRN cooldown state (green = ready, grey = waiting) was understood without explanation by all testers. The visual distinction did the work.
+- The appointment preparation checklist was consistently missed — it was buried in the detail screen. → Moved to a more prominent position with a distinct visual container.
+- Several testers said the app had too much information on some screens — they wanted to get in and out quickly, not read. → Identified as the main theme for round 2.
+- A tester who was a new parent described the double-dosing risk for their infant in detail. This scenario was not in the original personas. → Multi-person support was added, and the young parent persona was formally introduced.
+- The widget in its first version was considered "nice but not very useful" — it showed too much at once without clear visual priority. → Flagged for complete redesign in round 2.
 
-The team reviewed every screen asking: what is the first thing the user needs to see? Is it actually the first thing visible?
+**Round 2 — Polish and widget redesign**
 
-*Findings:* On the medications list, as-needed medications in cooldown were appearing before ready medications because of sort order. A user looking for something they can take had to scan past unavailable options. → Sort order changed: READY always before ON COOLDOWN.
+The second round focused on two things: removing clutter from the app, and rebuilding the widgets to be genuinely useful rather than decorative.
 
-**4. Report usefulness review**
+*Changes driven by round 2 feedback:*
 
-The doctor report draft was shown to one team member's family doctor (informally). Feedback: the medication section was useful; the symptom section needed clearer time anchoring ("since when?").
-
-*Finding:* Report window selector (7 / 14 / 30 days / all) was added to the report, and the time range is now stated explicitly at the top of the exported PDF.
+- **Information density reduced across screens.** Secondary metadata (fields that testers never read) was hidden or removed. The guiding principle became: if a tester did not notice it was gone, it should not be there.
+- **Widgets rebuilt from scratch.** The first widget version tried to show everything. The redesigned widgets answer one question each:
+  - *My Meds Timeline* widget: what is my next dose, what did I miss, what did I already take today?
+  - *Instant Relief Panel* widget: can I take my as-needed medication right now?
+  Each widget state is immediately readable without any reading — color and layout carry the meaning.
+- **Sort order corrected.** As-needed medications that are READY now appear before those on cooldown. Testers confirmed this matched their mental model: "show me what I can do, then show me what I'm waiting for."
+- The second round produced no new functional issues — it was entirely refinement, which was taken as a signal that the core design was sound.
 
 ---
 
