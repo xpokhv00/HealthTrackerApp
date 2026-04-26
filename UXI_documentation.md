@@ -31,26 +31,30 @@ People manage their health reactively — they remember a medication only when s
 
 **Who the user is**
 
-The user is not a health enthusiast. They are an ordinary person for whom managing medications and appointments is a background obligation, not a hobby. They are often rushed, sometimes anxious, and they interact with the app in moments of need — not at a comfortable desk with full attention.
+The primary audience is adults aged 18–35 — students, young professionals, new parents — for whom health management is a background obligation competing with a busy life. They are comfortable with smartphones and expect information instantly, but they are not motivated by health tracking as a hobby. They open the app in a specific moment of need: before taking something, before a doctor visit, in the middle of a sleepless night with a baby.
 
-Three user profiles shaped our design:
+Four user profiles shaped our design:
 
-**Marta, 42 — working parent and caregiver**
-Manages her own blood pressure medication and her son's occasional antihistamine. Her biggest frustration: she cannot remember if she already gave her son his dose. She needs a fast, unambiguous answer, not a log to scroll through.
+**Lukáš, 22 — university student, supplements for performance**
+Takes magnesium in the evening, vitamin D in the morning, and omega-3 with meals. Not medical prescriptions — but easy to forget on a chaotic student schedule. His frustration: he never remembers whether he took the evening magnesium before bed. He does not want a complex app. He wants a quick check-off and a reminder that does not annoy him during lectures.
 
-**Tomáš, 67 — chronic condition, regular specialist visits**
-Sees his cardiologist every three months. When asked "what symptoms have you had since our last visit?" he draws a blank. He would benefit enormously from a structured summary — but he is not going to manually compile one.
+**Karolína, 27 — recreational runner, pre/post-workout supplements**
+Takes iron and B12 daily, and uses an electrolyte supplement on training days. Some of these interact — she was told by her doctor not to take iron and calcium together. She needs to track what she took and when, and she wants to bring a clear log to her next sports medicine check-up.
 
-**Jana, 29 — PRN medication user**
-Takes a low-dose medication occasionally, with a strict minimum interval between doses. She currently does mental arithmetic or checks her recent calls to estimate the time. She wants a clear, immediate answer: ready or not.
+**Marek & Tereza, 29 and 31 — new parents**
+Their 8-month-old daughter has a prescribed vitamin D drop daily and an antihistamine as needed for a mild allergy. Between sleep deprivation and shared caregiving, they frequently cannot remember who gave the last dose or when. The risk of double-dosing a baby is real and stressful. They need one shared source of truth — fast to check, impossible to misread.
+
+**Eliška, 24 — seasonal allergy sufferer**
+Takes a daily antihistamine from March through June. On bad pollen days she can also take a short-acting relief tablet, but no sooner than 8 hours after the last one. She currently guesses the timing. She wants a clear answer — *can I take another one now?* — without thinking about it.
 
 **How they use the app**
 
-1. **The morning glance** — Without unlocking the phone, the user sees on the home screen widget which medications are due today and what the next scheduled dose is.
-2. **The "can I take it?" check** — User opens the as-needed panel (widget or app), sees green = take now, grey with a countdown = wait. Decision made in two seconds.
-3. **Logging a symptom** — After a difficult day, the user adds a symptom with a severity score. Takes fifteen seconds. Over time this builds a picture.
-4. **Pre-appointment preparation** — A notification arrives the evening before. The user opens the app, reviews the checklist: fasting requirements, documents to bring, questions to ask.
-5. **The doctor visit** — User exports a one-page PDF summary. The doctor receives: current medications, recent symptoms with frequency and severity, appointment history. No verbal recall required.
+1. **The morning glance** — Without unlocking the phone, the widget shows which supplements or medications are due. Lukáš confirms his vitamin D in ten seconds before leaving for class.
+2. **The post-workout check-off** — Karolína logs her iron tablet after training. The app notes the time so she knows when she can take calcium later.
+3. **The "can I give it to her?" check** — Marek picks up the baby at 2am, sees she seems uncomfortable. He checks the widget: the antihistamine cooldown timer shows 4 hours remaining. He knows not to give another dose.
+4. **The "can I take it?" check** — Eliška checks the Instant Relief Panel mid-afternoon. Green card = take now. No arithmetic, no guessing.
+5. **The doctor visit** — Karolína exports the PDF before her sports medicine appointment. The doctor sees exactly what she has been taking, how consistently, and any symptoms she logged.
+6. **Pre-appointment preparation** — A notification arrives the day before. The app shows the preparation checklist: bring previous blood results, fast from midnight.
 
 ---
 
@@ -120,19 +124,21 @@ Every screen in the app was designed to answer one of these questions as directl
 
 **Personas**
 
-The three personas (Marta, Tomáš, Jana) described above drove specific design requirements:
-- Marta's scenario → multi-person support, fast caregiver overview
-- Tomáš's scenario → doctor report, symptom history, appointment preparation
-- Jana's scenario → PRN cooldown UI, the widget as primary surface
+The four personas (Lukáš, Karolína, Marek & Tereza, Eliška) described above drove specific design requirements:
+- Lukáš's scenario → simple daily check-off, non-intrusive reminders, widget as primary surface
+- Karolína's scenario → routine supplement tracking with timing awareness, exportable log for doctor
+- Marek & Tereza's scenario → multi-person support, caregiver overview, baby-safe cooldown enforcement
+- Eliška's scenario → PRN cooldown UI, instant "can I take it?" answer without opening the app
 
 **Design requirements from user analysis**
 
 | Requirement | Source |
 |---|---|
-| Answer "can I take it?" without opening the app | Jana, Marta |
-| Show preparation checklist before appointment | Tomáš |
-| Export health summary for doctor | Tomáš |
-| Distinguish data for multiple family members | Marta |
+| Answer "can I take it?" without opening the app | Eliška, Marek & Tereza |
+| Fast daily check-off, non-disruptive reminders | Lukáš |
+| Track timing between doses of interacting supplements | Karolína |
+| Distinguish data for multiple family members (baby) | Marek & Tereza |
+| Export health log for doctor visit | Karolína |
 | Work offline, no account | All personas |
 | Scannable in under 5 seconds | All personas |
 
