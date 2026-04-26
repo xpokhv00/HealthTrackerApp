@@ -196,31 +196,65 @@ Testing was structured in two rounds. The primary method was distributing a real
 
 To make testing accessible and consistent, we produced a **self-explanatory 5-minute video** walking through all functionality. This allowed testers to understand the app on their own time, without needing a guided session. For some testers, a live meeting was scheduled where the team walked through each feature together and observed reactions and confusion in real time. For the majority, the video and app were shared and feedback was collected through chat.
 
+---
+
 **Round 1 — Functional testing and core usability**
 
 Distributed the app to a group of external testers across the target age group (students, one young parent, one allergy sufferer). Testers were asked to use the app naturally for several days and report confusion, missing functionality, and anything that felt unnecessary.
 
-*Key findings:*
+*Feedback and changes:*
 
-- The PRN cooldown state (green = ready, grey = waiting) was understood without explanation by all testers. The visual distinction did the work.
-- The appointment preparation checklist was consistently missed — it was buried in the detail screen. → Moved to a more prominent position with a distinct visual container.
-- Several testers said the app had too much information on some screens — they wanted to get in and out quickly, not read. → Identified as the main theme for round 2.
-- A tester who was a new parent described the double-dosing risk for their infant in detail. This scenario was not in the original personas. → Multi-person support was added, and the young parent persona was formally introduced.
-- The widget in its first version was considered "nice but not very useful" — it showed too much at once without clear visual priority. → Flagged for complete redesign in round 2.
+> *"There's a lot of information here, but it's not obvious what the next step is."*
 
-**Round 2 — Polish and widget redesign**
+The home screen was presenting data without direction. The user had to figure out what to do next themselves. → **Home screen was redesigned into a decision screen** with a clear primary action always visible: the most urgent medication state leads the view, and the next step is never ambiguous.
 
-The second round focused on two things: removing clutter from the app, and rebuilding the widgets to be genuinely useful rather than decorative.
+> *"At the moment I think it overall has too much text, simplify it by using icons."*
 
-*Changes driven by round 2 feedback:*
+Screens were heavily text-based, which slowed scanning and made the interface feel clinical. → **Text concentration was reduced across all screens.** Icons replaced labels where meaning was clear, colors were introduced to carry status information, and visual indicators replaced descriptive text wherever possible.
 
-- **Information density reduced across screens.** Secondary metadata (fields that testers never read) was hidden or removed. The guiding principle became: if a tester did not notice it was gone, it should not be there.
-- **Widgets rebuilt from scratch.** The first widget version tried to show everything. The redesigned widgets answer one question each:
-  - *My Meds Timeline* widget: what is my next dose, what did I miss, what did I already take today?
-  - *Instant Relief Panel* widget: can I take my as-needed medication right now?
-  Each widget state is immediately readable without any reading — color and layout carry the meaning.
-- **Sort order corrected.** As-needed medications that are READY now appear before those on cooldown. Testers confirmed this matched their mental model: "show me what I can do, then show me what I'm waiting for."
-- The second round produced no new functional issues — it was entirely refinement, which was taken as a signal that the core design was sound.
+> *"You could separate for example the medicine in two colours to see in one look what is what."*
+
+Routine and as-needed medications were visually identical, forcing users to read the type label on every card. → **Two distinct colors were introduced for medication types:** blue for routine, teal for as-needed. Icons and visual indicators reinforced the distinction, so the difference is readable at a glance without reading any text.
+
+> *"This would be useful for my kids too, but right now everything feels mixed together."*
+
+A tester who was a new parent could not separate their own medications from their child's — everything appeared in one undifferentiated list. This was a scenario not covered in the original personas. → **A "For" field was added to medications, symptoms, and appointments**, allowing each entry to be assigned to a named family member. Filters throughout the app — including the report — reflect the selected person. The young parent persona was formally added to the design.
+
+> *"I didn't really understand what kind of information belongs in notes."*
+
+The free-text "notes" field was too open — testers were unsure what to put in it, so they either left it blank or used it inconsistently. → **Notes were split into two structured fields:** "Purpose" (what the medication is for) and "Usage instructions" (e.g. before food, with water, before bed), giving users clear prompts for each type of information.
+
+> *"It's fine for recording things, but I don't really get any insight from it."*
+
+The symptom log felt like a data entry form with no payoff — users logged entries but saw no pattern or summary. → **Symptom screens were redesigned** to include grouping by symptom name, trend visualization over time, severity color coding, and category badges, so the data tells a story rather than just accumulating.
+
+---
+
+**Round 2 — Polish, clarity, and widget redesign**
+
+The second round focused on two themes that emerged from round 1: reducing clutter and making the widgets genuinely useful. No new functional issues were found — round 2 was entirely refinement.
+
+*Feedback and changes:*
+
+> *"I can see the data, but it's hard to understand the bigger picture or over what period this is."*
+
+The report screen showed data without context — no summary, no time frame stated explicitly. → **Report period selector was added** (7 / 14 / 30 days / all), along with a summary metrics block at the top showing symptoms logged, average severity, and routine adherence percentage. The selected period is now stated explicitly in both the screen and the exported PDF.
+
+> *"The appointment widget felt too static and did not attract enough attention."*
+
+An earlier widget design for appointments displayed static information that testers ignored. It did not create any sense of urgency. → **The appointment widget was replaced with a proactive notification** sent 24 hours before a visit, containing the doctor's name, visit type, time, location, and preparation checklist. A notification demands attention; a static widget does not.
+
+> *"I'd like a reminder in the morning, so I don't forget to take my medications with me when I leave home."*
+
+Testers wanted to be reminded of the day's medications before leaving the house, not only at the scheduled time of each dose. → **A daily morning overview notification was added**, sent at 7am, summarising all medications scheduled for the day. Testers confirmed this matched the moment they actually needed the information.
+
+> **Widget redesign.** The first widget version tried to show too much at once with no clear visual priority. Testers described it as "busy." → **Both widgets were rebuilt from scratch** around a single focused question each:
+> - *My Meds Timeline:* what is missed, what is next, what is done today?
+> - *Instant Relief Panel:* can I take my as-needed medication right now?
+>
+> Each state is immediately readable through color and layout alone — no reading required. The second round confirmed that testers understood both widgets correctly without any explanation.
+
+The second round produced no new functional issues — a signal that the core design from round 1 was sound, and that the remaining work was about clarity and confidence, not structure.
 
 ---
 
