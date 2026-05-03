@@ -99,11 +99,11 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
                 val chipId = CHIP_IDS[i]
 
                 if (ready) {
-                    views.setTextViewText(chipId, "✓  ${CHIP_LABELS[i]}")
+                    views.setTextViewText(chipId, "☑  ${CHIP_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_ready)
                     views.setTextColor(chipId, 0xFF4C7EFF.toInt())
                 } else {
-                    views.setTextViewText(chipId, "–  ${CHIP_LABELS[i]}")
+                    views.setTextViewText(chipId, "☐  ${CHIP_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_pending)
                     views.setTextColor(chipId, 0xFF374151.toInt())
                 }
