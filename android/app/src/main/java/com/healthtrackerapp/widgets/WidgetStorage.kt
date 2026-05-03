@@ -77,6 +77,7 @@ object WidgetStorage {
             location = obj.optString("location"),
             dayOfWeek = obj.optString("dayOfWeek"),
             dateTimeText = obj.optString("dateTimeText"),
+            timeText = obj.optString("timeText"),
             recommendations = buildList {
                 val arr = obj.optJSONArray("recommendations") ?: JSONArray()
                 for (i in 0 until arr.length()) {

@@ -28,6 +28,7 @@ export type AppointmentWidgetData = {
   location: string;
   dayOfWeek: string;
   dateTimeText: string;
+  timeText: string;
   recommendations: string[];
   hoursUntil: number;
   appointmentId: string;

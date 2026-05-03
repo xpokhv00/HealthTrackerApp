@@ -50,6 +50,7 @@
 
     <!-- ROW 2: Hero block -->
     <LinearLayout
+            android:id="@+id/appt_hero_block"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -87,6 +88,7 @@
 
     <!-- Divider -->
     <TextView
+            android:id="@+id/appt_divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginBottom="12dp"
@@ -107,6 +109,7 @@
 
     <!-- ROW 3: Prep checklist items -->
     <LinearLayout
+            android:id="@+id/appt_checklist_block"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">

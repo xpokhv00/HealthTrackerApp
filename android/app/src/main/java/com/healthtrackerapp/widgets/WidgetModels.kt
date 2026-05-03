@@ -25,6 +25,7 @@ data class AppointmentWidgetData(
     val location: String,
     val dayOfWeek: String,
     val dateTimeText: String,
+    val timeText: String,
     val recommendations: List<String>,
     val hoursUntil: Int,
     val appointmentId: String

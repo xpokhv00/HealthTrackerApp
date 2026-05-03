@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.view.View
 import android.widget.RemoteViews
 import com.healthtrackerapp.R
 import com.healthtrackerapp.widgets.WidgetActionReceiver
@@ -45,25 +46,31 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
 
             if (data == null) {
                 views.setTextViewText(R.id.appt_urgency_pill, "NO UPCOMING APPOINTMENT")
-                views.setTextViewText(R.id.appt_hero_title, "—")
-                views.setTextViewText(R.id.appt_hero_time, "")
-                views.setTextViewText(R.id.appt_hero_sub, "Add an appointment in the app")
                 views.setTextViewText(R.id.appt_cta_zone, "OPEN APP")
+                views.setOnClickPendingIntent(R.id.appt_cta_zone, launchPending)
                 applyPillDistant(views)
-                applyChipsPending(views)
+                views.setViewVisibility(R.id.appt_hero_block, View.GONE)
+                views.setViewVisibility(R.id.appt_divider, View.GONE)
+                views.setViewVisibility(R.id.appt_checklist_label, View.GONE)
+                views.setViewVisibility(R.id.appt_checklist_block, View.GONE)
                 manager.updateAppWidget(widgetId, views)
                 return
             }
 
+            val overdue = data.hoursUntil < 0
             val urgent = data.hoursUntil in 0..48
 
             // Row 1: Urgency pill
             views.setTextViewText(R.id.appt_urgency_pill, buildPillText(data.hoursUntil, data.dateTimeText))
-            if (urgent) applyPillUrgent(views) else applyPillDistant(views)
+            when {
+                overdue -> applyPillOverdue(views)
+                urgent  -> applyPillUrgent(views)
+                else    -> applyPillDistant(views)
+            }
 
             // Row 1: CTA
-            if (urgent) {
-                views.setTextViewText(R.id.appt_cta_zone, "GET DIRECTIONS")
+            if (urgent || overdue) {
+                views.setTextViewText(R.id.appt_cta_zone, "📍 MAP")
                 val geoQuery = if (data.location.isNotEmpty()) data.location else data.specialty
                 val geoIntent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=${Uri.encode(geoQuery)}"))
                 geoIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -78,8 +85,8 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
             }
 
             // Row 2: Hero
-            views.setTextViewText(R.id.appt_hero_title, data.doctor.uppercase())
-            views.setTextViewText(R.id.appt_hero_time, "${data.dayOfWeek} · ${data.dateTimeText}")
+            views.setTextViewText(R.id.appt_hero_title, data.doctor)
+            views.setTextViewText(R.id.appt_hero_time, "${data.dayOfWeek} · ${data.timeText}")
             val subLine = buildString {
                 append(data.specialty)
                 if (data.location.isNotEmpty()) append(" · ${data.location}")
@@ -92,11 +99,11 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
                 val chipId = CHIP_IDS[i]
 
                 if (ready) {
-                    views.setTextViewText(chipId, "☑  ${CHIP_LABELS[i]}")
+                    views.setTextViewText(chipId, "●  ${CHIP_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_ready)
                     views.setTextColor(chipId, 0xFF166534.toInt())
                 } else {
-                    views.setTextViewText(chipId, "☐  ${CHIP_LABELS[i]}")
+                    views.setTextViewText(chipId, "○  ${CHIP_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_pending)
                     views.setTextColor(chipId, 0xFF374151.toInt())
                 }
@@ -118,9 +125,15 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
         }
 
         private fun buildPillText(hoursUntil: Int, dateTimeText: String): String = when {
+            hoursUntil < 0  -> "OVERDUE · $dateTimeText"
             hoursUntil == 0 -> "TODAY · $dateTimeText"
             hoursUntil <= 24 -> "TOMORROW · $dateTimeText"
             else -> "IN ${hoursUntil / 24} DAYS · $dateTimeText"
+        }
+
+        private fun applyPillOverdue(views: RemoteViews) {
+            views.setInt(R.id.appt_urgency_pill, "setBackgroundResource", R.drawable.widget_appt_pill_overdue)
+            views.setTextColor(R.id.appt_urgency_pill, 0xFFFFFFFF.toInt())
         }
 
         private fun applyPillUrgent(views: RemoteViews) {
@@ -135,7 +148,7 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
 
         private fun applyChipsPending(views: RemoteViews) {
             CHIP_IDS.forEachIndexed { i, chipId ->
-                views.setTextViewText(chipId, "☐  ${CHIP_LABELS[i]}")
+                views.setTextViewText(chipId, "○  ${CHIP_LABELS[i]}")
                 views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_pending)
                 views.setTextColor(chipId, 0xFF374151.toInt())
             }

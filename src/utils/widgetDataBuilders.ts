@@ -248,8 +248,9 @@ export const buildAppointmentWidgetData = (
       hour: '2-digit',
       minute: '2-digit',
     })}`,
+    timeText: date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
     recommendations: next.preparation.slice(0, 3),
-    hoursUntil: Math.max(0, Math.round((date.getTime() - now) / 3600000)),
+    hoursUntil: Math.round((date.getTime() - now) / 3600000),
     appointmentId: next.id,
   };
 };
