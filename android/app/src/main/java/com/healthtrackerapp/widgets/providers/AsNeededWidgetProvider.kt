@@ -187,8 +187,8 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
         private fun buildDotViews(context: Context, total: Int, current: Int): List<RemoteViews> =
             (0 until total).map { i ->
                 RemoteViews(context.packageName, R.layout.widget_dot).apply {
-                    setInt(
-                        R.id.dot_view, "setBackgroundResource",
+                    setImageViewResource(
+                        R.id.dot_view,
                         if (i == current) R.drawable.widget_dot_active else R.drawable.widget_dot_inactive
                     )
                 }
