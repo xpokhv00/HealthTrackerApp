@@ -99,11 +99,11 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
                 val chipId = CHIP_IDS[i]
 
                 if (ready) {
-                    views.setTextViewText(chipId, "●  ${CHIP_LABELS[i]}")
+                    views.setTextViewText(chipId, "☑  ${CHIP_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_ready)
                     views.setTextColor(chipId, 0xFF166534.toInt())
                 } else {
-                    views.setTextViewText(chipId, "○  ${CHIP_LABELS[i]}")
+                    views.setTextViewText(chipId, "☐  ${CHIP_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_pending)
                     views.setTextColor(chipId, 0xFF374151.toInt())
                 }
@@ -138,7 +138,7 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
 
         private fun applyPillUrgent(views: RemoteViews) {
             views.setInt(R.id.appt_urgency_pill, "setBackgroundResource", R.drawable.widget_appt_pill_urgent)
-            views.setTextColor(R.id.appt_urgency_pill, 0xFFFFFFFF.toInt())
+            views.setTextColor(R.id.appt_urgency_pill, 0xFF7A2E0B.toInt())
         }
 
         private fun applyPillDistant(views: RemoteViews) {
@@ -148,7 +148,7 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
 
         private fun applyChipsPending(views: RemoteViews) {
             CHIP_IDS.forEachIndexed { i, chipId ->
-                views.setTextViewText(chipId, "○  ${CHIP_LABELS[i]}")
+                views.setTextViewText(chipId, "☐  ${CHIP_LABELS[i]}")
                 views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_pending)
                 views.setTextColor(chipId, 0xFF374151.toInt())
             }
