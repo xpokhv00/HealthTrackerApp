@@ -50,7 +50,10 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
 
                 if (readyPages.size > 1) {
                     views.setViewVisibility(R.id.ready_dots, View.VISIBLE)
-                    views.setTextViewText(R.id.ready_dots, buildDots(readyPages.size, currentReadyPage))
+                    views.removeAllViews(R.id.ready_dots)
+                    for (page in buildDotViews(context, readyPages.size, currentReadyPage)) {
+                        views.addView(R.id.ready_dots, page)
+                    }
                     views.setOnClickPendingIntent(
                         R.id.ready_flipper,
                         makeBroadcast(context, 300 + widgetId * 10, WidgetConstants.ACTION_NEXT_READY_PAGE, widgetId)
@@ -78,7 +81,10 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
 
                 if (cooldownPages.size > 1) {
                     views.setViewVisibility(R.id.cooldown_dots, View.VISIBLE)
-                    views.setTextViewText(R.id.cooldown_dots, buildDots(cooldownPages.size, currentCooldownPage))
+                    views.removeAllViews(R.id.cooldown_dots)
+                    for (page in buildDotViews(context, cooldownPages.size, currentCooldownPage)) {
+                        views.addView(R.id.cooldown_dots, page)
+                    }
                     views.setOnClickPendingIntent(
                         R.id.cooldown_flipper,
                         makeBroadcast(context, 301 + widgetId * 10, WidgetConstants.ACTION_NEXT_COOLDOWN_PAGE, widgetId)
@@ -178,7 +184,14 @@ class AsNeededWidgetProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-        private fun buildDots(total: Int, current: Int): String =
-            (0 until total).joinToString("  ") { if (it == current) "●" else "○" }
+        private fun buildDotViews(context: Context, total: Int, current: Int): List<RemoteViews> =
+            (0 until total).map { i ->
+                RemoteViews(context.packageName, R.layout.widget_dot).apply {
+                    setInt(
+                        R.id.dot_view, "setBackgroundResource",
+                        if (i == current) R.drawable.widget_dot_active else R.drawable.widget_dot_inactive
+                    )
+                }
+            }
     }
 }

@@ -37,7 +37,7 @@
             android:layout_height="26dp"
             android:gravity="center"
             android:text="✓"
-            android:textSize="13sp"
+            android:textSize="15sp"
             android:textColor="#027A48"
             android:background="@drawable/widget_badge_taken" />
 

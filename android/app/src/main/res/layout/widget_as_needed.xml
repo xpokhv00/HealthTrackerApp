@@ -4,18 +4,9 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
-              android:padding="14dp"
+              android:padding="16dp"
               android:background="@drawable/widget_bg_white">
 
-    <!-- Header -->
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Instant Relief Panel"
-            android:textStyle="bold"
-            android:textSize="17sp"
-            android:textColor="#111827"
-            android:layout_marginBottom="10dp" />
 
     <!-- READY section -->
     <LinearLayout
@@ -31,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:text="READY"
                 android:textStyle="bold"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textColor="#12B76A"
                 android:letterSpacing="0.08"
                 android:paddingStart="8dp"
@@ -49,14 +40,13 @@
                 android:autoStart="false" />
 
         <!-- Dot indicators for ready pages -->
-        <TextView
+        <LinearLayout
                 android:id="@+id/ready_dots"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:gravity="center"
-                android:textSize="8sp"
-                android:textColor="#27AE60"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="8dp"
                 android:visibility="gone" />
 
     </LinearLayout>
@@ -74,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:text="ON COOLDOWN"
                 android:textStyle="bold"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textColor="#667085"
                 android:letterSpacing="0.08"
                 android:paddingStart="8dp"
@@ -92,14 +82,13 @@
                 android:autoStart="false" />
 
         <!-- Dot indicators for cooldown pages -->
-        <TextView
+        <LinearLayout
                 android:id="@+id/cooldown_dots"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:gravity="center"
-                android:textSize="8sp"
-                android:textColor="#667085"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="8dp"
                 android:visibility="gone" />
 
     </LinearLayout>

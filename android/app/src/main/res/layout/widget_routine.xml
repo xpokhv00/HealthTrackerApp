@@ -7,33 +7,17 @@
               android:padding="16dp"
               android:background="@drawable/widget_bg_white">
 
-    <!-- Header -->
-    <LinearLayout
+    <!-- Date header -->
+    <TextView
+            android:id="@+id/widget_date_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="14dp">
-
-        <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="My Meds Timeline"
-                android:textStyle="bold"
-                android:textSize="17sp"
-                android:textColor="#111827" />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TODAY"
-                android:textStyle="bold"
-                android:textSize="10sp"
-                android:textColor="#6B7280"
-                android:letterSpacing="0.08" />
-
-    </LinearLayout>
+            android:gravity="end"
+            android:text="Today"
+            android:textSize="12sp"
+            android:textColor="#6B7280"
+            android:letterSpacing="0.04"
+            android:layout_marginBottom="10dp" />
 
     <!-- Empty state -->
     <TextView
@@ -61,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ACTION REQUIRED"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="#CC4A1A"
                 android:letterSpacing="0.08"
@@ -105,7 +89,7 @@
                     android:paddingEnd="14dp"
                     android:gravity="center"
                     android:textStyle="bold"
-                    android:textSize="11sp"
+                    android:textSize="12sp"
                     android:textColor="#FFFFFF"
                     android:letterSpacing="0.04"
                     android:text="TAKE NOW"
@@ -128,7 +112,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="NEXT UP"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="#4C7EFF"
                 android:letterSpacing="0.08"
@@ -173,7 +157,7 @@
                     android:paddingEnd="14dp"
                     android:gravity="center"
                     android:textStyle="bold"
-                    android:textSize="11sp"
+                    android:textSize="12sp"
                     android:textColor="#FFFFFF"
                     android:letterSpacing="0.04"
                     android:background="@drawable/widget_btn_blue" />
@@ -184,7 +168,7 @@
                 android:id="@+id/next_progress"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="5dp"
+                android:layout_height="8dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"
@@ -225,7 +209,7 @@
                     android:layout_weight="1"
                     android:text="DONE TODAY"
                     android:textStyle="bold"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textColor="#027A48"
                     android:letterSpacing="0.08" />
 

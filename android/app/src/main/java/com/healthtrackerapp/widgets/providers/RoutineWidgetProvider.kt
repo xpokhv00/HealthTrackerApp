@@ -13,6 +13,9 @@ import com.healthtrackerapp.widgets.WidgetActionReceiver
 import com.healthtrackerapp.widgets.WidgetConstants
 import com.healthtrackerapp.widgets.WidgetStorage
 import com.healthtrackerapp.widgets.services.RoutineWidgetService
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class RoutineWidgetProvider : AppWidgetProvider() {
 
@@ -31,6 +34,9 @@ class RoutineWidgetProvider : AppWidgetProvider() {
         private fun updateWidget(context: Context, manager: AppWidgetManager, widgetId: Int) {
             val views = RemoteViews(context.packageName, R.layout.widget_routine)
             val items = WidgetStorage.getRoutineItems(context)
+
+            val dateLabel = SimpleDateFormat("EEEE, MMM d", Locale.getDefault()).format(Date())
+            views.setTextViewText(R.id.widget_date_label, dateLabel)
 
             val missed = items.filter { it.status == "missed" }
             val pending = items.filter { it.status == "pending" }
