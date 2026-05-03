@@ -17,7 +17,7 @@ import Screen from '../components/Screen';
 import {markNextRoutineDoseTaken} from '../services/markNextRoutineDoseTaken';
 import {colors} from '../theme/colors';
 import {toDateKey} from '../utils/dateHelpers';
-import {getTodayDoseCount, hasReachedDailyLimit, isMedicationAvailableNow} from '../utils/medication';
+import {hasReachedDailyLimit, isMedicationAvailableNow} from '../utils/medication';
 import {syncAllWidgets} from '../services/widgetSync';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Medications'>;
@@ -67,7 +67,7 @@ const MedicationsScreen: React.FC<Props> = ({navigation}) => {
         s => s.medicationId === med.id && s.date === todayKey,
       ).sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
 
-      const takenToday = getTodayDoseCount(med);
+      const takenToday = todaySlots.filter(s => s.status === 'taken_on_time' || s.status === 'taken_late').length;
       const totalToday = todaySlots.length;
 
       if (med.type === 'routine') {
