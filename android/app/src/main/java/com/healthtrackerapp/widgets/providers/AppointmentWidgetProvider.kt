@@ -101,7 +101,7 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
                 if (ready) {
                     views.setTextViewText(chipId, "✓  ${CHIP_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_ready)
-                    views.setTextColor(chipId, 0xFF166534.toInt())
+                    views.setTextColor(chipId, 0xFF4C7EFF.toInt())
                 } else {
                     views.setTextViewText(chipId, "–  ${CHIP_LABELS[i]}")
                     views.setInt(chipId, "setBackgroundResource", R.drawable.widget_appt_chip_pending)
