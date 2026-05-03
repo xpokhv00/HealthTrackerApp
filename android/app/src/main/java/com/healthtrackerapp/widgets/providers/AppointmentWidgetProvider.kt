@@ -138,7 +138,7 @@ class AppointmentWidgetProvider : AppWidgetProvider() {
 
         private fun applyPillUrgent(views: RemoteViews) {
             views.setInt(R.id.appt_urgency_pill, "setBackgroundResource", R.drawable.widget_appt_pill_urgent)
-            views.setTextColor(R.id.appt_urgency_pill, 0xFF7A2E0B.toInt())
+            views.setTextColor(R.id.appt_urgency_pill, 0xFFFFFFFF.toInt())
         }
 
         private fun applyPillDistant(views: RemoteViews) {
